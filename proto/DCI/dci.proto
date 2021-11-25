@@ -1,0 +1,161 @@
+syntax = "proto3";
+package tendermint.abci;
+
+option go_package = "github.com/tendermint/tendermint/abci/types";
+
+// For more information on gogo.proto, see:
+// https://github.com/gogo/protobuf/blob/master/extensions.md
+import "tendermint/crypto/proof.proto";
+import "tendermint/types/types.proto";
+import "tendermint/crypto/keys.proto";
+import "tendermint/types/params.proto";
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+
+enum CheckTxType {
+    NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
+    RECHECK = 1 [(gogoproto.enumvalue_customname) = "Recheck"];
+}
+
+message RequestCheckTx {
+    bytes tx = 1;
+    CheckTxType type = 2;
+}
+
+message RequestDeliverTx {
+    bytes tx = 1;
+}
+
+message RequestqueryRouterPath {
+    bytes tx = 1;
+    Hashtable routerpathtable = 2;
+}
+
+message RequesttransmitTxInfo {
+    bytes tx = 1;
+    string routerpath = 2;
+}
+
+message RequestRouterInfo {
+    bytes tx = 1;
+}
+
+message RequestTransmissionSelector {
+    uint32			destination	= 1;
+}
+
+message RequestTransmitMessage {
+    RouterChain 	routerchain = 1;
+    uint32			destination	= 2;
+    bytes 			data 		= 3;
+}
+
+message RequestSwitchCommunity {
+    string traget_community = 1;
+}
+
+message RequestCommunityInfo {
+    int32 info_level = 1;
+}
+
+message RequestCommunityConfig {
+    bool auto_switch = 1;
+    int32 max_peer_unmber = 2;
+    string algorithm = 3;
+}
+
+message ResponseCheckTx {
+    uint32 code = 1;
+    bytes data = 2;
+    string log = 3;  // nondeterministic
+    string info = 4;  // nondeterministic
+    int64 gas_wanted = 5 [json_name = "gas_wanted"];
+    int64 gas_used = 6 [json_name = "gas_used"];
+    repeated Event events = 7 [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];
+    string codespace = 8;
+    string sender = 9;
+    int64 priority = 10;
+
+    // mempool_error is set by Tendermint.
+    // ABCI applications creating a ResponseCheckTX should not set mempool_error.
+    string mempool_error = 11;
+}
+
+message ResponseDeliverTx {
+    uint32 code = 1;
+    bytes data = 2;
+    string log = 3;  // nondeterministic
+    string info = 4;  // nondeterministic
+    int64 gas_wanted = 5 [json_name = "gas_wanted"];
+    int64 gas_used = 6 [json_name = "gas_used"];
+    repeated Event events = 7
+    [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];  // nondeterministic
+    string codespace = 8;
+}
+
+message ResponsequeryRouterPath {
+    string routerpath = 1;
+}
+
+message ResponsetransmitTxInfo {
+}
+
+message ResponseRouterInfo {
+    uint32         code       = 1;
+    bytes          data       = 2;
+    string         log        = 3;  // nondeterministic
+    string         info       = 4;  // nondeterministic
+    string codespace = 8;
+}
+
+message RouterChain {
+    uint32			identifier	= 1;
+}
+
+message ResponseTransmissionSelector {
+    uint32			code 		= 1;
+    repeated RouterChain routerchain = 2;
+    string			log 		= 3;
+    string			info 		= 4;
+}
+
+message ResponseTransmitMessage {
+    uint32 			code 		= 1;
+    string			log 		= 2;
+    string 			info 		= 3;
+}
+
+message ResponseSwitchCommunity {
+    uint32         code       = 1;
+    bytes          data       = 2;
+    string         log        = 3;  // nondeterministic
+    string         info       = 4;  // nondeterministic
+    string codespace = 8;
+}
+
+message ResponseCommunityInfo {
+    string data = 1;
+}
+
+message ResponseCommunityConfig {
+    uint32         code       = 1;
+    bytes          data       = 2;
+    string         log        = 3;  // nondeterministic
+    string         info       = 4;  // nondeterministic
+    string codespace = 8;
+}
+
+service Dock {
+    rpc CheckTx(RequestCheckTx) returns (ResponseCheckTx);
+    rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
+    rpc QueryRouterPath(RequestqueryRouterPath) returns (ResponsequeryRouterPath);
+    rpc TransmitTxInfo(RequesttransmitTxInfo) returns (ResponsetransmitTxInfo);
+
+    rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
+    rpc TransmissionSelector(RequestTransmissionSelector) returns (ResponseTransmissionSelector);
+    rpc TransmitMessage(RequestTransmitMessage) returns (ResponseTransmitMessage);
+
+    rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
+    rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
+    rpc CommunityConfig(RequestCommunityInfo) returns (ResponseCommunityInfo);
+}
