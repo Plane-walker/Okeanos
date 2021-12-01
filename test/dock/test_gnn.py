@@ -1,16 +1,12 @@
 import unittest
-from dock.gnn.node_classification import NodeClassification
+from dock.interface.dci_pb2 import RouterChain
 
 
 class TestNodeClassification(unittest.TestCase):
     def test_switch_community(self):
-        node_classification = NodeClassification()
-        pass
+        re = RouterChain(identifier=1)
+        self.assertEqual(re.identifier, 1)
 
-    def test_community_info(self):
-        node_classification = NodeClassification()
-        pass
 
-    def test_community_config(self):
-        node_classification = NodeClassification()
-        pass
+if __name__ == '__main__':
+    unittest.main()
