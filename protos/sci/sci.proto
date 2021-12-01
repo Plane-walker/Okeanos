@@ -38,12 +38,6 @@ message Request {
     }
 }
 
-message RequestEcho {
-    string message = 1;
-}
-
-message RequestFlush {}
-
 message RequestInfo {
     string version       = 1;
     uint64 block_version = 2;
@@ -94,29 +88,6 @@ message RequestEndBlock {
 
 message RequestCommit {}
 
-// lists available snapshots
-message RequestListSnapshots {}
-
-// offers a snapshot to the application
-message RequestOfferSnapshot {
-    Snapshot snapshot = 1;  // snapshot offered by peers
-    bytes    app_hash = 2;  // light client-verified app hash for snapshot height
-}
-
-// loads a snapshot chunk
-message RequestLoadSnapshotChunk {
-    uint64 height = 1;
-    uint32 format = 2;
-    uint32 chunk  = 3;
-}
-
-// Applies a snapshot chunk
-message RequestApplySnapshotChunk {
-    uint32 index  = 1;
-    bytes  chunk  = 2;
-    string sender = 3;
-}
-
 //----------------------------------------
 // Response types
 
@@ -145,11 +116,6 @@ message ResponseException {
     string error = 1;
 }
 
-message ResponseEcho {
-    string message = 1;
-}
-
-message ResponseFlush {}
 
 message ResponseInfo {
     string data = 1;
@@ -226,134 +192,8 @@ message ResponseCommit {
     int64 retain_height = 3;
 }
 
-message ResponseListSnapshots {
-    repeated Snapshot snapshots = 1;
-}
-
-message ResponseOfferSnapshot {
-    Result result = 1;
-
-    enum Result {
-        UNKNOWN       = 0;  // Unknown result, abort all snapshot restoration
-        ACCEPT        = 1;  // Snapshot accepted, apply chunks
-        ABORT         = 2;  // Abort all snapshot restoration
-        REJECT        = 3;  // Reject this specific snapshot, try others
-        REJECT_FORMAT = 4;  // Reject all snapshots of this format, try others
-        REJECT_SENDER = 5;  // Reject all snapshots from the sender(s), try others
-    }
-}
-
-message ResponseLoadSnapshotChunk {
-    bytes chunk = 1;
-}
-
-message ResponseApplySnapshotChunk {
-    Result          result         = 1;
-    repeated uint32 refetch_chunks = 2;  // Chunks to refetch and reapply
-    repeated string reject_senders = 3;  // Chunk senders to reject and ban
-
-    enum Result {
-        UNKNOWN         = 0;  // Unknown result, abort all snapshot restoration
-        ACCEPT          = 1;  // Chunk successfully accepted
-        ABORT           = 2;  // Abort all snapshot restoration
-        RETRY           = 3;  // Retry chunk (combine with refetch and reject)
-        RETRY_SNAPSHOT  = 4;  // Retry snapshot (combine with refetch and reject)
-        REJECT_SNAPSHOT = 5;  // Reject this snapshot, try others
-    }
-}
-
-//----------------------------------------
-// Misc.
-
-message LastCommitInfo {
-    int32             round = 1;
-    repeated VoteInfo votes = 2 [(gogoproto.nullable) = false];
-}
-
-// Event allows application developers to attach additional information to
-// ResponseBeginBlock, ResponseEndBlock, ResponseCheckTx and ResponseDeliverTx.
-// Later, transactions may be queried using these events.
-message Event {
-    string                  type       = 1;
-    repeated EventAttribute attributes = 2 [(gogoproto.nullable) = false, (gogoproto.jsontag) = "attributes,omitempty"];
-}
-
-// EventAttribute is a single key-value pair, associated with an event.
-message EventAttribute {
-    string key   = 1;
-    string value = 2;
-    bool   index = 3;  // nondeterministic
-}
-
-// TxResult contains results of executing the transaction.
-//
-// One usage is indexing transaction results.
-message TxResult {
-    int64             height = 1;
-    uint32            index  = 2;
-    bytes             tx     = 3;
-    ResponseDeliverTx result = 4 [(gogoproto.nullable) = false];
-}
-
-//----------------------------------------
-// Blockchain Types
-
-// Validator
-message Validator {
-    bytes address = 1;  // The first 20 bytes of SHA256(public key)
-  // PubKey pub_key = 2 [(gogoproto.nullable)=false];
-    int64 power = 3;  // The voting power
-}
-
-// ValidatorUpdate
-message ValidatorUpdate {
-    tendermint.crypto.PublicKey pub_key = 1 [(gogoproto.nullable) = false];
-    int64                       power   = 2;
-}
-
-// VoteInfo
-message VoteInfo {
-    Validator validator         = 1 [(gogoproto.nullable) = false];
-    bool      signed_last_block = 2;
-}
-
-enum EvidenceType {
-    UNKNOWN             = 0;
-    DUPLICATE_VOTE      = 1;
-    LIGHT_CLIENT_ATTACK = 2;
-}
-
-message Evidence {
-    EvidenceType type = 1;
-    // The offending validator
-    Validator validator = 2 [(gogoproto.nullable) = false];
-    // The height when the offense occurred
-    int64 height = 3;
-    // The corresponding time where the offense occurred
-    google.protobuf.Timestamp time = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
-    // Total voting power of the validator set in case the ABCI application does
-    // not store historical validators.
-    // https://github.com/tendermint/tendermint/issues/4581
-    int64 total_voting_power = 5;
-}
-
-//----------------------------------------
-// State Sync Types
-
-message Snapshot {
-    uint64 height   = 1;  // The height at which the snapshot was taken
-    uint32 format   = 2;  // The application-specific snapshot format
-    uint32 chunks   = 3;  // Number of chunks in the snapshot
-    bytes  hash     = 4;  // Arbitrary snapshot hash, equal only if identical
-    bytes  metadata = 5;  // Arbitrary application metadata
-}
-
-//----------------------------------------
-// Service Definition
 
 service Service {
-    rpc Echo(RequestEcho) returns (ResponseEcho);
-    rpc Flush(RequestFlush) returns (ResponseFlush);
     rpc Info(RequestInfo) returns (ResponseInfo);
     rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
     rpc CheckTx(RequestCheckTx) returns (ResponseCheckTx);
@@ -362,8 +202,4 @@ service Service {
     rpc InitChain(RequestInitChain) returns (ResponseInitChain);
     rpc BeginBlock(RequestBeginBlock) returns (ResponseBeginBlock);
     rpc EndBlock(RequestEndBlock) returns (ResponseEndBlock);
-    rpc ListSnapshots(RequestListSnapshots) returns (ResponseListSnapshots);
-    rpc OfferSnapshot(RequestOfferSnapshot) returns (ResponseOfferSnapshot);
-    rpc LoadSnapshotChunk(RequestLoadSnapshotChunk) returns (ResponseLoadSnapshotChunk);
-    rpc ApplySnapshotChunk(RequestApplySnapshotChunk) returns (ResponseApplySnapshotChunk);
 }
