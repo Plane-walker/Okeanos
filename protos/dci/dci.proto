@@ -1,15 +1,8 @@
 syntax = "proto3";
-package tendermint.abci;
+package dci;
 
 option go_package = "github.com/tendermint/tendermint/abci/types";
 
-// For more information on gogo.proto, see:
-// https://github.com/gogo/protobuf/blob/master/extensions.md
-import "tendermint/crypto/proof.proto";
-import "tendermint/types/types.proto";
-import "tendermint/crypto/keys.proto";
-import "tendermint/types/params.proto";
-import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
 
 enum CheckTxType {
@@ -28,7 +21,6 @@ message RequestDeliverTx {
 
 message RequestqueryRouterPath {
     bytes tx = 1;
-    Hashtable routerpathtable = 2;
 }
 
 message RequesttransmitTxInfo {
@@ -71,6 +63,21 @@ message RequestCommunityConfig {
     bool auto_switch = 1;
     int32 max_peer_unmber = 2;
     string algorithm = 3;
+}
+
+message Event {
+    string                  type       = 1;
+    repeated EventAttribute attributes = 2 [
+        (gogoproto.nullable) = false,
+        (gogoproto.jsontag)  = "attributes,omitempty"
+    ];
+}
+
+// EventAttribute is a single key-value pair, associated with an event.
+message EventAttribute {
+    bytes key   = 1;
+    bytes value = 2;
+    bool  index = 3;  // nondeterministic
 }
 
 message ResponseCheckTx {
@@ -163,9 +170,9 @@ service Dock {
     rpc TransmitTxInfo(RequesttransmitTxInfo) returns (ResponsetransmitTxInfo);
 
     rpc RouterInfo(RequestRouterInfo) returns (RequestRouterInfo);
-    rpc RouterSelector(RequestRouterSelector) return (ResponseRouterSelector);
-    rpc RouterTransmit(RequestRouterTransmit) return (ResponseRouterTransmit);
-    rpc RouterPathCallback(RequestRouterPathCallback) return (ResponseRouterPathCallback);
+    rpc RouterSelector(RequestRouterSelector) returns (ResponseRouterSelector);
+    rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
+    rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
     rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
     rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
