@@ -1,5 +1,6 @@
 from __future__ import print_function
 import tensorflow as tf
+import numpy as np
 from tensorflow.keras.layers import Activation, Layer, Concatenate, Average, Reshape
 from typing import AnyStr, Optional
 

@@ -1,3 +1,9 @@
+__all__ = [
+    'RandomWalk',
+    'UniformRandomWalk'
+]
+
+
 from abc import ABC, abstractmethod
 import numpy as np
 

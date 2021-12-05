@@ -1,7 +1,13 @@
+__all__ = [
+    'NodeSequence',
+    'OnDemandLinkSequence'
+]
+
+
 import collections
 import numpy as np
 from tensorflow.keras.utils import Sequence
-from random_walker import UniformRandomWalk
+from .random_walker import UniformRandomWalk
 
 
 class NodeSequence(Sequence):

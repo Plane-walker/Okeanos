@@ -1,11 +1,10 @@
 import unittest
-from dock.interface.dci_pb2 import RouterChain
+from dock.netopter import NetworkOptimizer
 
 
 class TestNodeClassification(unittest.TestCase):
     def test_switch_community(self):
-        re = RouterChain(identifier=1)
-        self.assertEqual(re.identifier, 1)
+        self.assertEqual(NetworkOptimizer, 1)
 
 
 if __name__ == '__main__':
