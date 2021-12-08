@@ -3,6 +3,7 @@ __all__ = [
     'GraphSAGEModel'
 ]
 
+import os
 import tensorflow as tf
 from tensorflow.keras import optimizers, losses, metrics, Model
 from abc import ABC, abstractmethod
@@ -26,15 +27,18 @@ class NodeClassificationModel(ABC):
 
 
 class GraphSAGEModel(NodeClassificationModel):
-    def __init__(self, input_dim, existing_model=None):
+    def __init__(self, config_path=None, model_path=None):
         super().__init__()
         self.model = None
-        if existing_model is None:
-            with open('default_config.yaml') as file:
-                self.default_config = yaml.load(file, Loader=yaml.Loader)
-            graph_sage = GraphSAGE(layer_sizes=self.default_config['GNN']['graphSAGE']['hidden_dims'],
-                                   n_samples=self.default_config['GNN']['graphSAGE']['sample_size'],
-                                   input_dim=input_dim,
+        if model_path is None:
+            if config_path is None:
+                current_path = os.path.dirname(__file__)
+                config_path = os.path.join(current_path, 'default_config.yaml')
+            with open(config_path) as file:
+                self.config = yaml.load(file, Loader=yaml.Loader)
+            graph_sage = GraphSAGE(layer_sizes=self.config['GNN']['graphSAGE']['hidden_dims'],
+                                   n_samples=self.config['GNN']['graphSAGE']['sample_size'],
+                                   input_dim=self.config['GNN']['graphSAGE']['input_dim'],
                                    multiplicity=2)
             x_inp, x_out = graph_sage.in_out_tensors()
             prediction = link_classification(
@@ -48,17 +52,17 @@ class GraphSAGEModel(NodeClassificationModel):
                 metrics=[metrics.binary_accuracy],
             )
         else:
-            self.load(existing_model)
+            self.load(model_path)
 
     def train(self, data):
         train_seq = OnDemandLinkSequence(sample_features_unsupervised,
-                                         self.default_config['GNN']['graphSAGE']['batch_size'],
+                                         self.config['GNN']['graphSAGE']['batch_size'],
                                          data.adjacency_matrix,
                                          data.feature,
-                                         self.default_config['GNN']['graphSAGE']['sample_size'])
+                                         self.config['GNN']['graphSAGE']['sample_size'])
         self.model.fit(
             train_seq,
-            epochs=self.default_config['GNN']['graphSAGE']['epochs'],
+            epochs=self.config['GNN']['graphSAGE']['epochs'],
             verbose=2,
             use_multiprocessing=False,
             workers=4,

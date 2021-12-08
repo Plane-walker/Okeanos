@@ -9,6 +9,9 @@ Multi-chain based IoT network
 * pyyaml == 6.0
 * tensorflow == 2.3.0
 * numpy == 1.21.2
+* scikit-learn == 1.0.1
+* networkx == 2.6.3
+* pandas == 1.3.4
 
 ## Build/Rebuild protobuf files
 ```
