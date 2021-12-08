@@ -10,7 +10,8 @@ from sklearn.preprocessing import LabelBinarizer
 
 
 class GraphData:
-    def __init__(self, adjacency_matrix=None, feature=None, label=None, id_map=None):
+    def __init__(self, uid=None, adjacency_matrix=None, feature=None, label=None, id_map=None):
+        self.uid = uid
         self.adjacency_matrix = adjacency_matrix
         self.feature = feature
         self.label = label
