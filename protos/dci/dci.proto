@@ -9,24 +9,27 @@ enum CheckTxType {
     NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
     RECHECK = 1 [(gogoproto.enumvalue_customname) = "Recheck"];
 }
-
-message RequestCheckTx {
-    bytes tx = 1;
-    CheckTxType type = 2;
-}
-
-message RequestDeliverTx {
+message requestQueryTX {
     bytes tx = 1;
 }
 
-message RequestqueryRouterPath {
-    bytes tx = 1;
-}
+// message RequestCheckTx {
+//     bytes tx = 1;
+//     CheckTxType type = 2;
+// }
 
-message RequesttransmitTxInfo {
-    bytes tx = 1;
-    string routerpath = 2;
-}
+// message RequestDeliverTx {
+//     bytes tx = 1;
+// }
+
+// message RequestqueryRouterPath {
+//     bytes tx = 1;
+// }
+
+// message RequesttransmitTxInfo {
+//     bytes tx = 1;
+//     string routerpath = 2;
+// }
 
 message RequestRouterInfo {
     bytes tx = 1;
@@ -80,40 +83,43 @@ message EventAttribute {
     bool  index = 3;  // nondeterministic
 }
 
-message ResponseCheckTx {
-    uint32 code = 1;
-    bytes data = 2;
-    string log = 3;  // nondeterministic
-    string info = 4;  // nondeterministic
-    int64 gas_wanted = 5 [json_name = "gas_wanted"];
-    int64 gas_used = 6 [json_name = "gas_used"];
-    repeated Event events = 7 [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];
-    string codespace = 8;
-    string sender = 9;
-    int64 priority = 10;
+// message ResponseCheckTx {
+//     uint32 code = 1;
+//     bytes data = 2;
+//     string log = 3;  // nondeterministic
+//     string info = 4;  // nondeterministic
+//     int64 gas_wanted = 5 [json_name = "gas_wanted"];
+//     int64 gas_used = 6 [json_name = "gas_used"];
+//     repeated Event events = 7 [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];
+//     string codespace = 8;
+//     string sender = 9;
+//     int64 priority = 10;
 
-    // mempool_error is set by Tendermint.
-    // ABCI applications creating a ResponseCheckTX should not set mempool_error.
-    string mempool_error = 11;
-}
+//     // mempool_error is set by Tendermint.
+//     // ABCI applications creating a ResponseCheckTX should not set mempool_error.
+//     string mempool_error = 11;
+// }
 
-message ResponseDeliverTx {
-    uint32 code = 1;
-    bytes data = 2;
-    string log = 3;  // nondeterministic
-    string info = 4;  // nondeterministic
-    int64 gas_wanted = 5 [json_name = "gas_wanted"];
-    int64 gas_used = 6 [json_name = "gas_used"];
-    repeated Event events = 7
-    [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];  // nondeterministic
-    string codespace = 8;
-}
+// message ResponseDeliverTx {
+//     uint32 code = 1;
+//     bytes data = 2;
+//     string log = 3;  // nondeterministic
+//     string info = 4;  // nondeterministic
+//     int64 gas_wanted = 5 [json_name = "gas_wanted"];
+//     int64 gas_used = 6 [json_name = "gas_used"];
+//     repeated Event events = 7
+//     [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];  // nondeterministic
+//     string codespace = 8;
+// }
 
-message ResponsequeryRouterPath {
-    string routerpath = 1;
-}
+// message ResponsequeryRouterPath {
+//     string routerpath = 1;
+// }
 
-message ResponsetransmitTxInfo {
+// message ResponsetransmitTxInfo {
+// }
+message responseTargetID {
+    string ID = 1;
 }
 
 message ResponseRouterInfo {
