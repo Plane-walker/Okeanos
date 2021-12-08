@@ -9,8 +9,8 @@ from tensorflow.keras import optimizers, losses, metrics, Model
 from abc import ABC, abstractmethod
 import yaml
 from .graph_sage import GraphSAGE
-from ..util import link_classification, sample_features_unsupervised
-from .sequence import OnDemandLinkSequence
+from ..util import link_classification, sample_features, sample_features_unsupervised
+from .sequence import NodeSequence, OnDemandLinkSequence
 
 
 class NodeClassificationModel(ABC):
@@ -40,12 +40,11 @@ class GraphSAGEModel(NodeClassificationModel):
                                    n_samples=self.config['GNN']['graphSAGE']['sample_size'],
                                    input_dim=self.config['GNN']['graphSAGE']['input_dim'],
                                    multiplicity=2)
-            x_inp, x_out = graph_sage.in_out_tensors()
+            self.x_inp, self.x_out = graph_sage.in_out_tensors()
             prediction = link_classification(
                 output_dim=1, output_act="sigmoid", edge_embedding_method="ip"
-            )(x_out)
-            self.model = Model(inputs=x_inp, outputs=prediction)
-
+            )(self.x_out)
+            self.model = Model(inputs=self.x_inp, outputs=prediction)
             self.model.compile(
                 optimizer=optimizers.Adam(lr=1e-3),
                 loss=losses.binary_crossentropy,
@@ -68,6 +67,9 @@ class GraphSAGEModel(NodeClassificationModel):
             workers=4,
             shuffle=True,
         )
+        x_inp_src = self.x_inp[0::2]
+        x_out_src = self.x_out[0]
+        self.model = tf.keras.Model(inputs=x_inp_src, outputs=x_out_src)
 
     def load(self, filepath=None):
         if filepath is None:
@@ -80,4 +82,11 @@ class GraphSAGEModel(NodeClassificationModel):
         self.model.save(filepath)
 
     def predict(self, data):
-        pass
+        node = NodeSequence(sample_features,
+                            self.config['GNN']['graphSAGE']['batch_size'],
+                            list(data.uid),
+                            data.adjacency_matrix,
+                            data.feature,
+                            self.config['GNN']['graphSAGE']['sample_size'])
+        node_embeddings = self.model.predict(node, workers=4, verbose=1)
+        return node_embeddings
