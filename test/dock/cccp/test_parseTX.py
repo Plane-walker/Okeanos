@@ -1,5 +1,5 @@
-# from dock.cccp import parseTxtoGetTargetID
-# aaa = parseTxtoGetTargetID({
-#   "targetID": "123445"
-# })
-# print(aaa)
+from dock.cccp import parseTxtoGetTargetID
+aaa = parseTxtoGetTargetID({
+  "targetID": "123445"
+})
+print(aaa)

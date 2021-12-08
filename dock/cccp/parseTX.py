@@ -11,3 +11,4 @@ def parseTxtoGetTargetID(tx):
     """
     targetID = tx.get("targetID")
     return targetID
+    
