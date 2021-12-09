@@ -30,7 +30,21 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
    string message = 3  ;
  }
 
+ message Chain {
+   uint32 identifier = 1;
+ }
+
+message RequestNextRC {
+   Chain target = 1;
+}
+
+message ResponseNextRC {
+   uint32 code = 1;
+   Chain route_chain = 2;
+}
+
  service Lane {
    rpc SendData(RequestSendData) returns (ResponseSendData);
    rpc JoinRC(RequestJoinRC) returns (ResponseJoinRC);
+   rpc NextRC(RequestNextRC) returns (ResponseNextRC);
  }
