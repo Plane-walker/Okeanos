@@ -27,7 +27,7 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
  message ResponseJoinRC {
    uint32 code = 1;
    string log = 2;
-   string message = 3  ;
+   string message = 3;
  }
 
  message Chain {
@@ -35,16 +35,26 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
  }
 
 message RequestNextRC {
-   Chain target = 1;
+   repeated Chain target = 1;
 }
 
 message ResponseNextRC {
    uint32 code = 1;
-   Chain route_chain = 2;
+   string info = 2;
+}
+
+message RequestCallBack {
+   repeated Chain source = 1;
+}
+
+message ResponseCallBack {
+   uint32 code = 1;
+   string info = 2;
 }
 
  service Lane {
    rpc SendData(RequestSendData) returns (ResponseSendData);
    rpc JoinRC(RequestJoinRC) returns (ResponseJoinRC);
    rpc NextRC(RequestNextRC) returns (ResponseNextRC);
+   rpc CallBack(RequestCallBack) returns (ResponseCallBack);
  }
