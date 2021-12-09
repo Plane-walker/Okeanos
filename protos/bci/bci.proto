@@ -34,20 +34,20 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
    uint32 identifier = 1;
  }
 
-message RequestNextRC {
+message RequestGossipQueryPath {
    repeated Chain target = 1;
 }
 
-message ResponseNextRC {
+message ResponseGossipQueryPath {
    uint32 code = 1;
    string info = 2;
 }
 
-message RequestCallBack {
+message RequestGossipCallBack {
    repeated Chain source = 1;
 }
 
-message ResponseCallBack {
+message ResponseGossipCallBack {
    uint32 code = 1;
    string info = 2;
 }
@@ -55,6 +55,6 @@ message ResponseCallBack {
  service Lane {
    rpc SendData(RequestSendData) returns (ResponseSendData);
    rpc JoinRC(RequestJoinRC) returns (ResponseJoinRC);
-   rpc NextRC(RequestNextRC) returns (ResponseNextRC);
-   rpc CallBack(RequestCallBack) returns (ResponseCallBack);
+   rpc GossipQueryPath(RequestGossipQueryPath) returns (ResponseGossipQueryPath);
+   rpc GossipCallBack(RequestGossipCallBack) returns (ResponseGossipCallBack);
  }
