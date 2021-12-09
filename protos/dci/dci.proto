@@ -35,23 +35,31 @@ message RequestRouterInfo {
     bytes tx = 1;
 }
 
-message RequestRouterSelector {
-	uint32			destination	= 1;
-}
-
-message RouterChain {
+message Chain {
 	uint32			identifier	= 1;
 }
 
+message Node {
+    uint32          identifier  = 1;
+}
+
+message GossipPackage {
+    Chain           source      = 1;
+    Chain           target      = 2;
+    uint32          ttl         = 3;
+    repeated Chain  paths       = 4;
+}
+
 message RequestRouterTransmit {
-	RouterChain 	routerchain = 1;
-	uint32			destination	= 2;
-    repeated RouterChain paths = 3;
+	Chain 	        source       = 1;
+	Chain			target	    = 2;
+    repeated Chain  paths       = 3;
 }
 
 message RequestRouterPathCallback {
-    uint32          source      = 1;
-    repeated RouterChain paths = 2;
+    Chain           source      = 1;
+    Chain           target      = 2;
+    repeated Chain  paths       = 3;
 }
 
 message RequestSwitchCommunity {
@@ -125,28 +133,17 @@ message responseTargetID {
 message ResponseRouterInfo {
     uint32         code       = 1;
     bytes          data       = 2;
-    string         log        = 3;  // nondeterministic
-    string         info       = 4;  // nondeterministic
-    string codespace = 8;
-}
-
-message ResponseRouterSelector {
-	uint32			code 		= 1;
-	repeated RouterChain routerchain = 2;
-	string			log 		= 3;
-	string			info 		= 4;
+    string         info       = 3;  // nondeterministic
 }
 
 message ResponseRouterTransmit {
 	uint32 			code 		= 1;
-	string			log 		= 2;
-	string 			info 		= 3;
+	string 			info 		= 2;
 }
 
 message ResponseRouterPathCallback {
     uint32          code        = 1;
-    string          log         = 2;
-    string          info        = 3;
+    string          info        = 2;
 }
 
 message ResponseSwitchCommunity {
@@ -176,7 +173,6 @@ service Dock {
     rpc TransmitTxInfo(RequesttransmitTxInfo) returns (ResponsetransmitTxInfo);
 
     rpc RouterInfo(RequestRouterInfo) returns (RequestRouterInfo);
-    rpc RouterSelector(RequestRouterSelector) returns (ResponseRouterSelector);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
     rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
