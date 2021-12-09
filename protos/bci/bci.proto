@@ -9,6 +9,7 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
    string log = 2;
    string info = 3;
  }
+
  message ResponseSendData {
    uint32 code = 1;
    string log = 2;
@@ -22,12 +23,12 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
    string message = 3;
    string rc = 4;
  }
+
  message ResponseJoinRC {
    uint32 code = 1;
    string log = 2;
    string message = 3  ;
  }
-
 
  service Lane {
    rpc SendData(RequestSendData) returns (ResponseSendData);
