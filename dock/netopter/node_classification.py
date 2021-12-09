@@ -22,6 +22,14 @@ class NodeClassificationModel(ABC):
         pass
 
     @abstractmethod
+    def load(self, file_path):
+        pass
+
+    @abstractmethod
+    def save(self, file_path):
+        pass
+
+    @abstractmethod
     def predict(self, data):
         pass
 
@@ -71,15 +79,11 @@ class GraphSAGEModel(NodeClassificationModel):
         x_out_src = self.x_out[0]
         self.model = tf.keras.Model(inputs=x_inp_src, outputs=x_out_src)
 
-    def load(self, filepath=None):
-        if filepath is None:
-            filepath = 'models/graph_sage.h5'
-        self.model = tf.keras.models.load_model(filepath)
+    def load(self, file_path='models/graph_sage.tf'):
+        self.model = tf.keras.models.load_model(file_path)
 
-    def save(self, filepath=None):
-        if filepath is None:
-            filepath = 'models/graph_sage.h5'
-        self.model.save(filepath)
+    def save(self, file_path='models/graph_sage.tf'):
+        self.model.save(file_path)
 
     def predict(self, data):
         node = NodeSequence(sample_features,
