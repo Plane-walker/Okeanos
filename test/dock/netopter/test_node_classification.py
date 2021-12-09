@@ -9,6 +9,8 @@ class TestNodeClassification(unittest.TestCase):
         data.import_data_from_file('cora')
         graph_sage = GraphSAGEModel()
         graph_sage.train(data)
+        graph_sage.save()
+        # graph_sage.load()
 
 
 if __name__ == '__main__':
