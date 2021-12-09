@@ -35,7 +35,8 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
  }
 
 message RequestGossipQueryPath {
-   repeated Chain target = 1;
+   Chain target = 1;
+   repeated Chain route_chains = 2;
 }
 
 message ResponseGossipQueryPath {
@@ -44,7 +45,8 @@ message ResponseGossipQueryPath {
 }
 
 message RequestGossipCallBack {
-   repeated Chain source = 1;
+   Chain source = 1;
+   repeated Chain route_chains = 2;
 }
 
 message ResponseGossipCallBack {
