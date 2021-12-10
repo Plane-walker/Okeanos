@@ -9,27 +9,11 @@ enum CheckTxType {
     NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
     RECHECK = 1 [(gogoproto.enumvalue_customname) = "Recheck"];
 }
-message requestQueryTX {
+message RequestTxPackage {
     bytes tx = 1;
+    Chain target_id = 2;
+    Node node_id = 3;
 }
-
-// message RequestCheckTx {
-//     bytes tx = 1;
-//     CheckTxType type = 2;
-// }
-
-// message RequestDeliverTx {
-//     bytes tx = 1;
-// }
-
-// message RequestqueryRouterPath {
-//     bytes tx = 1;
-// }
-
-// message RequesttransmitTxInfo {
-//     bytes tx = 1;
-//     string routerpath = 2;
-// }
 
 message RequestRouterInfo {
     bytes tx = 1;
@@ -63,7 +47,7 @@ message RequestRouterPathCallback {
 }
 
 message RequestSwitchCommunity {
-    string traget_community = 1;
+    string target_community = 1;
 }
 
 message RequestCommunityInfo {
@@ -72,7 +56,7 @@ message RequestCommunityInfo {
 
 message RequestCommunityConfig {
     bool auto_switch = 1;
-    int32 max_peer_unmber = 2;
+    int32 max_peer_number = 2;
     string algorithm = 3;
 }
 
@@ -91,43 +75,12 @@ message EventAttribute {
     bool  index = 3;  // nondeterministic
 }
 
-// message ResponseCheckTx {
-//     uint32 code = 1;
-//     bytes data = 2;
-//     string log = 3;  // nondeterministic
-//     string info = 4;  // nondeterministic
-//     int64 gas_wanted = 5 [json_name = "gas_wanted"];
-//     int64 gas_used = 6 [json_name = "gas_used"];
-//     repeated Event events = 7 [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];
-//     string codespace = 8;
-//     string sender = 9;
-//     int64 priority = 10;
-
-//     // mempool_error is set by Tendermint.
-//     // ABCI applications creating a ResponseCheckTX should not set mempool_error.
-//     string mempool_error = 11;
-// }
-
-// message ResponseDeliverTx {
-//     uint32 code = 1;
-//     bytes data = 2;
-//     string log = 3;  // nondeterministic
-//     string info = 4;  // nondeterministic
-//     int64 gas_wanted = 5 [json_name = "gas_wanted"];
-//     int64 gas_used = 6 [json_name = "gas_used"];
-//     repeated Event events = 7
-//     [(gogoproto.nullable) = false, (gogoproto.jsontag) = "events,omitempty"];  // nondeterministic
-//     string codespace = 8;
-// }
-
-// message ResponsequeryRouterPath {
-//     string routerpath = 1;
-// }
-
-// message ResponsetransmitTxInfo {
-// }
-message responseTargetID {
-    string ID = 1;
+message ResponseTxPackage {
+    uint32 code = 1;
+    bytes packaged_tx = 2;
+    Chain target_id = 3;
+    Node node_id = 4;
+    bytes ttl = 5;
 }
 
 message ResponseRouterInfo {
@@ -151,7 +104,7 @@ message ResponseSwitchCommunity {
     bytes          data       = 2;
     string         log        = 3;  // nondeterministic
     string         info       = 4;  // nondeterministic
-    string codespace = 8;
+    string code_space = 8;
 }
 
 message ResponseCommunityInfo {
@@ -163,14 +116,11 @@ message ResponseCommunityConfig {
     bytes          data       = 2;
     string         log        = 3;  // nondeterministic
     string         info       = 4;  // nondeterministic
-    string codespace = 8;
+    string code_space = 8;
 }
 
 service Dock {
-    rpc CheckTx(RequestCheckTx) returns (ResponseCheckTx);
-    rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
-    rpc QueryRouterPath(RequestqueryRouterPath) returns (ResponsequeryRouterPath);
-    rpc TransmitTxInfo(RequesttransmitTxInfo) returns (ResponsetransmitTxInfo);
+    rpc PackageTx(RequestTxPackage) returns (ResponseTxPackage);
 
     rpc RouterInfo(RequestRouterInfo) returns (RequestRouterInfo);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
