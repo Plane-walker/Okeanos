@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x14gogoproto/gogo.proto\"<\n\x0eRequestCheckTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1e\n\x04type\x18\x02 \x01(\x0e\x32\x10.dci.CheckTxType\"\x1e\n\x10RequestDeliverTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\"$\n\x16RequestqueryRouterPath\x12\n\n\x02tx\x18\x01 \x01(\x0c\"7\n\x15RequesttransmitTxInfo\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x12\n\nrouterpath\x18\x02 \x01(\t\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\x0c\",\n\x15RequestRouterSelector\x12\x13\n\x0b\x64\x65stination\x18\x01 \x01(\r\"!\n\x0bRouterChain\x12\x12\n\nidentifier\x18\x01 \x01(\r\"t\n\x15RequestRouterTransmit\x12%\n\x0brouterchain\x18\x01 \x01(\x0b\x32\x10.dci.RouterChain\x12\x13\n\x0b\x64\x65stination\x18\x02 \x01(\r\x12\x1f\n\x05paths\x18\x03 \x03(\x0b\x32\x10.dci.RouterChain\"L\n\x19RequestRouterPathCallback\x12\x0e\n\x06source\x18\x01 \x01(\r\x12\x1f\n\x05paths\x18\x02 \x03(\x0b\x32\x10.dci.RouterChain\"2\n\x16RequestSwitchCommunity\x12\x18\n\x10traget_community\x18\x01 \x01(\t\"*\n\x14RequestCommunityInfo\x12\x12\n\ninfo_level\x18\x01 \x01(\x05\"Y\n\x16RequestCommunityConfig\x12\x13\n\x0b\x61uto_switch\x18\x01 \x01(\x08\x12\x17\n\x0fmax_peer_unmber\x18\x02 \x01(\x05\x12\x11\n\talgorithm\x18\x03 \x01(\t\"\\\n\x05\x45vent\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x45\n\nattributes\x18\x02 \x03(\x0b\x32\x13.dci.EventAttributeB\x1c\xc8\xde\x1f\x00\xea\xde\x1f\x14\x61ttributes,omitempty\";\n\x0e\x45ventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\x0c\x12\r\n\x05value\x18\x02 \x01(\x0c\x12\r\n\x05index\x18\x03 \x01(\x08\"\x86\x02\n\x0fResponseCheckTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x1e\n\ngas_wanted\x18\x05 \x01(\x03R\ngas_wanted\x12\x1a\n\x08gas_used\x18\x06 \x01(\x03R\x08gas_used\x12\x34\n\x06\x65vents\x18\x07 \x03(\x0b\x32\n.dci.EventB\x18\xc8\xde\x1f\x00\xea\xde\x1f\x10\x65vents,omitempty\x12\x11\n\tcodespace\x18\x08 \x01(\t\x12\x0e\n\x06sender\x18\t \x01(\t\x12\x10\n\x08priority\x18\n \x01(\x03\x12\x15\n\rmempool_error\x18\x0b \x01(\t\"\xcf\x01\n\x11ResponseDeliverTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x1e\n\ngas_wanted\x18\x05 \x01(\x03R\ngas_wanted\x12\x1a\n\x08gas_used\x18\x06 \x01(\x03R\x08gas_used\x12\x34\n\x06\x65vents\x18\x07 \x03(\x0b\x32\n.dci.EventB\x18\xc8\xde\x1f\x00\xea\xde\x1f\x10\x65vents,omitempty\x12\x11\n\tcodespace\x18\x08 \x01(\t\"-\n\x17ResponsequeryRouterPath\x12\x12\n\nrouterpath\x18\x01 \x01(\t\"\x18\n\x16ResponsetransmitTxInfo\"^\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x11\n\tcodespace\x18\x08 \x01(\t\"h\n\x16ResponseRouterSelector\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12%\n\x0brouterchain\x18\x02 \x03(\x0b\x32\x10.dci.RouterChain\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\"A\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"E\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"c\n\x17ResponseSwitchCommunity\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x11\n\tcodespace\x18\x08 \x01(\t\"%\n\x15ResponseCommunityInfo\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"c\n\x17ResponseCommunityConfig\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x11\n\tcodespace\x18\x08 \x01(\t*9\n\x0b\x43heckTxType\x12\x10\n\x03NEW\x10\x00\x1a\x07\x8a\x9d \x03New\x12\x18\n\x07RECHECK\x10\x01\x1a\x0b\x8a\x9d \x07Recheck2\x9c\x06\n\x04\x44ock\x12\x34\n\x07\x43heckTx\x12\x13.dci.RequestCheckTx\x1a\x14.dci.ResponseCheckTx\x12:\n\tDeliverTx\x12\x15.dci.RequestDeliverTx\x1a\x16.dci.ResponseDeliverTx\x12L\n\x0fQueryRouterPath\x12\x1b.dci.RequestqueryRouterPath\x1a\x1c.dci.ResponsequeryRouterPath\x12I\n\x0eTransmitTxInfo\x12\x1a.dci.RequesttransmitTxInfo\x1a\x1b.dci.ResponsetransmitTxInfo\x12<\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x16.dci.RequestRouterInfo\x12I\n\x0eRouterSelector\x12\x1a.dci.RequestRouterSelector\x1a\x1b.dci.ResponseRouterSelector\x12I\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit\x12U\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback\x12L\n\x0fSwitchCommunity\x12\x1b.dci.RequestSwitchCommunity\x1a\x1c.dci.ResponseSwitchCommunity\x12\x46\n\rCommunityInfo\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfo\x12H\n\x0f\x43ommunityConfig\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfoB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x14gogoproto/gogo.proto\"Y\n\x10RequestTxPackage\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\ttarget_id\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x07node_id\x18\x03 \x01(\x0b\x32\t.dci.Node\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\x0c\"\x1b\n\x05\x43hain\x12\x12\n\nidentifier\x18\x01 \x01(\r\"\x1a\n\x04Node\x12\x12\n\nidentifier\x18\x01 \x01(\r\"o\n\rGossipPackage\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x19\n\x05paths\x18\x04 \x03(\x0b\x32\n.dci.Chain\"j\n\x15RequestRouterTransmit\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x19\n\x05paths\x18\x03 \x03(\x0b\x32\n.dci.Chain\"n\n\x19RequestRouterPathCallback\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x19\n\x05paths\x18\x03 \x03(\x0b\x32\n.dci.Chain\"2\n\x16RequestSwitchCommunity\x12\x18\n\x10target_community\x18\x01 \x01(\t\"*\n\x14RequestCommunityInfo\x12\x12\n\ninfo_level\x18\x01 \x01(\x05\"Y\n\x16RequestCommunityConfig\x12\x13\n\x0b\x61uto_switch\x18\x01 \x01(\x08\x12\x17\n\x0fmax_peer_number\x18\x02 \x01(\x05\x12\x11\n\talgorithm\x18\x03 \x01(\t\"\\\n\x05\x45vent\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x45\n\nattributes\x18\x02 \x03(\x0b\x32\x13.dci.EventAttributeB\x1c\xc8\xde\x1f\x00\xea\xde\x1f\x14\x61ttributes,omitempty\";\n\x0e\x45ventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\x0c\x12\r\n\x05value\x18\x02 \x01(\x0c\x12\r\n\x05index\x18\x03 \x01(\x08\"~\n\x11ResponseTxPackage\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x13\n\x0bpackaged_tx\x18\x02 \x01(\x0c\x12\x1d\n\ttarget_id\x18\x03 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x07node_id\x18\x04 \x01(\x0b\x32\t.dci.Node\x12\x0b\n\x03ttl\x18\x05 \x01(\x0c\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"d\n\x17ResponseSwitchCommunity\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x12\n\ncode_space\x18\x08 \x01(\t\"%\n\x15ResponseCommunityInfo\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"d\n\x17ResponseCommunityConfig\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x12\n\ncode_space\x18\x08 \x01(\t*9\n\x0b\x43heckTxType\x12\x10\n\x03NEW\x10\x00\x1a\x07\x8a\x9d \x03New\x12\x18\n\x07RECHECK\x10\x01\x1a\x0b\x8a\x9d \x07Recheck2\x82\x04\n\x04\x44ock\x12:\n\tPackageTx\x12\x15.dci.RequestTxPackage\x1a\x16.dci.ResponseTxPackage\x12<\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x16.dci.RequestRouterInfo\x12I\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit\x12U\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback\x12L\n\x0fSwitchCommunity\x12\x1b.dci.RequestSwitchCommunity\x1a\x1c.dci.ResponseSwitchCommunity\x12\x46\n\rCommunityInfo\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfo\x12H\n\x0f\x43ommunityConfig\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfoB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
   ,
   dependencies=[gogoproto_dot_gogo__pb2.DESCRIPTOR,])
 
@@ -45,8 +45,8 @@ _CHECKTXTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2014,
-  serialized_end=2071,
+  serialized_start=1447,
+  serialized_end=1504,
 )
 _sym_db.RegisterEnumDescriptor(_CHECKTXTYPE)
 
@@ -56,25 +56,32 @@ RECHECK = 1
 
 
 
-_REQUESTCHECKTX = _descriptor.Descriptor(
-  name='RequestCheckTx',
-  full_name='dci.RequestCheckTx',
+_REQUESTTXPACKAGE = _descriptor.Descriptor(
+  name='RequestTxPackage',
+  full_name='dci.RequestTxPackage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='tx', full_name='dci.RequestCheckTx.tx', index=0,
+      name='tx', full_name='dci.RequestTxPackage.tx', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='type', full_name='dci.RequestCheckTx.type', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      name='target_id', full_name='dci.RequestTxPackage.target_id', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='node_id', full_name='dci.RequestTxPackage.node_id', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -91,110 +98,7 @@ _REQUESTCHECKTX = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=44,
-  serialized_end=104,
-)
-
-
-_REQUESTDELIVERTX = _descriptor.Descriptor(
-  name='RequestDeliverTx',
-  full_name='dci.RequestDeliverTx',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='tx', full_name='dci.RequestDeliverTx.tx', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=106,
-  serialized_end=136,
-)
-
-
-_REQUESTQUERYROUTERPATH = _descriptor.Descriptor(
-  name='RequestqueryRouterPath',
-  full_name='dci.RequestqueryRouterPath',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='tx', full_name='dci.RequestqueryRouterPath.tx', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=138,
-  serialized_end=174,
-)
-
-
-_REQUESTTRANSMITTXINFO = _descriptor.Descriptor(
-  name='RequesttransmitTxInfo',
-  full_name='dci.RequesttransmitTxInfo',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='tx', full_name='dci.RequesttransmitTxInfo.tx', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='routerpath', full_name='dci.RequesttransmitTxInfo.routerpath', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=176,
-  serialized_end=231,
+  serialized_end=133,
 )
 
 
@@ -225,21 +129,21 @@ _REQUESTROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=233,
-  serialized_end=264,
+  serialized_start=135,
+  serialized_end=166,
 )
 
 
-_REQUESTROUTERSELECTOR = _descriptor.Descriptor(
-  name='RequestRouterSelector',
-  full_name='dci.RequestRouterSelector',
+_CHAIN = _descriptor.Descriptor(
+  name='Chain',
+  full_name='dci.Chain',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='destination', full_name='dci.RequestRouterSelector.destination', index=0,
+      name='identifier', full_name='dci.Chain.identifier', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -257,21 +161,21 @@ _REQUESTROUTERSELECTOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=266,
-  serialized_end=310,
+  serialized_start=168,
+  serialized_end=195,
 )
 
 
-_ROUTERCHAIN = _descriptor.Descriptor(
-  name='RouterChain',
-  full_name='dci.RouterChain',
+_NODE = _descriptor.Descriptor(
+  name='Node',
+  full_name='dci.Node',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='identifier', full_name='dci.RouterChain.identifier', index=0,
+      name='identifier', full_name='dci.Node.identifier', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -289,8 +193,61 @@ _ROUTERCHAIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=312,
-  serialized_end=345,
+  serialized_start=197,
+  serialized_end=223,
+)
+
+
+_GOSSIPPACKAGE = _descriptor.Descriptor(
+  name='GossipPackage',
+  full_name='dci.GossipPackage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='source', full_name='dci.GossipPackage.source', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='target', full_name='dci.GossipPackage.target', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ttl', full_name='dci.GossipPackage.ttl', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='paths', full_name='dci.GossipPackage.paths', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=225,
+  serialized_end=336,
 )
 
 
@@ -303,16 +260,16 @@ _REQUESTROUTERTRANSMIT = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='routerchain', full_name='dci.RequestRouterTransmit.routerchain', index=0,
+      name='source', full_name='dci.RequestRouterTransmit.source', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='destination', full_name='dci.RequestRouterTransmit.destination', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      name='target', full_name='dci.RequestRouterTransmit.target', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -335,8 +292,8 @@ _REQUESTROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=347,
-  serialized_end=463,
+  serialized_start=338,
+  serialized_end=444,
 )
 
 
@@ -350,14 +307,21 @@ _REQUESTROUTERPATHCALLBACK = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='source', full_name='dci.RequestRouterPathCallback.source', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='paths', full_name='dci.RequestRouterPathCallback.paths', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      name='target', full_name='dci.RequestRouterPathCallback.target', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='paths', full_name='dci.RequestRouterPathCallback.paths', index=2,
+      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -374,8 +338,8 @@ _REQUESTROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=465,
-  serialized_end=541,
+  serialized_start=446,
+  serialized_end=556,
 )
 
 
@@ -388,7 +352,7 @@ _REQUESTSWITCHCOMMUNITY = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='traget_community', full_name='dci.RequestSwitchCommunity.traget_community', index=0,
+      name='target_community', full_name='dci.RequestSwitchCommunity.target_community', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -406,8 +370,8 @@ _REQUESTSWITCHCOMMUNITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=543,
-  serialized_end=593,
+  serialized_start=558,
+  serialized_end=608,
 )
 
 
@@ -438,8 +402,8 @@ _REQUESTCOMMUNITYINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=595,
-  serialized_end=637,
+  serialized_start=610,
+  serialized_end=652,
 )
 
 
@@ -459,7 +423,7 @@ _REQUESTCOMMUNITYCONFIG = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='max_peer_unmber', full_name='dci.RequestCommunityConfig.max_peer_unmber', index=1,
+      name='max_peer_number', full_name='dci.RequestCommunityConfig.max_peer_number', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -484,8 +448,8 @@ _REQUESTCOMMUNITYCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=639,
-  serialized_end=728,
+  serialized_start=654,
+  serialized_end=743,
 )
 
 
@@ -523,8 +487,8 @@ _EVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=730,
-  serialized_end=822,
+  serialized_start=745,
+  serialized_end=837,
 )
 
 
@@ -569,177 +533,54 @@ _EVENTATTRIBUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=824,
-  serialized_end=883,
+  serialized_start=839,
+  serialized_end=898,
 )
 
 
-_RESPONSECHECKTX = _descriptor.Descriptor(
-  name='ResponseCheckTx',
-  full_name='dci.ResponseCheckTx',
+_RESPONSETXPACKAGE = _descriptor.Descriptor(
+  name='ResponseTxPackage',
+  full_name='dci.ResponseTxPackage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='code', full_name='dci.ResponseCheckTx.code', index=0,
+      name='code', full_name='dci.ResponseTxPackage.code', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='data', full_name='dci.ResponseCheckTx.data', index=1,
+      name='packaged_tx', full_name='dci.ResponseTxPackage.packaged_tx', index=1,
       number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseCheckTx.log', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='target_id', full_name='dci.ResponseTxPackage.target_id', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseCheckTx.info', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='node_id', full_name='dci.ResponseTxPackage.node_id', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='gas_wanted', full_name='dci.ResponseCheckTx.gas_wanted', index=4,
-      number=5, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='gas_wanted', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gas_used', full_name='dci.ResponseCheckTx.gas_used', index=5,
-      number=6, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='gas_used', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='events', full_name='dci.ResponseCheckTx.events', index=6,
-      number=7, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\310\336\037\000\352\336\037\020events,omitempty', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='codespace', full_name='dci.ResponseCheckTx.codespace', index=7,
-      number=8, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sender', full_name='dci.ResponseCheckTx.sender', index=8,
-      number=9, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='priority', full_name='dci.ResponseCheckTx.priority', index=9,
-      number=10, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='mempool_error', full_name='dci.ResponseCheckTx.mempool_error', index=10,
-      number=11, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=886,
-  serialized_end=1148,
-)
-
-
-_RESPONSEDELIVERTX = _descriptor.Descriptor(
-  name='ResponseDeliverTx',
-  full_name='dci.ResponseDeliverTx',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='code', full_name='dci.ResponseDeliverTx.code', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='data', full_name='dci.ResponseDeliverTx.data', index=1,
-      number=2, type=12, cpp_type=9, label=1,
+      name='ttl', full_name='dci.ResponseTxPackage.ttl', index=4,
+      number=5, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseDeliverTx.log', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseDeliverTx.info', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gas_wanted', full_name='dci.ResponseDeliverTx.gas_wanted', index=4,
-      number=5, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='gas_wanted', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gas_used', full_name='dci.ResponseDeliverTx.gas_used', index=5,
-      number=6, type=3, cpp_type=2, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='gas_used', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='events', full_name='dci.ResponseDeliverTx.events', index=6,
-      number=7, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\310\336\037\000\352\336\037\020events,omitempty', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='codespace', full_name='dci.ResponseDeliverTx.codespace', index=7,
-      number=8, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -752,65 +593,8 @@ _RESPONSEDELIVERTX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1151,
-  serialized_end=1358,
-)
-
-
-_RESPONSEQUERYROUTERPATH = _descriptor.Descriptor(
-  name='ResponsequeryRouterPath',
-  full_name='dci.ResponsequeryRouterPath',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='routerpath', full_name='dci.ResponsequeryRouterPath.routerpath', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1360,
-  serialized_end=1405,
-)
-
-
-_RESPONSETRANSMITTXINFO = _descriptor.Descriptor(
-  name='ResponsetransmitTxInfo',
-  full_name='dci.ResponsetransmitTxInfo',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1407,
-  serialized_end=1431,
+  serialized_start=900,
+  serialized_end=1026,
 )
 
 
@@ -837,22 +621,8 @@ _RESPONSEROUTERINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseRouterInfo.log', index=2,
+      name='info', full_name='dci.ResponseRouterInfo.info', index=2,
       number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseRouterInfo.info', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='codespace', full_name='dci.ResponseRouterInfo.codespace', index=4,
-      number=8, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -869,61 +639,8 @@ _RESPONSEROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1433,
-  serialized_end=1527,
-)
-
-
-_RESPONSEROUTERSELECTOR = _descriptor.Descriptor(
-  name='ResponseRouterSelector',
-  full_name='dci.ResponseRouterSelector',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='code', full_name='dci.ResponseRouterSelector.code', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='routerchain', full_name='dci.ResponseRouterSelector.routerchain', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseRouterSelector.log', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseRouterSelector.info', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=1529,
-  serialized_end=1633,
+  serialized_start=1028,
+  serialized_end=1090,
 )
 
 
@@ -943,15 +660,8 @@ _RESPONSEROUTERTRANSMIT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseRouterTransmit.log', index=1,
+      name='info', full_name='dci.ResponseRouterTransmit.info', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseRouterTransmit.info', index=2,
-      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -968,8 +678,8 @@ _RESPONSEROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1635,
-  serialized_end=1700,
+  serialized_start=1092,
+  serialized_end=1144,
 )
 
 
@@ -989,15 +699,8 @@ _RESPONSEROUTERPATHCALLBACK = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='log', full_name='dci.ResponseRouterPathCallback.log', index=1,
+      name='info', full_name='dci.ResponseRouterPathCallback.info', index=1,
       number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='info', full_name='dci.ResponseRouterPathCallback.info', index=2,
-      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1014,8 +717,8 @@ _RESPONSEROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1702,
-  serialized_end=1771,
+  serialized_start=1146,
+  serialized_end=1202,
 )
 
 
@@ -1056,7 +759,7 @@ _RESPONSESWITCHCOMMUNITY = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='codespace', full_name='dci.ResponseSwitchCommunity.codespace', index=4,
+      name='code_space', full_name='dci.ResponseSwitchCommunity.code_space', index=4,
       number=8, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1074,8 +777,8 @@ _RESPONSESWITCHCOMMUNITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1773,
-  serialized_end=1872,
+  serialized_start=1204,
+  serialized_end=1304,
 )
 
 
@@ -1106,8 +809,8 @@ _RESPONSECOMMUNITYINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1874,
-  serialized_end=1911,
+  serialized_start=1306,
+  serialized_end=1343,
 )
 
 
@@ -1148,7 +851,7 @@ _RESPONSECOMMUNITYCONFIG = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='codespace', full_name='dci.ResponseCommunityConfig.codespace', index=4,
+      name='code_space', full_name='dci.ResponseCommunityConfig.code_space', index=4,
       number=8, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1166,25 +869,29 @@ _RESPONSECOMMUNITYCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1913,
-  serialized_end=2012,
+  serialized_start=1345,
+  serialized_end=1445,
 )
 
-_REQUESTCHECKTX.fields_by_name['type'].enum_type = _CHECKTXTYPE
-_REQUESTROUTERTRANSMIT.fields_by_name['routerchain'].message_type = _ROUTERCHAIN
-_REQUESTROUTERTRANSMIT.fields_by_name['paths'].message_type = _ROUTERCHAIN
-_REQUESTROUTERPATHCALLBACK.fields_by_name['paths'].message_type = _ROUTERCHAIN
+_REQUESTTXPACKAGE.fields_by_name['target_id'].message_type = _CHAIN
+_REQUESTTXPACKAGE.fields_by_name['node_id'].message_type = _NODE
+_GOSSIPPACKAGE.fields_by_name['source'].message_type = _CHAIN
+_GOSSIPPACKAGE.fields_by_name['target'].message_type = _CHAIN
+_GOSSIPPACKAGE.fields_by_name['paths'].message_type = _CHAIN
+_REQUESTROUTERTRANSMIT.fields_by_name['source'].message_type = _CHAIN
+_REQUESTROUTERTRANSMIT.fields_by_name['target'].message_type = _CHAIN
+_REQUESTROUTERTRANSMIT.fields_by_name['paths'].message_type = _CHAIN
+_REQUESTROUTERPATHCALLBACK.fields_by_name['source'].message_type = _CHAIN
+_REQUESTROUTERPATHCALLBACK.fields_by_name['target'].message_type = _CHAIN
+_REQUESTROUTERPATHCALLBACK.fields_by_name['paths'].message_type = _CHAIN
 _EVENT.fields_by_name['attributes'].message_type = _EVENTATTRIBUTE
-_RESPONSECHECKTX.fields_by_name['events'].message_type = _EVENT
-_RESPONSEDELIVERTX.fields_by_name['events'].message_type = _EVENT
-_RESPONSEROUTERSELECTOR.fields_by_name['routerchain'].message_type = _ROUTERCHAIN
-DESCRIPTOR.message_types_by_name['RequestCheckTx'] = _REQUESTCHECKTX
-DESCRIPTOR.message_types_by_name['RequestDeliverTx'] = _REQUESTDELIVERTX
-DESCRIPTOR.message_types_by_name['RequestqueryRouterPath'] = _REQUESTQUERYROUTERPATH
-DESCRIPTOR.message_types_by_name['RequesttransmitTxInfo'] = _REQUESTTRANSMITTXINFO
+_RESPONSETXPACKAGE.fields_by_name['target_id'].message_type = _CHAIN
+_RESPONSETXPACKAGE.fields_by_name['node_id'].message_type = _NODE
+DESCRIPTOR.message_types_by_name['RequestTxPackage'] = _REQUESTTXPACKAGE
 DESCRIPTOR.message_types_by_name['RequestRouterInfo'] = _REQUESTROUTERINFO
-DESCRIPTOR.message_types_by_name['RequestRouterSelector'] = _REQUESTROUTERSELECTOR
-DESCRIPTOR.message_types_by_name['RouterChain'] = _ROUTERCHAIN
+DESCRIPTOR.message_types_by_name['Chain'] = _CHAIN
+DESCRIPTOR.message_types_by_name['Node'] = _NODE
+DESCRIPTOR.message_types_by_name['GossipPackage'] = _GOSSIPPACKAGE
 DESCRIPTOR.message_types_by_name['RequestRouterTransmit'] = _REQUESTROUTERTRANSMIT
 DESCRIPTOR.message_types_by_name['RequestRouterPathCallback'] = _REQUESTROUTERPATHCALLBACK
 DESCRIPTOR.message_types_by_name['RequestSwitchCommunity'] = _REQUESTSWITCHCOMMUNITY
@@ -1192,12 +899,8 @@ DESCRIPTOR.message_types_by_name['RequestCommunityInfo'] = _REQUESTCOMMUNITYINFO
 DESCRIPTOR.message_types_by_name['RequestCommunityConfig'] = _REQUESTCOMMUNITYCONFIG
 DESCRIPTOR.message_types_by_name['Event'] = _EVENT
 DESCRIPTOR.message_types_by_name['EventAttribute'] = _EVENTATTRIBUTE
-DESCRIPTOR.message_types_by_name['ResponseCheckTx'] = _RESPONSECHECKTX
-DESCRIPTOR.message_types_by_name['ResponseDeliverTx'] = _RESPONSEDELIVERTX
-DESCRIPTOR.message_types_by_name['ResponsequeryRouterPath'] = _RESPONSEQUERYROUTERPATH
-DESCRIPTOR.message_types_by_name['ResponsetransmitTxInfo'] = _RESPONSETRANSMITTXINFO
+DESCRIPTOR.message_types_by_name['ResponseTxPackage'] = _RESPONSETXPACKAGE
 DESCRIPTOR.message_types_by_name['ResponseRouterInfo'] = _RESPONSEROUTERINFO
-DESCRIPTOR.message_types_by_name['ResponseRouterSelector'] = _RESPONSEROUTERSELECTOR
 DESCRIPTOR.message_types_by_name['ResponseRouterTransmit'] = _RESPONSEROUTERTRANSMIT
 DESCRIPTOR.message_types_by_name['ResponseRouterPathCallback'] = _RESPONSEROUTERPATHCALLBACK
 DESCRIPTOR.message_types_by_name['ResponseSwitchCommunity'] = _RESPONSESWITCHCOMMUNITY
@@ -1206,33 +909,12 @@ DESCRIPTOR.message_types_by_name['ResponseCommunityConfig'] = _RESPONSECOMMUNITY
 DESCRIPTOR.enum_types_by_name['CheckTxType'] = _CHECKTXTYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-RequestCheckTx = _reflection.GeneratedProtocolMessageType('RequestCheckTx', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTCHECKTX,
+RequestTxPackage = _reflection.GeneratedProtocolMessageType('RequestTxPackage', (_message.Message,), {
+  'DESCRIPTOR' : _REQUESTTXPACKAGE,
   '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RequestCheckTx)
+  # @@protoc_insertion_point(class_scope:dci.RequestTxPackage)
   })
-_sym_db.RegisterMessage(RequestCheckTx)
-
-RequestDeliverTx = _reflection.GeneratedProtocolMessageType('RequestDeliverTx', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTDELIVERTX,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RequestDeliverTx)
-  })
-_sym_db.RegisterMessage(RequestDeliverTx)
-
-RequestqueryRouterPath = _reflection.GeneratedProtocolMessageType('RequestqueryRouterPath', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTQUERYROUTERPATH,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RequestqueryRouterPath)
-  })
-_sym_db.RegisterMessage(RequestqueryRouterPath)
-
-RequesttransmitTxInfo = _reflection.GeneratedProtocolMessageType('RequesttransmitTxInfo', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTTRANSMITTXINFO,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RequesttransmitTxInfo)
-  })
-_sym_db.RegisterMessage(RequesttransmitTxInfo)
+_sym_db.RegisterMessage(RequestTxPackage)
 
 RequestRouterInfo = _reflection.GeneratedProtocolMessageType('RequestRouterInfo', (_message.Message,), {
   'DESCRIPTOR' : _REQUESTROUTERINFO,
@@ -1241,19 +923,26 @@ RequestRouterInfo = _reflection.GeneratedProtocolMessageType('RequestRouterInfo'
   })
 _sym_db.RegisterMessage(RequestRouterInfo)
 
-RequestRouterSelector = _reflection.GeneratedProtocolMessageType('RequestRouterSelector', (_message.Message,), {
-  'DESCRIPTOR' : _REQUESTROUTERSELECTOR,
+Chain = _reflection.GeneratedProtocolMessageType('Chain', (_message.Message,), {
+  'DESCRIPTOR' : _CHAIN,
   '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RequestRouterSelector)
+  # @@protoc_insertion_point(class_scope:dci.Chain)
   })
-_sym_db.RegisterMessage(RequestRouterSelector)
+_sym_db.RegisterMessage(Chain)
 
-RouterChain = _reflection.GeneratedProtocolMessageType('RouterChain', (_message.Message,), {
-  'DESCRIPTOR' : _ROUTERCHAIN,
+Node = _reflection.GeneratedProtocolMessageType('Node', (_message.Message,), {
+  'DESCRIPTOR' : _NODE,
   '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.RouterChain)
+  # @@protoc_insertion_point(class_scope:dci.Node)
   })
-_sym_db.RegisterMessage(RouterChain)
+_sym_db.RegisterMessage(Node)
+
+GossipPackage = _reflection.GeneratedProtocolMessageType('GossipPackage', (_message.Message,), {
+  'DESCRIPTOR' : _GOSSIPPACKAGE,
+  '__module__' : 'dci.dci_pb2'
+  # @@protoc_insertion_point(class_scope:dci.GossipPackage)
+  })
+_sym_db.RegisterMessage(GossipPackage)
 
 RequestRouterTransmit = _reflection.GeneratedProtocolMessageType('RequestRouterTransmit', (_message.Message,), {
   'DESCRIPTOR' : _REQUESTROUTERTRANSMIT,
@@ -1304,33 +993,12 @@ EventAttribute = _reflection.GeneratedProtocolMessageType('EventAttribute', (_me
   })
 _sym_db.RegisterMessage(EventAttribute)
 
-ResponseCheckTx = _reflection.GeneratedProtocolMessageType('ResponseCheckTx', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSECHECKTX,
+ResponseTxPackage = _reflection.GeneratedProtocolMessageType('ResponseTxPackage', (_message.Message,), {
+  'DESCRIPTOR' : _RESPONSETXPACKAGE,
   '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponseCheckTx)
+  # @@protoc_insertion_point(class_scope:dci.ResponseTxPackage)
   })
-_sym_db.RegisterMessage(ResponseCheckTx)
-
-ResponseDeliverTx = _reflection.GeneratedProtocolMessageType('ResponseDeliverTx', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSEDELIVERTX,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponseDeliverTx)
-  })
-_sym_db.RegisterMessage(ResponseDeliverTx)
-
-ResponsequeryRouterPath = _reflection.GeneratedProtocolMessageType('ResponsequeryRouterPath', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSEQUERYROUTERPATH,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponsequeryRouterPath)
-  })
-_sym_db.RegisterMessage(ResponsequeryRouterPath)
-
-ResponsetransmitTxInfo = _reflection.GeneratedProtocolMessageType('ResponsetransmitTxInfo', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSETRANSMITTXINFO,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponsetransmitTxInfo)
-  })
-_sym_db.RegisterMessage(ResponsetransmitTxInfo)
+_sym_db.RegisterMessage(ResponseTxPackage)
 
 ResponseRouterInfo = _reflection.GeneratedProtocolMessageType('ResponseRouterInfo', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSEROUTERINFO,
@@ -1338,13 +1006,6 @@ ResponseRouterInfo = _reflection.GeneratedProtocolMessageType('ResponseRouterInf
   # @@protoc_insertion_point(class_scope:dci.ResponseRouterInfo)
   })
 _sym_db.RegisterMessage(ResponseRouterInfo)
-
-ResponseRouterSelector = _reflection.GeneratedProtocolMessageType('ResponseRouterSelector', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSEROUTERSELECTOR,
-  '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponseRouterSelector)
-  })
-_sym_db.RegisterMessage(ResponseRouterSelector)
 
 ResponseRouterTransmit = _reflection.GeneratedProtocolMessageType('ResponseRouterTransmit', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSEROUTERTRANSMIT,
@@ -1386,8 +1047,6 @@ DESCRIPTOR._options = None
 _CHECKTXTYPE.values_by_name["NEW"]._options = None
 _CHECKTXTYPE.values_by_name["RECHECK"]._options = None
 _EVENT.fields_by_name['attributes']._options = None
-_RESPONSECHECKTX.fields_by_name['events']._options = None
-_RESPONSEDELIVERTX.fields_by_name['events']._options = None
 
 _DOCK = _descriptor.ServiceDescriptor(
   name='Dock',
@@ -1396,53 +1055,23 @@ _DOCK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2074,
-  serialized_end=2870,
+  serialized_start=1507,
+  serialized_end=2021,
   methods=[
   _descriptor.MethodDescriptor(
-    name='CheckTx',
-    full_name='dci.Dock.CheckTx',
+    name='PackageTx',
+    full_name='dci.Dock.PackageTx',
     index=0,
     containing_service=None,
-    input_type=_REQUESTCHECKTX,
-    output_type=_RESPONSECHECKTX,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='DeliverTx',
-    full_name='dci.Dock.DeliverTx',
-    index=1,
-    containing_service=None,
-    input_type=_REQUESTDELIVERTX,
-    output_type=_RESPONSEDELIVERTX,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='QueryRouterPath',
-    full_name='dci.Dock.QueryRouterPath',
-    index=2,
-    containing_service=None,
-    input_type=_REQUESTQUERYROUTERPATH,
-    output_type=_RESPONSEQUERYROUTERPATH,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='TransmitTxInfo',
-    full_name='dci.Dock.TransmitTxInfo',
-    index=3,
-    containing_service=None,
-    input_type=_REQUESTTRANSMITTXINFO,
-    output_type=_RESPONSETRANSMITTXINFO,
+    input_type=_REQUESTTXPACKAGE,
+    output_type=_RESPONSETXPACKAGE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
     name='RouterInfo',
     full_name='dci.Dock.RouterInfo',
-    index=4,
+    index=1,
     containing_service=None,
     input_type=_REQUESTROUTERINFO,
     output_type=_REQUESTROUTERINFO,
@@ -1450,19 +1079,9 @@ _DOCK = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='RouterSelector',
-    full_name='dci.Dock.RouterSelector',
-    index=5,
-    containing_service=None,
-    input_type=_REQUESTROUTERSELECTOR,
-    output_type=_RESPONSEROUTERSELECTOR,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
     name='RouterTransmit',
     full_name='dci.Dock.RouterTransmit',
-    index=6,
+    index=2,
     containing_service=None,
     input_type=_REQUESTROUTERTRANSMIT,
     output_type=_RESPONSEROUTERTRANSMIT,
@@ -1472,7 +1091,7 @@ _DOCK = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='RouterPathCallback',
     full_name='dci.Dock.RouterPathCallback',
-    index=7,
+    index=3,
     containing_service=None,
     input_type=_REQUESTROUTERPATHCALLBACK,
     output_type=_RESPONSEROUTERPATHCALLBACK,
@@ -1482,7 +1101,7 @@ _DOCK = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='SwitchCommunity',
     full_name='dci.Dock.SwitchCommunity',
-    index=8,
+    index=4,
     containing_service=None,
     input_type=_REQUESTSWITCHCOMMUNITY,
     output_type=_RESPONSESWITCHCOMMUNITY,
@@ -1492,7 +1111,7 @@ _DOCK = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='CommunityInfo',
     full_name='dci.Dock.CommunityInfo',
-    index=9,
+    index=5,
     containing_service=None,
     input_type=_REQUESTCOMMUNITYINFO,
     output_type=_RESPONSECOMMUNITYINFO,
@@ -1502,7 +1121,7 @@ _DOCK = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='CommunityConfig',
     full_name='dci.Dock.CommunityConfig',
-    index=10,
+    index=6,
     containing_service=None,
     input_type=_REQUESTCOMMUNITYINFO,
     output_type=_RESPONSECOMMUNITYINFO,

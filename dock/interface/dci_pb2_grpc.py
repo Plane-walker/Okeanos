@@ -14,35 +14,15 @@ class DockStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CheckTx = channel.unary_unary(
-                '/dci.Dock/CheckTx',
-                request_serializer=dci_dot_dci__pb2.RequestCheckTx.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseCheckTx.FromString,
-                )
-        self.DeliverTx = channel.unary_unary(
-                '/dci.Dock/DeliverTx',
-                request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
-                )
-        self.QueryRouterPath = channel.unary_unary(
-                '/dci.Dock/QueryRouterPath',
-                request_serializer=dci_dot_dci__pb2.RequestqueryRouterPath.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponsequeryRouterPath.FromString,
-                )
-        self.TransmitTxInfo = channel.unary_unary(
-                '/dci.Dock/TransmitTxInfo',
-                request_serializer=dci_dot_dci__pb2.RequesttransmitTxInfo.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponsetransmitTxInfo.FromString,
+        self.PackageTx = channel.unary_unary(
+                '/dci.Dock/PackageTx',
+                request_serializer=dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseTxPackage.FromString,
                 )
         self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
                 request_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.RequestRouterInfo.FromString,
-                )
-        self.RouterSelector = channel.unary_unary(
-                '/dci.Dock/RouterSelector',
-                request_serializer=dci_dot_dci__pb2.RequestRouterSelector.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseRouterSelector.FromString,
                 )
         self.RouterTransmit = channel.unary_unary(
                 '/dci.Dock/RouterTransmit',
@@ -74,37 +54,13 @@ class DockStub(object):
 class DockServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def CheckTx(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def DeliverTx(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def QueryRouterPath(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def TransmitTxInfo(self, request, context):
+    def PackageTx(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def RouterInfo(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def RouterSelector(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -143,35 +99,15 @@ class DockServicer(object):
 
 def add_DockServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CheckTx': grpc.unary_unary_rpc_method_handler(
-                    servicer.CheckTx,
-                    request_deserializer=dci_dot_dci__pb2.RequestCheckTx.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseCheckTx.SerializeToString,
-            ),
-            'DeliverTx': grpc.unary_unary_rpc_method_handler(
-                    servicer.DeliverTx,
-                    request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
-            ),
-            'QueryRouterPath': grpc.unary_unary_rpc_method_handler(
-                    servicer.QueryRouterPath,
-                    request_deserializer=dci_dot_dci__pb2.RequestqueryRouterPath.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponsequeryRouterPath.SerializeToString,
-            ),
-            'TransmitTxInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.TransmitTxInfo,
-                    request_deserializer=dci_dot_dci__pb2.RequesttransmitTxInfo.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponsetransmitTxInfo.SerializeToString,
+            'PackageTx': grpc.unary_unary_rpc_method_handler(
+                    servicer.PackageTx,
+                    request_deserializer=dci_dot_dci__pb2.RequestTxPackage.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseTxPackage.SerializeToString,
             ),
             'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
                     request_deserializer=dci_dot_dci__pb2.RequestRouterInfo.FromString,
                     response_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
-            ),
-            'RouterSelector': grpc.unary_unary_rpc_method_handler(
-                    servicer.RouterSelector,
-                    request_deserializer=dci_dot_dci__pb2.RequestRouterSelector.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseRouterSelector.SerializeToString,
             ),
             'RouterTransmit': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterTransmit,
@@ -209,7 +145,7 @@ class Dock(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def CheckTx(request,
+    def PackageTx(request,
             target,
             options=(),
             channel_credentials=None,
@@ -219,60 +155,9 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/CheckTx',
-            dci_dot_dci__pb2.RequestCheckTx.SerializeToString,
-            dci_dot_dci__pb2.ResponseCheckTx.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def DeliverTx(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/DeliverTx',
-            dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
-            dci_dot_dci__pb2.ResponseDeliverTx.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def QueryRouterPath(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/QueryRouterPath',
-            dci_dot_dci__pb2.RequestqueryRouterPath.SerializeToString,
-            dci_dot_dci__pb2.ResponsequeryRouterPath.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def TransmitTxInfo(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/TransmitTxInfo',
-            dci_dot_dci__pb2.RequesttransmitTxInfo.SerializeToString,
-            dci_dot_dci__pb2.ResponsetransmitTxInfo.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/PackageTx',
+            dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
+            dci_dot_dci__pb2.ResponseTxPackage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -290,23 +175,6 @@ class Dock(object):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterInfo',
             dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
             dci_dot_dci__pb2.RequestRouterInfo.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def RouterSelector(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterSelector',
-            dci_dot_dci__pb2.RequestRouterSelector.SerializeToString,
-            dci_dot_dci__pb2.ResponseRouterSelector.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
