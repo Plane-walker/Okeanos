@@ -6,7 +6,7 @@ import asyncio
 import queue
 import threading
 import requests
-from google.protobuf import json_format
+import json
 from requests.models import codes
 from dock.interface.dci_pb2 import (
     Chain,
@@ -62,13 +62,14 @@ class BciSender:
     def __init__(self, queue: queue.Queue):
         self.queue = queue
 
-    def transmit(self, url, req: RequestGossipQueryPath) -> ResponseGossipQueryPath:
-        res = requests.post(url=url, headers=HEADERS, data=json_format.MessageToJson(req))
+    def transmit(self, url, req: dict):
+        res = requests.post(url=url, headers=HEADERS, data=json.dumps(req))
         return res
 
-    def callback(self, url, req: RequestGossipCallBack) -> ResponseGossipCallBack:
-        res = requests.post(url=url, headers=HEADERS, data=json_format.MessageToJson(req))
+    def callback(self, url, req: dict):
+        res = requests.post(url=url, headers=HEADERS, data=json.dumps(req))
         return res
+
 
 class DciServer:
 
