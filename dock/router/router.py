@@ -17,12 +17,6 @@ from dock.interface.dci_pb2 import (
     RequestRouterTransmit,
     ResponseRouterTransmit,
 )
-from dock.interface.bci_pb2 import (
-    RequestGossipQueryPath,
-    ResponseGossipQueryPath,
-    RequestGossipCallBack,
-    ResponseGossipCallBack,
-)
 
 
 class Router:
