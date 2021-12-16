@@ -101,10 +101,7 @@ message ResponseRouterPathCallback {
 
 message ResponseSwitchCommunity {
     uint32         code       = 1;
-    bytes          data       = 2;
-    string         log        = 3;  // nondeterministic
-    string         info       = 4;  // nondeterministic
-    string code_space = 8;
+    bytes          info       = 2;
 }
 
 message ResponseCommunityInfo {
