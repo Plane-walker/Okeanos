@@ -20,24 +20,18 @@ message RequestRouterInfo {
 }
 
 message Chain {
-	uint32			identifier	= 1;
+    uint32          identifier  = 1;
 }
 
 message Node {
     uint32          identifier  = 1;
 }
 
-message GossipPackage {
+message RequestRouterTransmit {
     Chain           source      = 1;
     Chain           target      = 2;
     uint32          ttl         = 3;
     repeated Chain  paths       = 4;
-}
-
-message RequestRouterTransmit {
-	Chain 	        source       = 1;
-	Chain			target	    = 2;
-    repeated Chain  paths       = 3;
 }
 
 message RequestRouterPathCallback {

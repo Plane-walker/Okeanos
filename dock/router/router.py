@@ -2,14 +2,11 @@ __all__ = [
     "Router",
 ]
 
-import asyncio
-import queue
-import threading
-import requests
-import json
-from requests.models import codes
+
+import random
+import grpc
+from dock.interface.dci_pb2 import Chain as DciChain
 from dock.interface.dci_pb2 import (
-    Chain,
     RequestRouterInfo,
     ResponseRouterInfo,
     RequestRouterPathCallback,
@@ -17,63 +14,133 @@ from dock.interface.dci_pb2 import (
     RequestRouterTransmit,
     ResponseRouterTransmit,
 )
+from dock.interface import bci_pb2_grpc
+from dock.interface.bci_pb2 import Chain as BciChain
+from dock.interface.bci_pb2 import (
+    RequestGossipQueryPath,
+    ResponseGossipQueryPath,
+    RequestGossipCallBack,
+    ResponseGossipCallBack,
+)
+
+
+MIN_LANES = 3
+MIN_SEACHER = 3
+SUCCESS_CODE = 0
+DEFAULT_TTL = 10
+
+
+class Chain:
+    
+    def __init__(self, chain: DciChain):
+        self.identifier = chain.identifier
+        
+    def __init__(self, chain:BciChain):
+        self.identifier = chain.identifier
+        
+    def __init__(self, identifier: int):
+        self.identifier = identifier
+    
+    def dci(self) -> DciChain:
+        return DciChain(identifier=self.identifier)
+    
+    def bci(self) -> BciChain:
+        return BciChain(identifier=self.identifier)
 
 
 class Router:
 
     def __init__(self) -> None:
+        self.node_id = 0
         self.lanes = set()
-        self.paths = dict()
-        self.queue = queue.Queue()
+        
+        # Route table is a dict whose key is target id in uint type and whose value
+        # is Lane Chain in Chain type.
+        self.route = dict()
+        
         return None
 
     def next_node(self, target: Chain) -> Chain:
-        if target.identifier in self.paths:
-            return self.paths[target.identifier]
+        ttl = DEFAULT_TTL
+        paths = []
+        id = target.identifier
+        while True:
+            if id in self.route:
+                break
+            code = self.gossip(target, ttl, paths)
+            if code is None:
+                return None
+            ttl += DEFAULT_TTL
+            # TODO Sleep some time
+        return self.route[target.identifier]
+
+    def gossip(self, source: Chain, target: Chain, ttl, paths: list):
+        num_of_neighbours = len(self.lanes)
+        if num_of_neighbours <= MIN_LANES:
+            return None
+        selecteds = set()
+        if num_of_neighbours < MIN_SEACHER:
+            for lane in self.lanes:
+                selecteds.add(lane)
         else:
-            return self.gossip(target)
+            while True:
+                if len(selecteds) == MIN_SEACHER:
+                    break
+                selecteds.add(self.lanes[random.randint(0, num_of_neighbours-1)])
+        self.transmit_to_others(selecteds, source, target, ttl=ttl, paths=paths)
+        return SUCCESS_CODE
 
-    def gossip(self, target: Chain) -> Chain:
-        # TODO Gossip
-        return None
+    def transmit_to_others(self, lanes, source: Chain, target: Chain, ttl, paths: list):
+        for lane in lanes:
+            if lane.identifier == paths[-1].identifier:
+                continue
+            paths.append(Chain(identifier=lane.identifier))
+            req = RequestGossipQueryPath(target=target.bci(), source=source.bci(), ttl=ttl)
+            req.route_chains.extend([path.bci() for path in paths])
+            with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
+                stub = bci_pb2_grpc.LaneStub(channel)
+                res = stub.GossipQueryPath(req)
 
-    async def run(self):
-        pass
+    def callback_to_finder(self, source: Chain, target: Chain, paths: list):
+        """
+        :source is who has been found
+        :target is who sent gossip first
+        """
+        for lane in self.lanes:
+            if lane.identifier == paths[-1].identifier:
+                # The source in RequestGossipCallBack is who has been found and then
+                # sends callback. And the target in RequestGossipCallBack is who sent
+                # gossip first and waiting now.
+                req = RequestGossipCallBack(target=target.bci(), source=source.bci())
+                req.route_chains.extend([path.bci() for path in paths])
+                with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
+                    stub = bci_pb2_grpc.LaneStub(channel)
+                    res = stub.GossipCallBack(req)
 
-    async def produce(self):
-        pass
-
-    async def consume(self):
-        pass
-
-
-HEADERS = {'Content-Type': 'application/json'}
-SUCCESS_CODE = 0
-
-
-class BciSender:
-
-    def __init__(self, queue: queue.Queue):
-        self.queue = queue
-
-    def transmit(self, url, req: dict):
-        res = requests.post(url=url, headers=HEADERS, data=json.dumps(req))
+    def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
+        res = ResponseRouterInfo(data=str(self.route))
         return res
-
-    def callback(self, url, req: dict):
-        res = requests.post(url=url, headers=HEADERS, data=json.dumps(req))
-        return res
-
-
-class DciServer:
-
-    def __init__(self, queue: queue.Queue):
-        self.queue = queue
 
     def transmit(self, req: RequestRouterTransmit) -> ResponseRouterTransmit:
-        self.queue.put(req)
+        paths = []
+        for path in req.paths:
+            paths.append(Chain(path))
+        self.route[req.source.identifier] = paths[-1]
+        if req.ttl <= 0:
+            return ResponseRouterTransmit(code=SUCCESS_CODE)
+        if req.target.identifier in self.route:
+            self.callback_to_finder(req.target, req.source, paths)
+        else:
+            self.gossip(req.target, ttlå=req.ttl-1, paths=paths)
         return ResponseRouterTransmit(code=SUCCESS_CODE)
 
     def callback(self, req: RequestRouterPathCallback) -> ResponseRouterPathCallback:
-        self.queue.put(req)
-        return ResponseRouterPathCallback(code=SUCCESS_CODE)
+        paths = []
+        for path in req.paths:
+            paths.append(Chain(path))
+        self.route[req.source.identifier] = paths[-1]
+        for lane in self.lanes:
+            if req.target.identifier == lane.identifier:
+                return RequestRouterPathCallback(code=SUCCESS_CODE)
+        self.callback_to_finder(req.source, req.target, paths[:-1])
+        return RequestRouterPathCallback(code=SUCCESS_CODE)
