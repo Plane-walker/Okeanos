@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import dci_pb2 as dci_dot_dci__pb2
+import interface.dci.dci_pb2 as dci_dot_dci__pb2
 
 
 class DockStub(object):
