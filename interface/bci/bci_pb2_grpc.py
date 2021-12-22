@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import bci_pb2 as bci_dot_bci__pb2
+import interface.bci.bci_pb2 as bci_dot_bci__pb2
 
 
 class LaneStub(object):

@@ -1,14 +1,8 @@
 import unittest
 import uuid
 from dock.router.router import Router
-from dock.interface.dci_pb2 import (
+from interface.dci.dci_pb2 import (
     Chain,
-    RequestRouterInfo,
-    ResponseRouterInfo,
-    RequestRouterPathCallback,
-    ResponseRouterPathCallback,
-    RequestRouterTransmit,
-    ResponseRouterTransmit,
 )
 
 
