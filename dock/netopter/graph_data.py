@@ -3,11 +3,12 @@ __all__ = [
 ]
 
 import os
-import requests
+import grpc
 import pandas as pd
 import networkx as nx
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
+from interface.bci import bci_pb2, bci_pb2_grpc
 
 
 class GraphData:
@@ -18,11 +19,9 @@ class GraphData:
         self.id_map = id_map
 
     def get_data_from_neighbors(self):
-        headers = {
-            'Content-Type': 'application/json',
-        }
-        data = '{"method": "get_neighbor_info"}'
-        response = requests.post('http://localhost:26657', headers=headers, data=data).json()
+        channel = grpc.insecure_channel('localhost:1453')
+        client = bci_pb2_grpc.LaneStub(channel=channel)
+        response = client.GetNeighborInfo()
         self.adjacency_matrix = response.adjacency_matrix
         self.feature = response.feature
         self.id_map = response.id_amp

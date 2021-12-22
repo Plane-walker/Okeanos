@@ -1,4 +1,4 @@
-from dock.interface.dci_pb2 import RouterChain
+from interface.dci.dci_pb2 import RouterChain
 
 
 def test():

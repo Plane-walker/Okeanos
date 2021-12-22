@@ -5,8 +5,8 @@ __all__ = [
 
 import random
 import grpc
-from dock.interface.dci_pb2 import Chain as DciChain
-from dock.interface.dci_pb2 import (
+from interface.dci.dci_pb2 import Chain as DciChain
+from interface.dci.dci_pb2 import (
     RequestRouterInfo,
     ResponseRouterInfo,
     RequestRouterPathCallback,
@@ -14,13 +14,11 @@ from dock.interface.dci_pb2 import (
     RequestRouterTransmit,
     ResponseRouterTransmit,
 )
-from dock.interface import bci_pb2_grpc
-from dock.interface.bci_pb2 import Chain as BciChain
-from dock.interface.bci_pb2 import (
+from interface.bci import bci_pb2_grpc
+from interface.bci.bci_pb2 import Chain as BciChain
+from interface.bci.bci_pb2 import (
     RequestGossipQueryPath,
-    ResponseGossipQueryPath,
     RequestGossipCallBack,
-    ResponseGossipCallBack,
 )
 
 

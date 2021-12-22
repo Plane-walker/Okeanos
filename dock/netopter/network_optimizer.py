@@ -4,7 +4,7 @@ __all__ = [
 
 from .node_classification import GraphSAGEModel
 from .graph_data import GraphData
-from dock.interface.dci_pb2 import ResponseSwitchCommunity
+from interface.dci.dci_pb2 import ResponseSwitchCommunity
 
 
 class NetworkOptimizer:
