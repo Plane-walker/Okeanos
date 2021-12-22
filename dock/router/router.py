@@ -14,7 +14,7 @@ from interface.dci.dci_pb2 import (
     RequestRouterTransmit,
     ResponseRouterTransmit,
 )
-from interface.bci import bci_pb2_grpc
+from interface.bci.bci_pb2_grpc import LaneStub
 from interface.bci.bci_pb2 import Chain as BciChain
 from interface.bci.bci_pb2 import (
     RequestGossipQueryPath,
@@ -55,6 +55,7 @@ class Router:
         # Route table is a dict whose key is target id in uint type and whose value
         # is Lane Chain in Chain type.
         self.route = dict()
+        self.rid = 0
         
         return None
 
@@ -65,7 +66,7 @@ class Router:
         while True:
             if id in self.route:
                 break
-            code = self.gossip(target, ttl, paths)
+            code = self.gossip(Chain(identifier=self.rid), target, ttl, paths)
             if code is None:
                 return None
             ttl += DEFAULT_TTL
@@ -96,7 +97,7 @@ class Router:
             req = RequestGossipQueryPath(target=target.bci(), source=source.bci(), ttl=ttl)
             req.route_chains.extend([path.bci() for path in paths])
             with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
-                stub = bci_pb2_grpc.LaneStub(channel)
+                stub = LaneStub(channel)
                 res = stub.GossipQueryPath(req)
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
@@ -112,11 +113,13 @@ class Router:
                 req = RequestGossipCallBack(target=target.bci(), source=source.bci())
                 req.route_chains.extend([path.bci() for path in paths])
                 with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
-                    stub = bci_pb2_grpc.LaneStub(channel)
+                    stub = LaneStub(channel)
                     res = stub.GossipCallBack(req)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
-        res = ResponseRouterInfo(data=str(self.route))
+        res = ResponseRouterInfo(code=SUCCESS_CODE,
+                                 data=('Route Table:\n'+str(self.route)).encode('utf-8'),
+                                 info="Return route table info!")
         return res
 
     def transmit(self, req: RequestRouterTransmit) -> ResponseRouterTransmit:
@@ -129,7 +132,7 @@ class Router:
         if req.target.identifier in self.route:
             self.callback_to_finder(req.target, req.source, paths)
         else:
-            self.gossip(req.target, ttlå=req.ttl-1, paths=paths)
+            self.gossip(req.source, req.target, ttl=req.ttl-1, paths=paths)
         return ResponseRouterTransmit(code=SUCCESS_CODE)
 
     def callback(self, req: RequestRouterPathCallback) -> ResponseRouterPathCallback:
