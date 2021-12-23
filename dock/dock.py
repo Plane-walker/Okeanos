@@ -18,10 +18,7 @@ class DockServer(dci_pb2_grpc.DockServicer):
         self.router = router
     
     def RouterInfo(self, request, context):
-        print(request)
-        res = self.router.info(request)
-        print(res)
-        return res
+        return self.router.info(request)
     
     def RouterTransmit(self, request, context):
         return self.router.transmit(request)
