@@ -22,7 +22,7 @@ class DockStub(object):
         self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
                 request_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.RequestRouterInfo.FromString,
+                response_deserializer=dci_dot_dci__pb2.ResponseRouterInfo.FromString,
                 )
         self.RouterTransmit = channel.unary_unary(
                 '/dci.Dock/RouterTransmit',
@@ -107,7 +107,7 @@ def add_DockServicer_to_server(servicer, server):
             'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
                     request_deserializer=dci_dot_dci__pb2.RequestRouterInfo.FromString,
-                    response_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
+                    response_serializer=dci_dot_dci__pb2.ResponseRouterInfo.SerializeToString,
             ),
             'RouterTransmit': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterTransmit,
@@ -174,7 +174,7 @@ class Dock(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterInfo',
             dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
-            dci_dot_dci__pb2.RequestRouterInfo.FromString,
+            dci_dot_dci__pb2.ResponseRouterInfo.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
