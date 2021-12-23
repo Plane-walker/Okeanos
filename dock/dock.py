@@ -1,16 +1,21 @@
+__all__ = [
+    "DockServer",
+    "Dock",
+]
+
 from concurrent import futures
-from interface.dci.dci_pb2_grpc import DockServicer as Servicer
-from interface.dci.dci_pb2_grpc import add_DockServicer_to_server
-from router.router import Router
-from interface.dci.dci_pb2 import ResponseRouterInfo
+import os
 import grpc
-import time
+import yaml
+from interface.dci import dci_pb2_grpc
+from dock.router import Router
+from dock.netopter import NetworkOptimizer
 
 
-class DockServicer(Servicer):
+class DockServer(dci_pb2_grpc.DockServicer):
     
-    def __init__(self) -> None:
-        self.router = Router()
+    def __init__(self, router):
+        self.router = router
     
     def RouterInfo(self, request, context):
         print(request)
@@ -25,26 +30,22 @@ class DockServicer(Servicer):
         return self.router.callback(request)
 
 
-ONE_DAY_IN_SECONDS = 60 * 60 * 24
-HOST = 'localhost'
-PORT = '5000'
+class Dock:
+    def __init__(self, config_path=None):
+        router = Router()
+        network_optimizer = NetworkOptimizer(0, 0)
+        self.dock_server = DockServer(router)
+        if config_path is None:
+            current_path = os.path.dirname(__file__)
+            config_path = os.path.join(current_path, 'default_config.yaml')
+        with open(config_path) as file:
+            self.config = yaml.load(file, Loader=yaml.Loader)
 
-def run():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    add_DockServicer_to_server(DockServicer(), server)
-    print(f'"msg":"grpc start @ grpc://{HOST}:{PORT}"')
-    server.add_insecure_port(f"{HOST}:{PORT}")
-    server.start()
-    # server.wait_for_termination()
-    try:
-        while True:
-            time.sleep(ONE_DAY_IN_SECONDS)
-    except KeyboardInterrupt:
-        server.stop(0)
-    except Exception as e:
-        server.stop(0)
-        raise
-
-
-if __name__ == '__main__':
-    run()
+    def run(self):
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        dci_pb2_grpc.add_DockServicer_to_server(self.dock_server, server)
+        host = self.config['dock']['address']['host']
+        port = self.config['dock']['address']['port']
+        server.add_insecure_port(f'{host}:{port}')
+        server.start()
+        server.wait_for_termination()

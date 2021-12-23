@@ -1,3 +1,5 @@
-from dock.dock import test
+from dock import Dock
 
-test()
+if __name__ == '__main__':
+    dock = Dock()
+    dock.run()
