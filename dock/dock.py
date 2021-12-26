@@ -1,6 +1,6 @@
 __all__ = [
-    "DockServer",
-    "Dock",
+    'DockServer',
+    'Dock',
 ]
 
 from concurrent import futures
@@ -13,16 +13,16 @@ from dock.netopter import NetworkOptimizer
 
 
 class DockServer(dci_pb2_grpc.DockServicer):
-    
+
     def __init__(self, router):
         self.router = router
-    
+
     def RouterInfo(self, request, context):
         return self.router.info(request)
-    
+
     def RouterTransmit(self, request, context):
         return self.router.transmit(request)
-    
+
     def RouterPathCallback(self, request, context):
         return self.router.callback(request)
 

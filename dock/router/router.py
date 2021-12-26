@@ -1,5 +1,6 @@
 __all__ = [
-    "Router",
+    'Router',
+    'Chain',
 ]
 
 
@@ -22,22 +23,26 @@ from interface.bci.bci_pb2 import (
     RequestGossipQueryPath,
     RequestGossipCallBack,
 )
+from enum import Enum, unique
+
+
+@unique
+class DciResCode(Enum):
+    OK = 0
+    FAIL = 1
 
 
 class Chain:
-    
-    def __init__(self, chain: DciChain):
-        self.identifier = chain.identifier
-        
-    def __init__(self, chain:BciChain):
-        self.identifier = chain.identifier
-        
-    def __init__(self, identifier: int):
-        self.identifier = identifier
-    
+
+    def __init__(self, chain):
+        if isinstance(chain, int):
+            self.identifier = chain
+        else:
+            self.identifier = chain.identifier
+
     def dci(self) -> DciChain:
         return DciChain(identifier=self.identifier)
-    
+
     def bci(self) -> BciChain:
         return BciChain(identifier=self.identifier)
 
@@ -47,22 +52,23 @@ class Router:
     def __init__(self, config_path=None) -> None:
         self.node_id = 0
         self.data_chain_id = 0
-        
+
         # Key is the id of Router Chain
         # Value contains ip:port and some other info
-        self.lanes = dict()
-        
-        # Route table is a dict whose key is target id in uint type and 
+        self.lanes = {}
+
+        # Route table is a dict whose key is target id in uint type and
         # whose value is Lane Chain in Chain type.
-        self.route = dict()
-        
+        self.route = {}
+
         if config_path is None:
             config_dir = os.path.dirname(__file__)
-            config_path = os.path.join(config_dir, 'default_router_config.yaml')
-        with open(config_path) as f:
-            config = yaml.load(f, Loader=yaml.Loader)
+            config_path = os.path.join(
+                config_dir, 'default_router_config.yaml')
+        with open(config_path, encoding='utf-8') as file:
+            config = yaml.load(file, Loader=yaml.Loader)
             self.configure(config['router'])
-    
+
     def configure(self, config: dict, config_key=None):
         if not isinstance(config, dict):
             return
@@ -84,7 +90,7 @@ class Router:
         while True:
             if id in self.route:
                 break
-            code = self.gossip(Chain(identifier=self.data_chain_id), target, ttl, paths)
+            code = self.gossip(Chain(self.data_chain_id), target, ttl, paths)
             if code is None:
                 return None
             ttl += self.ttl
@@ -103,16 +109,28 @@ class Router:
             while True:
                 if len(selecteds) == self.min_seacher:
                     break
-                selecteds.add(self.lanes[random.randint(0, num_of_neighbours-1)])
-        self.transmit_to_others(selecteds, source, target, ttl=ttl, paths=paths)
-        return grpc.StatusCode.OK
+                selecteds.add(
+                    self.lanes[random.randint(0, num_of_neighbours-1)])
+        self.transmit_to_others(
+            selecteds, source, target, ttl=ttl, paths=paths)
+        return DciResCode.OK.value
 
     def transmit_to_others(self, lanes, source: Chain, target: Chain, ttl, paths: list):
+        """Transmit gossip message to each route chain
+
+        Args:
+            lanes (list(Lane)): Route chains selected to gossip
+            source (Chain): The source data chain who sent gossip
+            target (Chain): The target data chain who will been found
+            ttl (int): ttl
+            paths (list): The list of route path consists of route chain
+        """
         for lane in lanes:
             if lane.identifier == paths[-1].identifier:
                 continue
-            paths.append(Chain(identifier=lane.identifier))
-            req = RequestGossipQueryPath(target=target.bci(), source=source.bci(), ttl=ttl)
+            paths.append(Chain(lane.identifier))
+            req = RequestGossipQueryPath(
+                target=target.bci(), source=source.bci(), ttl=ttl)
             req.route_chains.extend([path.bci() for path in paths])
             with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
                 stub = LaneStub(channel)
@@ -120,24 +138,27 @@ class Router:
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
         """
-        :source is who has been found
-        :target is who sent gossip first
+        :source is data chain who has been found
+        :target is data chain who sent gossip first
         """
         for lane in self.lanes:
             if lane.identifier == paths[-1].identifier:
-                # The source in RequestGossipCallBack is who has been found and then
-                # sends callback. And the target in RequestGossipCallBack is who sent
-                # gossip first and waiting now.
-                req = RequestGossipCallBack(target=target.bci(), source=source.bci())
+                # The source in RequestGossipCallBack is who has been found and
+                # then sends callback. And the target in RequestGossipCallBack
+                # is who sent gossip first and waiting now.
+                req = RequestGossipCallBack(
+                    target=target.bci(), source=source.bci())
                 req.route_chains.extend([path.bci() for path in paths])
                 with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
                     stub = LaneStub(channel)
                     res = stub.GossipCallBack(req)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
-        res = ResponseRouterInfo(code=grpc.StatusCode.OK,
-                                 data=('Route Table:\n'+str(self.route)).encode('utf-8'),
-                                 info="Return route table info!")
+        res = ResponseRouterInfo(code=DciResCode.OK.value,
+                                 data=(
+                                     'Route Table:\n'+str(self.route)
+                                 ).encode('utf-8'),
+                                 info='Return route table info!')
         return res
 
     def transmit(self, req: RequestRouterTransmit) -> ResponseRouterTransmit:
@@ -146,14 +167,14 @@ class Router:
             paths.append(Chain(path))
         self.route[req.source.identifier] = paths[-1]
         if req.ttl <= 0:
-            return ResponseRouterTransmit(code=grpc.StatusCode.OK)
+            return ResponseRouterTransmit(code=DciResCode.OK.value)
         if req.target.identifier == self.data_chain_id:
             self.callback_to_finder(req.target, req.source, paths)
         elif req.target.identifier in self.route:
             self.callback_to_finder(req.target, req.source, paths)
         else:
             self.gossip(req.source, req.target, ttl=req.ttl-1, paths=paths)
-        return ResponseRouterTransmit(code=grpc.StatusCode.OK)
+        return ResponseRouterTransmit(code=DciResCode.OK.value)
 
     def callback(self, req: RequestRouterPathCallback) -> ResponseRouterPathCallback:
         paths = []
@@ -162,6 +183,6 @@ class Router:
         self.route[req.source.identifier] = paths[-1]
         for lane in self.lanes:
             if req.target.identifier == lane.identifier:
-                return RequestRouterPathCallback(code=grpc.StatusCode.OK)
+                return ResponseRouterPathCallback(code=DciResCode.OK.value)
         self.callback_to_finder(req.source, req.target, paths[:-1])
-        return RequestRouterPathCallback(code=grpc.StatusCode.OK)
+        return ResponseRouterPathCallback(code=DciResCode.OK.value)
