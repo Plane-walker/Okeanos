@@ -8,6 +8,7 @@ import os
 import grpc
 import yaml
 from interface.dci import dci_pb2_grpc
+from dock.cccp import CrossChainCommunicationProtocol
 from dock.router import Router
 from dock.netopter import NetworkOptimizer
 
@@ -16,6 +17,15 @@ class DockServer(dci_pb2_grpc.DockServicer):
 
     def __init__(self, router):
         self.router = router
+
+    def __int__(self, cccp):
+        self.cccp = cccp
+
+    def response_message(self):
+        return self.cccp.response_message()
+
+    def get_target_id(self, request, context):
+        return self.cccp.get_target_id(request)
 
     def RouterInfo(self, request, context):
         return self.router.info(request)
@@ -30,6 +40,7 @@ class DockServer(dci_pb2_grpc.DockServicer):
 class Dock:
     def __init__(self, config_path=None):
         router = Router()
+        cccp = CrossChainCommunicationProtocol()
         network_optimizer = NetworkOptimizer(0, 0)
         self.dock_server = DockServer(router)
         if config_path is None:
@@ -45,4 +56,5 @@ class Dock:
         port = self.config['dock']['address']['port']
         server.add_insecure_port(f'{host}:{port}')
         server.start()
+        print("start succeed")
         server.wait_for_termination()

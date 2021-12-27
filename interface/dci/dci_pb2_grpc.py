@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import interface.dci.dci_pb2 as dci_dot_dci__pb2
+from ..dci import dci_pb2 as dci_dot_dci__pb2
 
 
 class DockStub(object):
@@ -17,7 +17,7 @@ class DockStub(object):
         self.PackageTx = channel.unary_unary(
                 '/dci.Dock/PackageTx',
                 request_serializer=dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseTxPackage.FromString,
+                response_deserializer=dci_dot_dci__pb2.ResponseMessage.FromString,
                 )
         self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
@@ -102,7 +102,7 @@ def add_DockServicer_to_server(servicer, server):
             'PackageTx': grpc.unary_unary_rpc_method_handler(
                     servicer.PackageTx,
                     request_deserializer=dci_dot_dci__pb2.RequestTxPackage.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseTxPackage.SerializeToString,
+                    response_serializer=dci_dot_dci__pb2.ResponseMessage.SerializeToString,
             ),
             'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
@@ -157,7 +157,7 @@ class Dock(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/PackageTx',
             dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
-            dci_dot_dci__pb2.ResponseTxPackage.FromString,
+            dci_dot_dci__pb2.ResponseMessage.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
