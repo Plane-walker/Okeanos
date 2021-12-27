@@ -7,12 +7,11 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+from interface import gogo_pb2 as gogoproto_dot_gogo__pb2
+
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
-
-
-import interface.gogo_pb2 as gogoproto_dot_gogo__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -21,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x14gogoproto/gogo.proto\"Y\n\x10RequestTxPackage\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\ttarget_id\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x07node_id\x18\x03 \x01(\x0b\x32\t.dci.Node\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x1b\n\x05\x43hain\x12\x12\n\nidentifier\x18\x01 \x01(\r\"\x1a\n\x04Node\x12\x12\n\nidentifier\x18\x01 \x01(\r\"w\n\x15RequestRouterTransmit\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x19\n\x05paths\x18\x04 \x03(\x0b\x32\n.dci.Chain\"n\n\x19RequestRouterPathCallback\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x19\n\x05paths\x18\x03 \x03(\x0b\x32\n.dci.Chain\"2\n\x16RequestSwitchCommunity\x12\x18\n\x10target_community\x18\x01 \x01(\t\"*\n\x14RequestCommunityInfo\x12\x12\n\ninfo_level\x18\x01 \x01(\x05\"Y\n\x16RequestCommunityConfig\x12\x13\n\x0b\x61uto_switch\x18\x01 \x01(\x08\x12\x17\n\x0fmax_peer_number\x18\x02 \x01(\x05\x12\x11\n\talgorithm\x18\x03 \x01(\t\"\\\n\x05\x45vent\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x45\n\nattributes\x18\x02 \x03(\x0b\x32\x13.dci.EventAttributeB\x1c\xc8\xde\x1f\x00\xea\xde\x1f\x14\x61ttributes,omitempty\";\n\x0e\x45ventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\x0c\x12\r\n\x05value\x18\x02 \x01(\x0c\x12\r\n\x05index\x18\x03 \x01(\x08\"~\n\x11ResponseTxPackage\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x13\n\x0bpackaged_tx\x18\x02 \x01(\x0c\x12\x1d\n\ttarget_id\x18\x03 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x07node_id\x18\x04 \x01(\x0b\x32\t.dci.Node\x12\x0b\n\x03ttl\x18\x05 \x01(\x0c\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseSwitchCommunity\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\x0c\"%\n\x15ResponseCommunityInfo\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"d\n\x17ResponseCommunityConfig\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x12\n\ncode_space\x18\x08 \x01(\t*9\n\x0b\x43heckTxType\x12\x10\n\x03NEW\x10\x00\x1a\x07\x8a\x9d \x03New\x12\x18\n\x07RECHECK\x10\x01\x1a\x0b\x8a\x9d \x07Recheck2\x83\x04\n\x04\x44ock\x12:\n\tPackageTx\x12\x15.dci.RequestTxPackage\x1a\x16.dci.ResponseTxPackage\x12=\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo\x12I\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit\x12U\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback\x12L\n\x0fSwitchCommunity\x12\x1b.dci.RequestSwitchCommunity\x1a\x1c.dci.ResponseSwitchCommunity\x12\x46\n\rCommunityInfo\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfo\x12H\n\x0f\x43ommunityConfig\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfoB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x14gogoproto/gogo.proto\"Y\n\x10RequestTxPackage\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\ttarget_id\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x07node_id\x18\x03 \x01(\x0b\x32\t.dci.Node\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x1b\n\x05\x43hain\x12\x12\n\nidentifier\x18\x01 \x01(\r\"\x1a\n\x04Node\x12\x12\n\nidentifier\x18\x01 \x01(\r\"w\n\x15RequestRouterTransmit\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x19\n\x05paths\x18\x04 \x03(\x0b\x32\n.dci.Chain\"n\n\x19RequestRouterPathCallback\x12\x1a\n\x06source\x18\x01 \x01(\x0b\x32\n.dci.Chain\x12\x1a\n\x06target\x18\x02 \x01(\x0b\x32\n.dci.Chain\x12\x19\n\x05paths\x18\x03 \x03(\x0b\x32\n.dci.Chain\"2\n\x16RequestSwitchCommunity\x12\x18\n\x10target_community\x18\x01 \x01(\t\"*\n\x14RequestCommunityInfo\x12\x12\n\ninfo_level\x18\x01 \x01(\x05\"Y\n\x16RequestCommunityConfig\x12\x13\n\x0b\x61uto_switch\x18\x01 \x01(\x08\x12\x17\n\x0fmax_peer_number\x18\x02 \x01(\x05\x12\x11\n\talgorithm\x18\x03 \x01(\t\"\\\n\x05\x45vent\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x45\n\nattributes\x18\x02 \x03(\x0b\x32\x13.dci.EventAttributeB\x1c\xc8\xde\x1f\x00\xea\xde\x1f\x14\x61ttributes,omitempty\";\n\x0e\x45ventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\x0c\x12\r\n\x05value\x18\x02 \x01(\x0c\x12\r\n\x05index\x18\x03 \x01(\x08\"\"\n\x0fResponseMessage\x12\x0f\n\x07message\x18\x01 \x01(\t\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseSwitchCommunity\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\x0c\"%\n\x15ResponseCommunityInfo\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"d\n\x17ResponseCommunityConfig\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0b\n\x03log\x18\x03 \x01(\t\x12\x0c\n\x04info\x18\x04 \x01(\t\x12\x12\n\ncode_space\x18\x08 \x01(\t*9\n\x0b\x43heckTxType\x12\x10\n\x03NEW\x10\x00\x1a\x07\x8a\x9d \x03New\x12\x18\n\x07RECHECK\x10\x01\x1a\x0b\x8a\x9d \x07Recheck2\x81\x04\n\x04\x44ock\x12\x38\n\tPackageTx\x12\x15.dci.RequestTxPackage\x1a\x14.dci.ResponseMessage\x12=\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo\x12I\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit\x12U\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback\x12L\n\x0fSwitchCommunity\x12\x1b.dci.RequestSwitchCommunity\x1a\x1c.dci.ResponseSwitchCommunity\x12\x46\n\rCommunityInfo\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfo\x12H\n\x0f\x43ommunityConfig\x12\x19.dci.RequestCommunityInfo\x1a\x1a.dci.ResponseCommunityInfoB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
   ,
   dependencies=[gogoproto_dot_gogo__pb2.DESCRIPTOR,])
 
@@ -45,8 +44,8 @@ _CHECKTXTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1300,
-  serialized_end=1357,
+  serialized_start=1208,
+  serialized_end=1265,
 )
 _sym_db.RegisterEnumDescriptor(_CHECKTXTYPE)
 
@@ -492,46 +491,18 @@ _EVENTATTRIBUTE = _descriptor.Descriptor(
 )
 
 
-_RESPONSETXPACKAGE = _descriptor.Descriptor(
-  name='ResponseTxPackage',
-  full_name='dci.ResponseTxPackage',
+_RESPONSEMESSAGE = _descriptor.Descriptor(
+  name='ResponseMessage',
+  full_name='dci.ResponseMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='code', full_name='dci.ResponseTxPackage.code', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='packaged_tx', full_name='dci.ResponseTxPackage.packaged_tx', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='target_id', full_name='dci.ResponseTxPackage.target_id', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='node_id', full_name='dci.ResponseTxPackage.node_id', index=3,
-      number=4, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ttl', full_name='dci.ResponseTxPackage.ttl', index=4,
-      number=5, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
+      name='message', full_name='dci.ResponseMessage.message', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -548,7 +519,7 @@ _RESPONSETXPACKAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=800,
-  serialized_end=926,
+  serialized_end=834,
 )
 
 
@@ -593,8 +564,8 @@ _RESPONSEROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=928,
-  serialized_end=990,
+  serialized_start=836,
+  serialized_end=898,
 )
 
 
@@ -632,8 +603,8 @@ _RESPONSEROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=992,
-  serialized_end=1044,
+  serialized_start=900,
+  serialized_end=952,
 )
 
 
@@ -671,8 +642,8 @@ _RESPONSEROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1046,
-  serialized_end=1102,
+  serialized_start=954,
+  serialized_end=1010,
 )
 
 
@@ -710,8 +681,8 @@ _RESPONSESWITCHCOMMUNITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1104,
-  serialized_end=1157,
+  serialized_start=1012,
+  serialized_end=1065,
 )
 
 
@@ -742,8 +713,8 @@ _RESPONSECOMMUNITYINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1159,
-  serialized_end=1196,
+  serialized_start=1067,
+  serialized_end=1104,
 )
 
 
@@ -802,8 +773,8 @@ _RESPONSECOMMUNITYCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1198,
-  serialized_end=1298,
+  serialized_start=1106,
+  serialized_end=1206,
 )
 
 _REQUESTTXPACKAGE.fields_by_name['target_id'].message_type = _CHAIN
@@ -815,8 +786,6 @@ _REQUESTROUTERPATHCALLBACK.fields_by_name['source'].message_type = _CHAIN
 _REQUESTROUTERPATHCALLBACK.fields_by_name['target'].message_type = _CHAIN
 _REQUESTROUTERPATHCALLBACK.fields_by_name['paths'].message_type = _CHAIN
 _EVENT.fields_by_name['attributes'].message_type = _EVENTATTRIBUTE
-_RESPONSETXPACKAGE.fields_by_name['target_id'].message_type = _CHAIN
-_RESPONSETXPACKAGE.fields_by_name['node_id'].message_type = _NODE
 DESCRIPTOR.message_types_by_name['RequestTxPackage'] = _REQUESTTXPACKAGE
 DESCRIPTOR.message_types_by_name['RequestRouterInfo'] = _REQUESTROUTERINFO
 DESCRIPTOR.message_types_by_name['Chain'] = _CHAIN
@@ -828,7 +797,7 @@ DESCRIPTOR.message_types_by_name['RequestCommunityInfo'] = _REQUESTCOMMUNITYINFO
 DESCRIPTOR.message_types_by_name['RequestCommunityConfig'] = _REQUESTCOMMUNITYCONFIG
 DESCRIPTOR.message_types_by_name['Event'] = _EVENT
 DESCRIPTOR.message_types_by_name['EventAttribute'] = _EVENTATTRIBUTE
-DESCRIPTOR.message_types_by_name['ResponseTxPackage'] = _RESPONSETXPACKAGE
+DESCRIPTOR.message_types_by_name['ResponseMessage'] = _RESPONSEMESSAGE
 DESCRIPTOR.message_types_by_name['ResponseRouterInfo'] = _RESPONSEROUTERINFO
 DESCRIPTOR.message_types_by_name['ResponseRouterTransmit'] = _RESPONSEROUTERTRANSMIT
 DESCRIPTOR.message_types_by_name['ResponseRouterPathCallback'] = _RESPONSEROUTERPATHCALLBACK
@@ -915,12 +884,12 @@ EventAttribute = _reflection.GeneratedProtocolMessageType('EventAttribute', (_me
   })
 _sym_db.RegisterMessage(EventAttribute)
 
-ResponseTxPackage = _reflection.GeneratedProtocolMessageType('ResponseTxPackage', (_message.Message,), {
-  'DESCRIPTOR' : _RESPONSETXPACKAGE,
+ResponseMessage = _reflection.GeneratedProtocolMessageType('ResponseMessage', (_message.Message,), {
+  'DESCRIPTOR' : _RESPONSEMESSAGE,
   '__module__' : 'dci.dci_pb2'
-  # @@protoc_insertion_point(class_scope:dci.ResponseTxPackage)
+  # @@protoc_insertion_point(class_scope:dci.ResponseMessage)
   })
-_sym_db.RegisterMessage(ResponseTxPackage)
+_sym_db.RegisterMessage(ResponseMessage)
 
 ResponseRouterInfo = _reflection.GeneratedProtocolMessageType('ResponseRouterInfo', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSEROUTERINFO,
@@ -977,8 +946,8 @@ _DOCK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1360,
-  serialized_end=1875,
+  serialized_start=1268,
+  serialized_end=1781,
   methods=[
   _descriptor.MethodDescriptor(
     name='PackageTx',
@@ -986,7 +955,7 @@ _DOCK = _descriptor.ServiceDescriptor(
     index=0,
     containing_service=None,
     input_type=_REQUESTTXPACKAGE,
-    output_type=_RESPONSETXPACKAGE,
+    output_type=_RESPONSEMESSAGE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

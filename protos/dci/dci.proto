@@ -69,12 +69,8 @@ message EventAttribute {
     bool  index = 3;  // nondeterministic
 }
 
-message ResponseTxPackage {
-    uint32 code = 1;
-    bytes packaged_tx = 2;
-    Chain target_id = 3;
-    Node node_id = 4;
-    bytes ttl = 5;
+message ResponseMessage {
+    string message = 1;
 }
 
 message ResponseRouterInfo {
@@ -111,7 +107,7 @@ message ResponseCommunityConfig {
 }
 
 service Dock {
-    rpc PackageTx(RequestTxPackage) returns (ResponseTxPackage);
+    rpc PackageTx(RequestTxPackage) returns (ResponseMessage);
 
     rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
