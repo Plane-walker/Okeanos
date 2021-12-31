@@ -10,7 +10,7 @@ import yaml
 from interface.dci import dci_pb2_grpc
 from dock.router import Router
 from dock.netopter import NetworkOptimizer
-from dock.log import log
+from log import log
 
 
 class DockServer(dci_pb2_grpc.DockServicer):

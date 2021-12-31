@@ -6,7 +6,7 @@ from interface.dci import dci_pb2_grpc, dci_pb2
 from dock.router import Router
 from dock import DockServer
 from interface.dci.dci_pb2 import Chain
-from dock.log import log
+from log import log
 
 
 class TestRouter(unittest.TestCase):

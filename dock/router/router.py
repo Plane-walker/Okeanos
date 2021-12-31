@@ -24,7 +24,7 @@ from interface.bci.bci_pb2 import (
     RequestGossipCallBack,
 )
 from enum import Enum, unique
-from dock.log import log
+from log import log
 
 
 @unique
