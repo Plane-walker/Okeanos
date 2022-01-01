@@ -24,6 +24,7 @@ from interface.bci.bci_pb2 import (
     RequestGossipCallBack,
 )
 from enum import Enum, unique
+from log import log
 
 
 @unique
@@ -133,6 +134,7 @@ class Router:
                 target=target.bci(), source=source.bci(), ttl=ttl)
             req.route_chains.extend([path.bci() for path in paths])
             with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
+                log.info('Connect to ', channel)
                 stub = LaneStub(channel)
                 res = stub.GossipQueryPath(req)
 
@@ -150,6 +152,7 @@ class Router:
                     target=target.bci(), source=source.bci())
                 req.route_chains.extend([path.bci() for path in paths])
                 with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
+                    log.info('Connect to ', channel)
                     stub = LaneStub(channel)
                     res = stub.GossipCallBack(req)
 

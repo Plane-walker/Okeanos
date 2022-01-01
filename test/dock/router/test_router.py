@@ -6,11 +6,13 @@ from interface.dci import dci_pb2_grpc, dci_pb2
 from dock.router import Router
 from dock import DockServer
 from interface.dci.dci_pb2 import Chain
+from log import log
 
 
 class TestRouter(unittest.TestCase):
 
     def setUp(self):
+        print('SetUp')
         self.router = Router()
         self.test_num = 5
         self.ids = []
@@ -25,6 +27,7 @@ class TestRouter(unittest.TestCase):
         server.start()
 
     def test_next_node(self):
+        log.debug('')
         for identifier in self.ids:
             self.assertTrue(identifier in self.router.route)
             self.assertEqual(
@@ -38,12 +41,14 @@ class TestRouter(unittest.TestCase):
                 Chain(identifier=uuid.uuid4().fields[0])))
 
     def test_info(self):
+        log.debug('')
         with grpc.insecure_channel(self.addr) as channel:
             stub = dci_pb2_grpc.DockStub(channel)
             res = stub.RouterInfo(dci_pb2.RequestRouterInfo(tx=1234))
             self.assertIsInstance(res, dci_pb2.ResponseRouterInfo)
 
     def test_transmit(self):
+        log.debug('')
         with grpc.insecure_channel(self.addr) as channel:
             stub = dci_pb2_grpc.DockStub(channel)
             res = stub.RouterTransmit(
@@ -57,6 +62,7 @@ class TestRouter(unittest.TestCase):
             self.assertIsInstance(res, dci_pb2.ResponseRouterTransmit)
 
     def test_callback(self):
+        log.debug('')
         with grpc.insecure_channel(self.addr) as channel:
             stub = dci_pb2_grpc.DockStub(channel)
             res = stub.RouterPathCallback(
