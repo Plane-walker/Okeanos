@@ -104,11 +104,8 @@ message ResponseCommunityInfo {
 }
 
 message ResponseCommunityConfig {
-    uint32         code       = 1;
-    bytes          data       = 2;
-    string         log        = 3;  // nondeterministic
-    string         info       = 4;  // nondeterministic
-    string code_space = 8;
+    uint32 code = 1;
+    string info = 2;
 }
 
 service Dock {
@@ -120,5 +117,5 @@ service Dock {
 
     rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
     rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
-    rpc CommunityConfig(RequestCommunityInfo) returns (ResponseCommunityInfo);
+    rpc CommunityConfig(RequestCommunityConfig) returns (ResponseCommunityConfig);
 }

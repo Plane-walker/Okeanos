@@ -1,4 +1,0 @@
-router:
-  min_router_chain: 3
-  min_search: 3
-  ttl: 10

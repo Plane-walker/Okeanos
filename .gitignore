@@ -137,3 +137,5 @@ cora/
 models/
 
 .DS_Store
+
+/config
