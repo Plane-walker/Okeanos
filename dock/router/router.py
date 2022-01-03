@@ -1,6 +1,5 @@
 __all__ = [
     'Router',
-    'Chain',
 ]
 
 
@@ -10,7 +9,7 @@ import time
 import yaml
 import uuid
 from threading import Thread
-from interface.dci.dci_pb2 import Chain as DciChain
+from interface.common.id_pb2 import Chain
 from interface.dci.dci_pb2 import (
     RequestRouterInfo,
     ResponseRouterInfo,
@@ -20,7 +19,6 @@ from interface.dci.dci_pb2 import (
     ResponseRouterTransmit,
 )
 from interface.bci.bci_pb2_grpc import LaneStub
-from interface.bci.bci_pb2 import Chain as BciChain
 from interface.bci.bci_pb2 import (
     RequestGossipQueryPath,
     RequestGossipCallBack,
@@ -35,21 +33,6 @@ class DciResCode(Enum):
     FAIL = 1
 
 
-class Chain:
-
-    def __init__(self, chain):
-        if isinstance(chain, str):
-            self.identifier = chain
-        else:
-            self.identifier = chain.identifier
-
-    def dci(self) -> DciChain:
-        return DciChain(identifier=self.identifier)
-
-    def bci(self) -> BciChain:
-        return BciChain(identifier=self.identifier)
-
-
 class Router:
 
     def __init__(self, config_path) -> None:
@@ -60,7 +43,7 @@ class Router:
         # Value contains ip:port and some other info
         self.lanes = {}
 
-        # Route table is a dict whose key is target id in uint type and
+        # Route table is a dict whose key is target id in str type and
         # whose value is Lane Chain in Chain type.
         self.route = {}
 
@@ -74,9 +57,8 @@ class Router:
         while True:
             log.info('Periodical Gossip . . .')
             identifier = uuid.uuid4().hex
-            log.debug(identifier)
-            target = Chain(identifier)
-            self.gossip(Chain(self.data_chain_id), target, 10, [])
+            target = Chain(identifier=identifier)
+            self.gossip(Chain(identifier=self.data_chain_id), target, 10, [])
             time.sleep(10)
 
     def configure(self, config: dict, config_key=None):
@@ -100,7 +82,7 @@ class Router:
         while True:
             if id in self.route:
                 break
-            code = self.gossip(Chain(self.data_chain_id), target, ttl, paths)
+            code = self.gossip(Chain(identifier=self.data_chain_id), target, ttl, paths)
             if code is None:
                 return None
             ttl += self.ttl
@@ -140,8 +122,8 @@ class Router:
                 continue
             paths.append(Chain(lane.identifier))
             req = RequestGossipQueryPath(
-                target=target.bci(), source=source.bci(), ttl=ttl)
-            req.route_chains.extend([path.bci() for path in paths])
+                target=target, source=source, ttl=ttl)
+            req.route_chains.extend([path for path in paths])
             with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
                 log.info('Connect to ', channel)
                 stub = LaneStub(channel)
@@ -159,8 +141,8 @@ class Router:
                 # then sends callback. And the target in RequestGossipCallBack
                 # is who sent gossip first and waiting now.
                 req = RequestGossipCallBack(
-                    target=target.bci(), source=source.bci())
-                req.route_chains.extend([path.bci() for path in paths])
+                    target=target, source=source)
+                req.route_chains.extend([path for path in paths])
                 with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
                     log.info('Connect to ', channel)
                     stub = LaneStub(channel)
@@ -176,9 +158,7 @@ class Router:
         return res
 
     def transmit(self, req: RequestRouterTransmit) -> ResponseRouterTransmit:
-        paths = []
-        for path in req.paths:
-            paths.append(Chain(path))
+        paths = req.paths
         self.route[req.source.identifier] = paths[-1]
         if req.ttl <= 0:
             return ResponseRouterTransmit(code=DciResCode.OK.value)
@@ -191,9 +171,7 @@ class Router:
         return ResponseRouterTransmit(code=DciResCode.OK.value)
 
     def callback(self, req: RequestRouterPathCallback) -> ResponseRouterPathCallback:
-        paths = []
-        for path in req.paths:
-            paths.append(Chain(path))
+        paths = req.paths
         self.route[req.source.identifier] = paths[-1]
         for lane in self.lanes:
             if req.target.identifier == lane.identifier:
