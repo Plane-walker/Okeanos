@@ -21,10 +21,10 @@ message RequestRouterInfo {
 }
 
 message RequestRouterTransmit {
-    common.Chain           source      = 1;
-    common.Chain           target      = 2;
-    uint32          ttl         = 3;
-    repeated common.Chain  paths       = 4;
+    common.Chain source = 1;
+    common.Chain target = 2;
+    uint32 ttl = 3;
+    repeated common.Chain paths = 4;
 }
 
 message RequestRouterPathCallback {
@@ -64,10 +64,6 @@ message EventAttribute {
 
 message ResponseTxPackage {
     uint32 code = 1;
-    bytes packaged_tx = 2;
-    common.Chain target_id = 3;
-    common.Node node_id = 4;
-    bytes ttl = 5;
 }
 
 message ResponseRouterInfo {
