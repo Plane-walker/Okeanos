@@ -11,6 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+import interface.common.id_pb2 as common_dot_id__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -19,8 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbci/bci.proto\x12\x03\x62\x63i\":\n\x0fRequestSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\";\n\x10ResponseSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"G\n\rRequestJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\n\n\x02rc\x18\x04 \x01(\t\"<\n\x0eResponseJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x1b\n\x05\x43hain\x12\x12\n\nidentifier\x18\x01 \x01(\r\"\x7f\n\x16RequestGossipQueryPath\x12\x1a\n\x06target\x18\x01 \x01(\x0b\x32\n.bci.Chain\x12\x1a\n\x06source\x18\x02 \x01(\x0b\x32\n.bci.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12 \n\x0croute_chains\x18\x04 \x03(\x0b\x32\n.bci.Chain\"5\n\x17ResponseGossipQueryPath\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"q\n\x15RequestGossipCallBack\x12\x1a\n\x06target\x18\x01 \x01(\x0b\x32\n.bci.Chain\x12\x1a\n\x06source\x18\x02 \x01(\x0b\x32\n.bci.Chain\x12 \n\x0croute_chains\x18\x03 \x03(\x0b\x32\n.bci.Chain\"4\n\x16ResponseGossipCallBack\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t2\x8b\x02\n\x04Lane\x12\x37\n\x08SendData\x12\x14.bci.RequestSendData\x1a\x15.bci.ResponseSendData\x12\x31\n\x06JoinRC\x12\x12.bci.RequestJoinRC\x1a\x13.bci.ResponseJoinRC\x12L\n\x0fGossipQueryPath\x12\x1b.bci.RequestGossipQueryPath\x1a\x1c.bci.ResponseGossipQueryPath\x12I\n\x0eGossipCallBack\x12\x1a.bci.RequestGossipCallBack\x1a\x1b.bci.ResponseGossipCallBackB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
-)
+  serialized_pb=b'\n\rbci/bci.proto\x12\x03\x62\x63i\x1a\x0f\x63ommon/id.proto\":\n\x0fRequestSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\";\n\x10ResponseSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"G\n\rRequestJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\n\n\x02rc\x18\x04 \x01(\t\"<\n\x0eResponseJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x88\x01\n\x16RequestGossipQueryPath\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12#\n\x0croute_chains\x18\x04 \x03(\x0b\x32\r.common.Chain\"5\n\x17ResponseGossipQueryPath\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"z\n\x15RequestGossipCallBack\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12#\n\x0croute_chains\x18\x03 \x03(\x0b\x32\r.common.Chain\"4\n\x16ResponseGossipCallBack\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t2\x8b\x02\n\x04Lane\x12\x37\n\x08SendData\x12\x14.bci.RequestSendData\x1a\x15.bci.ResponseSendData\x12\x31\n\x06JoinRC\x12\x12.bci.RequestJoinRC\x1a\x13.bci.ResponseJoinRC\x12L\n\x0fGossipQueryPath\x12\x1b.bci.RequestGossipQueryPath\x1a\x1c.bci.ResponseGossipQueryPath\x12I\n\x0eGossipCallBack\x12\x1a.bci.RequestGossipCallBack\x1a\x1b.bci.ResponseGossipCallBackB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  ,
+  dependencies=[common_dot_id__pb2.DESCRIPTOR,])
 
 
 
@@ -66,8 +68,8 @@ _REQUESTSENDDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=22,
-  serialized_end=80,
+  serialized_start=39,
+  serialized_end=97,
 )
 
 
@@ -112,8 +114,8 @@ _RESPONSESENDDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=82,
-  serialized_end=141,
+  serialized_start=99,
+  serialized_end=158,
 )
 
 
@@ -165,8 +167,8 @@ _REQUESTJOINRC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=143,
-  serialized_end=214,
+  serialized_start=160,
+  serialized_end=231,
 )
 
 
@@ -211,40 +213,8 @@ _RESPONSEJOINRC = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=216,
-  serialized_end=276,
-)
-
-
-_CHAIN = _descriptor.Descriptor(
-  name='Chain',
-  full_name='bci.Chain',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='identifier', full_name='bci.Chain.identifier', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=278,
-  serialized_end=305,
+  serialized_start=233,
+  serialized_end=293,
 )
 
 
@@ -296,8 +266,8 @@ _REQUESTGOSSIPQUERYPATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=307,
-  serialized_end=434,
+  serialized_start=296,
+  serialized_end=432,
 )
 
 
@@ -335,8 +305,8 @@ _RESPONSEGOSSIPQUERYPATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=436,
-  serialized_end=489,
+  serialized_start=434,
+  serialized_end=487,
 )
 
 
@@ -381,8 +351,8 @@ _REQUESTGOSSIPCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=491,
-  serialized_end=604,
+  serialized_start=489,
+  serialized_end=611,
 )
 
 
@@ -420,21 +390,20 @@ _RESPONSEGOSSIPCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=606,
-  serialized_end=658,
+  serialized_start=613,
+  serialized_end=665,
 )
 
-_REQUESTGOSSIPQUERYPATH.fields_by_name['target'].message_type = _CHAIN
-_REQUESTGOSSIPQUERYPATH.fields_by_name['source'].message_type = _CHAIN
-_REQUESTGOSSIPQUERYPATH.fields_by_name['route_chains'].message_type = _CHAIN
-_REQUESTGOSSIPCALLBACK.fields_by_name['target'].message_type = _CHAIN
-_REQUESTGOSSIPCALLBACK.fields_by_name['source'].message_type = _CHAIN
-_REQUESTGOSSIPCALLBACK.fields_by_name['route_chains'].message_type = _CHAIN
+_REQUESTGOSSIPQUERYPATH.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTGOSSIPQUERYPATH.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTGOSSIPQUERYPATH.fields_by_name['route_chains'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTGOSSIPCALLBACK.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTGOSSIPCALLBACK.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTGOSSIPCALLBACK.fields_by_name['route_chains'].message_type = common_dot_id__pb2._CHAIN
 DESCRIPTOR.message_types_by_name['RequestSendData'] = _REQUESTSENDDATA
 DESCRIPTOR.message_types_by_name['ResponseSendData'] = _RESPONSESENDDATA
 DESCRIPTOR.message_types_by_name['RequestJoinRC'] = _REQUESTJOINRC
 DESCRIPTOR.message_types_by_name['ResponseJoinRC'] = _RESPONSEJOINRC
-DESCRIPTOR.message_types_by_name['Chain'] = _CHAIN
 DESCRIPTOR.message_types_by_name['RequestGossipQueryPath'] = _REQUESTGOSSIPQUERYPATH
 DESCRIPTOR.message_types_by_name['ResponseGossipQueryPath'] = _RESPONSEGOSSIPQUERYPATH
 DESCRIPTOR.message_types_by_name['RequestGossipCallBack'] = _REQUESTGOSSIPCALLBACK
@@ -468,13 +437,6 @@ ResponseJoinRC = _reflection.GeneratedProtocolMessageType('ResponseJoinRC', (_me
   # @@protoc_insertion_point(class_scope:bci.ResponseJoinRC)
   })
 _sym_db.RegisterMessage(ResponseJoinRC)
-
-Chain = _reflection.GeneratedProtocolMessageType('Chain', (_message.Message,), {
-  'DESCRIPTOR' : _CHAIN,
-  '__module__' : 'bci.bci_pb2'
-  # @@protoc_insertion_point(class_scope:bci.Chain)
-  })
-_sym_db.RegisterMessage(Chain)
 
 RequestGossipQueryPath = _reflection.GeneratedProtocolMessageType('RequestGossipQueryPath', (_message.Message,), {
   'DESCRIPTOR' : _REQUESTGOSSIPQUERYPATH,
@@ -514,8 +476,8 @@ _LANE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=661,
-  serialized_end=928,
+  serialized_start=668,
+  serialized_end=935,
   methods=[
   _descriptor.MethodDescriptor(
     name='SendData',

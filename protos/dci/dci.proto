@@ -4,6 +4,7 @@ package dci;
 option go_package = "github.com/tendermint/tendermint/abci/types";
 
 import "gogoproto/gogo.proto";
+import "common/id.proto";
 
 enum CheckTxType {
     NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
@@ -11,33 +12,25 @@ enum CheckTxType {
 }
 message RequestTxPackage {
     bytes tx = 1;
-    Chain target_id = 2;
-    Node node_id = 3;
+    common.Chain target_id = 2;
+    common.Node node_id = 3;
 }
 
 message RequestRouterInfo {
     uint32 tx = 1;
 }
 
-message Chain {
-    string identifier  = 1;
-}
-
-message Node {
-    string identifier  = 1;
-}
-
 message RequestRouterTransmit {
-    Chain           source      = 1;
-    Chain           target      = 2;
+    common.Chain           source      = 1;
+    common.Chain           target      = 2;
     uint32          ttl         = 3;
-    repeated Chain  paths       = 4;
+    repeated common.Chain  paths       = 4;
 }
 
 message RequestRouterPathCallback {
-    Chain           source      = 1;
-    Chain           target      = 2;
-    repeated Chain  paths       = 3;
+    common.Chain           source      = 1;
+    common.Chain           target      = 2;
+    repeated common.Chain  paths       = 3;
 }
 
 message RequestSwitchCommunity {
@@ -72,8 +65,8 @@ message EventAttribute {
 message ResponseTxPackage {
     uint32 code = 1;
     bytes packaged_tx = 2;
-    Chain target_id = 3;
-    Node node_id = 4;
+    common.Chain target_id = 3;
+    common.Node node_id = 4;
     bytes ttl = 5;
 }
 

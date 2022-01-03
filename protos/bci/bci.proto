@@ -3,6 +3,8 @@ package bci;
 
 option go_package = "github.com/tendermint/tendermint/abci/types";
 
+import "common/id.proto";
+
 
  message RequestSendData {
    uint32  code = 1;
@@ -30,15 +32,11 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
    string message = 3;
  }
 
- message Chain {
-   string identifier = 1;
- }
-
 message RequestGossipQueryPath {
-   Chain target = 1;
-   Chain source = 2;
+   common.Chain target = 1;
+   common.Chain source = 2;
    uint32 ttl = 3;
-   repeated Chain route_chains = 4;
+   repeated common.Chain route_chains = 4;
 }
 
 message ResponseGossipQueryPath {
@@ -47,9 +45,9 @@ message ResponseGossipQueryPath {
 }
 
 message RequestGossipCallBack {
-   Chain target = 1;
-   Chain source = 2;
-   repeated Chain route_chains = 3;
+   common.Chain target = 1;
+   common.Chain source = 2;
+   repeated common.Chain route_chains = 3;
 }
 
 message ResponseGossipCallBack {
