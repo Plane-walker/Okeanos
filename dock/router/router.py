@@ -50,7 +50,7 @@ class Chain:
 
 class Router:
 
-    def __init__(self, config_path=None) -> None:
+    def __init__(self, config_path) -> None:
         self.node_id = 0
         self.data_chain_id = 0
 
@@ -61,11 +61,6 @@ class Router:
         # Route table is a dict whose key is target id in uint type and
         # whose value is Lane Chain in Chain type.
         self.route = {}
-
-        if config_path is None:
-            config_dir = os.path.dirname(__file__)
-            config_path = os.path.join(
-                config_dir, 'default_router_config.yaml')
         with open(config_path, encoding='utf-8') as file:
             config = yaml.load(file, Loader=yaml.Loader)
             self.configure(config['router'])

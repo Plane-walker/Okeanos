@@ -1,4 +1,0 @@
-dock:
-  address:
-    host: 'localhost'
-    port: '1453'

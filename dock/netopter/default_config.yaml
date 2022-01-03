@@ -1,7 +1,0 @@
-GNN:
-  graphSAGE:
-    hidden_dims: [128, 7]
-    sample_size: [10, 10]
-    input_dim: 1433
-    batch_size: 32
-    epochs: 20

@@ -33,13 +33,10 @@ class DockServer(dci_pb2_grpc.DockServicer):
 
 
 class Dock:
-    def __init__(self, config_path=None):
-        router = Router()
-        network_optimizer = NetworkOptimizer(0, 0)
+    def __init__(self, config_path):
+        router = Router(config_path=config_path)
+        network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
         self.dock_server = DockServer(router)
-        if config_path is None:
-            current_path = os.path.dirname(__file__)
-            config_path = os.path.join(current_path, 'default_config.yaml')
         with open(config_path) as file:
             self.config = yaml.load(file, Loader=yaml.Loader)
 

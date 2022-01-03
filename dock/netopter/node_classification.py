@@ -35,13 +35,10 @@ class NodeClassificationModel(ABC):
 
 
 class GraphSAGEModel(NodeClassificationModel):
-    def __init__(self, config_path=None, model_path=None):
+    def __init__(self, config_path, model_path=None):
         super().__init__()
         self.model = None
         if model_path is None:
-            if config_path is None:
-                current_path = os.path.dirname(__file__)
-                config_path = os.path.join(current_path, 'default_config.yaml')
             with open(config_path) as file:
                 self.config = yaml.load(file, Loader=yaml.Loader)
             graph_sage = GraphSAGE(layer_sizes=self.config['GNN']['graphSAGE']['hidden_dims'],

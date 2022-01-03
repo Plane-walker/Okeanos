@@ -2,17 +2,19 @@ __all__ = [
     'NetworkOptimizer'
 ]
 
+import yaml
 from .node_classification import GraphSAGEModel
 from .graph_data import GraphData
-from interface.dci.dci_pb2 import ResponseSwitchCommunity, ResponseCommunityInfo
+from interface.dci.dci_pb2 import ResponseSwitchCommunity, ResponseCommunityInfo, ResponseCommunityConfig
 
 
 class NetworkOptimizer:
-    def __init__(self, node_id, community_id):
+    def __init__(self, node_id, community_id, config_path):
         self.node_id = node_id
         self.community_id = community_id
         self.graph_data = GraphData()
-        self.model = GraphSAGEModel()
+        self.config_path = config_path
+        self.model = GraphSAGEModel(config_path=config_path)
 
     def create_community(self):
         pass
@@ -46,5 +48,10 @@ class NetworkOptimizer:
     def community_info(self, request):
         return ResponseCommunityInfo(community_id=self.community_id, node_id=self.node_id)
 
-    def community_config(self):
-        pass
+    def community_config(self, request):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        config['GNN']['algorithm'] = request.algorithm
+        config['GNN']['auto_switch'] = request.auto_switch
+        config['GNN']['max_peer_number'] = request.max_peer_number
+        return ResponseCommunityInfo(code=200, info='ok')
