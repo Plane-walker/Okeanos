@@ -20,11 +20,11 @@ message RequestRouterInfo {
 }
 
 message Chain {
-    uint32          identifier  = 1;
+    string identifier  = 1;
 }
 
 message Node {
-    uint32          identifier  = 1;
+    string identifier  = 1;
 }
 
 message RequestRouterTransmit {
@@ -99,7 +99,8 @@ message ResponseSwitchCommunity {
 }
 
 message ResponseCommunityInfo {
-    string data = 1;
+    string community_id = 1;
+    string node_id = 2;
 }
 
 message ResponseCommunityConfig {
