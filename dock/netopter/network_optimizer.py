@@ -4,7 +4,7 @@ __all__ = [
 
 from .node_classification import GraphSAGEModel
 from .graph_data import GraphData
-from interface.dci.dci_pb2 import ResponseSwitchCommunity
+from interface.dci.dci_pb2 import ResponseSwitchCommunity, ResponseCommunityInfo
 
 
 class NetworkOptimizer:
@@ -43,8 +43,8 @@ class NetworkOptimizer:
         self.graph_data.get_data_from_neighbors()
         node_representation = self.get_node_representation()
 
-    def community_info(self):
-        pass
+    def community_info(self, request):
+        return ResponseCommunityInfo(community_id=self.community_id, node_id=self.node_id)
 
     def community_config(self):
         pass

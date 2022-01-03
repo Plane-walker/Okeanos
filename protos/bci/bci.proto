@@ -31,7 +31,7 @@ option go_package = "github.com/tendermint/tendermint/abci/types";
  }
 
  message Chain {
-   uint32 identifier = 1;
+   string identifier = 1;
  }
 
 message RequestGossipQueryPath {
