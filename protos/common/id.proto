@@ -1,0 +1,11 @@
+syntax = "proto3";
+package common;
+
+
+message Chain {
+    string identifier  = 1;
+}
+
+message Node {
+    string identifier  = 1;
+}

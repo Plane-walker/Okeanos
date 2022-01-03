@@ -46,8 +46,8 @@ class DockStub(object):
                 )
         self.CommunityConfig = channel.unary_unary(
                 '/dci.Dock/CommunityConfig',
-                request_serializer=dci_dot_dci__pb2.RequestCommunityInfo.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseCommunityInfo.FromString,
+                request_serializer=dci_dot_dci__pb2.RequestCommunityConfig.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseCommunityConfig.FromString,
                 )
 
 
@@ -131,8 +131,8 @@ def add_DockServicer_to_server(servicer, server):
             ),
             'CommunityConfig': grpc.unary_unary_rpc_method_handler(
                     servicer.CommunityConfig,
-                    request_deserializer=dci_dot_dci__pb2.RequestCommunityInfo.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseCommunityInfo.SerializeToString,
+                    request_deserializer=dci_dot_dci__pb2.RequestCommunityConfig.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseCommunityConfig.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -258,7 +258,7 @@ class Dock(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/CommunityConfig',
-            dci_dot_dci__pb2.RequestCommunityInfo.SerializeToString,
-            dci_dot_dci__pb2.ResponseCommunityInfo.FromString,
+            dci_dot_dci__pb2.RequestCommunityConfig.SerializeToString,
+            dci_dot_dci__pb2.ResponseCommunityConfig.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
