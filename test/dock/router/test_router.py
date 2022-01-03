@@ -5,7 +5,7 @@ import grpc
 from interface.dci import dci_pb2_grpc, dci_pb2
 from dock.router import Router
 from dock import DockServer
-from interface.dci.dci_pb2 import Chain
+from interface.common.id_pb2 import Chain
 from log import log
 
 
