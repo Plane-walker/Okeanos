@@ -4,7 +4,6 @@ __all__ = [
 ]
 
 from concurrent import futures
-import os
 import grpc
 import yaml
 from interface.dci import dci_pb2_grpc
@@ -34,6 +33,7 @@ class DockServer(dci_pb2_grpc.DockServicer):
 
 class Dock:
     def __init__(self, config_path):
+        log.info('Init Dock . . .')
         router = Router(config_path=config_path)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
         self.dock_server = DockServer(router)

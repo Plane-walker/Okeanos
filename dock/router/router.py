@@ -6,8 +6,10 @@ __all__ = [
 
 import random
 import grpc
-import os
+import time
 import yaml
+import uuid
+from threading import Thread
 from interface.dci.dci_pb2 import Chain as DciChain
 from interface.dci.dci_pb2 import (
     RequestRouterInfo,
@@ -36,7 +38,7 @@ class DciResCode(Enum):
 class Chain:
 
     def __init__(self, chain):
-        if isinstance(chain, int):
+        if isinstance(chain, str):
             self.identifier = chain
         else:
             self.identifier = chain.identifier
@@ -51,8 +53,8 @@ class Chain:
 class Router:
 
     def __init__(self, config_path) -> None:
-        self.node_id = 0
-        self.data_chain_id = 0
+        self.node_id = '0'
+        self.data_chain_id = '0'
 
         # Key is the id of Router Chain
         # Value contains ip:port and some other info
@@ -61,9 +63,21 @@ class Router:
         # Route table is a dict whose key is target id in uint type and
         # whose value is Lane Chain in Chain type.
         self.route = {}
+
         with open(config_path, encoding='utf-8') as file:
             config = yaml.load(file, Loader=yaml.Loader)
             self.configure(config['router'])
+
+        Thread(target=self.periodical_gossip, daemon=True).start()
+
+    def periodical_gossip(self):
+        while True:
+            log.info('Periodical Gossip . . .')
+            identifier = uuid.uuid4().hex
+            log.debug(identifier)
+            target = Chain(identifier)
+            self.gossip(Chain(self.data_chain_id), target, 10, [])
+            time.sleep(10)
 
     def configure(self, config: dict, config_key=None):
         if not isinstance(config, dict):
@@ -90,7 +104,7 @@ class Router:
             if code is None:
                 return None
             ttl += self.ttl
-            # TODO Sleep some time
+            time.sleep(20)
         return self.route[target.identifier]
 
     def gossip(self, source: Chain, target: Chain, ttl, paths: list):
@@ -132,6 +146,7 @@ class Router:
                 log.info('Connect to ', channel)
                 stub = LaneStub(channel)
                 res = stub.GossipQueryPath(req)
+                log.info(res)
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
         """
@@ -150,6 +165,7 @@ class Router:
                     log.info('Connect to ', channel)
                     stub = LaneStub(channel)
                     res = stub.GossipCallBack(req)
+                    log.info(res)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
         res = ResponseRouterInfo(code=DciResCode.OK.value,
