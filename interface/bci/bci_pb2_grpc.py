@@ -34,6 +34,11 @@ class LaneStub(object):
                 request_serializer=bci_dot_bci__pb2.RequestGossipCallBack.SerializeToString,
                 response_deserializer=bci_dot_bci__pb2.ResponseGossipCallBack.FromString,
                 )
+        self.PublishTX = channel.unary_unary(
+                '/bci.Lane/PublishTX',
+                request_serializer=bci_dot_bci__pb2.RequestPublishTX.SerializeToString,
+                response_deserializer=bci_dot_bci__pb2.ResponsePublishTX.FromString,
+                )
 
 
 class LaneServicer(object):
@@ -63,6 +68,12 @@ class LaneServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def PublishTX(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LaneServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -85,6 +96,11 @@ def add_LaneServicer_to_server(servicer, server):
                     servicer.GossipCallBack,
                     request_deserializer=bci_dot_bci__pb2.RequestGossipCallBack.FromString,
                     response_serializer=bci_dot_bci__pb2.ResponseGossipCallBack.SerializeToString,
+            ),
+            'PublishTX': grpc.unary_unary_rpc_method_handler(
+                    servicer.PublishTX,
+                    request_deserializer=bci_dot_bci__pb2.RequestPublishTX.FromString,
+                    response_serializer=bci_dot_bci__pb2.ResponsePublishTX.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -161,5 +177,22 @@ class Lane(object):
         return grpc.experimental.unary_unary(request, target, '/bci.Lane/GossipCallBack',
             bci_dot_bci__pb2.RequestGossipCallBack.SerializeToString,
             bci_dot_bci__pb2.ResponseGossipCallBack.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PublishTX(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/bci.Lane/PublishTX',
+            bci_dot_bci__pb2.RequestPublishTX.SerializeToString,
+            bci_dot_bci__pb2.ResponsePublishTX.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
