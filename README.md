@@ -18,4 +18,5 @@ Multi-chain based IoT network
 cd protos
 python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. gogoproto/*.proto
 python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. dci/*.proto
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
 ```

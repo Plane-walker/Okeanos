@@ -10,8 +10,8 @@ from google.protobuf import symbol_database as _symbol_database
 
 _sym_db = _symbol_database.Default()
 
-
 import interface.common.id_pb2 as common_dot_id__pb2
+
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rbci/bci.proto\x12\x03\x62\x63i\x1a\x0f\x63ommon/id.proto\":\n\x0fRequestSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\";\n\x10ResponseSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"G\n\rRequestJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\n\n\x02rc\x18\x04 \x01(\t\"<\n\x0eResponseJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x88\x01\n\x16RequestGossipQueryPath\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12#\n\x0croute_chains\x18\x04 \x03(\x0b\x32\r.common.Chain\"5\n\x17ResponseGossipQueryPath\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"z\n\x15RequestGossipCallBack\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12#\n\x0croute_chains\x18\x03 \x03(\x0b\x32\r.common.Chain\"4\n\x16ResponseGossipCallBack\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t2\x8b\x02\n\x04Lane\x12\x37\n\x08SendData\x12\x14.bci.RequestSendData\x1a\x15.bci.ResponseSendData\x12\x31\n\x06JoinRC\x12\x12.bci.RequestJoinRC\x1a\x13.bci.ResponseJoinRC\x12L\n\x0fGossipQueryPath\x12\x1b.bci.RequestGossipQueryPath\x1a\x1c.bci.ResponseGossipQueryPath\x12I\n\x0eGossipCallBack\x12\x1a.bci.RequestGossipCallBack\x1a\x1b.bci.ResponseGossipCallBackB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  serialized_pb=b'\n\rbci/bci.proto\x12\x03\x62\x63i\x1a\x0f\x63ommon/id.proto\":\n\x0fRequestSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\";\n\x10ResponseSendData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0c\n\x04info\x18\x03 \x01(\t\"G\n\rRequestJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\n\n\x02rc\x18\x04 \x01(\t\"<\n\x0eResponseJoinRC\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0b\n\x03log\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x88\x01\n\x16RequestGossipQueryPath\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12#\n\x0croute_chains\x18\x04 \x03(\x0b\x32\r.common.Chain\"5\n\x17ResponseGossipQueryPath\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"z\n\x15RequestGossipCallBack\x12\x1d\n\x06target\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12#\n\x0croute_chains\x18\x03 \x03(\x0b\x32\r.common.Chain\"4\n\x16ResponseGossipCallBack\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"\x82\x01\n\x10RequestPublishTX\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12 \n\ttarget_id\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x07node_id\x18\x03 \x01(\x0b\x32\x0c.common.Node\x12!\n\nroute_path\x18\x04 \x01(\x0b\x32\r.common.Chain\"/\n\x11ResponsePublishTX\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t2\xc7\x02\n\x04Lane\x12\x37\n\x08SendData\x12\x14.bci.RequestSendData\x1a\x15.bci.ResponseSendData\x12\x31\n\x06JoinRC\x12\x12.bci.RequestJoinRC\x1a\x13.bci.ResponseJoinRC\x12L\n\x0fGossipQueryPath\x12\x1b.bci.RequestGossipQueryPath\x1a\x1c.bci.ResponseGossipQueryPath\x12I\n\x0eGossipCallBack\x12\x1a.bci.RequestGossipCallBack\x1a\x1b.bci.ResponseGossipCallBack\x12:\n\tPublishTX\x12\x15.bci.RequestPublishTX\x1a\x16.bci.ResponsePublishTXB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
   ,
   dependencies=[common_dot_id__pb2.DESCRIPTOR,])
 
@@ -394,12 +394,107 @@ _RESPONSEGOSSIPCALLBACK = _descriptor.Descriptor(
   serialized_end=665,
 )
 
+
+_REQUESTPUBLISHTX = _descriptor.Descriptor(
+  name='RequestPublishTX',
+  full_name='bci.RequestPublishTX',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='tx', full_name='bci.RequestPublishTX.tx', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='target_id', full_name='bci.RequestPublishTX.target_id', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='node_id', full_name='bci.RequestPublishTX.node_id', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='route_path', full_name='bci.RequestPublishTX.route_path', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=668,
+  serialized_end=798,
+)
+
+
+_RESPONSEPUBLISHTX = _descriptor.Descriptor(
+  name='ResponsePublishTX',
+  full_name='bci.ResponsePublishTX',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='code', full_name='bci.ResponsePublishTX.code', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='info', full_name='bci.ResponsePublishTX.info', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=800,
+  serialized_end=847,
+)
+
 _REQUESTGOSSIPQUERYPATH.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTGOSSIPQUERYPATH.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTGOSSIPQUERYPATH.fields_by_name['route_chains'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTGOSSIPCALLBACK.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTGOSSIPCALLBACK.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTGOSSIPCALLBACK.fields_by_name['route_chains'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTPUBLISHTX.fields_by_name['target_id'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTPUBLISHTX.fields_by_name['node_id'].message_type = common_dot_id__pb2._NODE
+_REQUESTPUBLISHTX.fields_by_name['route_path'].message_type = common_dot_id__pb2._CHAIN
 DESCRIPTOR.message_types_by_name['RequestSendData'] = _REQUESTSENDDATA
 DESCRIPTOR.message_types_by_name['ResponseSendData'] = _RESPONSESENDDATA
 DESCRIPTOR.message_types_by_name['RequestJoinRC'] = _REQUESTJOINRC
@@ -408,6 +503,8 @@ DESCRIPTOR.message_types_by_name['RequestGossipQueryPath'] = _REQUESTGOSSIPQUERY
 DESCRIPTOR.message_types_by_name['ResponseGossipQueryPath'] = _RESPONSEGOSSIPQUERYPATH
 DESCRIPTOR.message_types_by_name['RequestGossipCallBack'] = _REQUESTGOSSIPCALLBACK
 DESCRIPTOR.message_types_by_name['ResponseGossipCallBack'] = _RESPONSEGOSSIPCALLBACK
+DESCRIPTOR.message_types_by_name['RequestPublishTX'] = _REQUESTPUBLISHTX
+DESCRIPTOR.message_types_by_name['ResponsePublishTX'] = _RESPONSEPUBLISHTX
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RequestSendData = _reflection.GeneratedProtocolMessageType('RequestSendData', (_message.Message,), {
@@ -466,6 +563,20 @@ ResponseGossipCallBack = _reflection.GeneratedProtocolMessageType('ResponseGossi
   })
 _sym_db.RegisterMessage(ResponseGossipCallBack)
 
+RequestPublishTX = _reflection.GeneratedProtocolMessageType('RequestPublishTX', (_message.Message,), {
+  'DESCRIPTOR' : _REQUESTPUBLISHTX,
+  '__module__' : 'bci.bci_pb2'
+  # @@protoc_insertion_point(class_scope:bci.RequestPublishTX)
+  })
+_sym_db.RegisterMessage(RequestPublishTX)
+
+ResponsePublishTX = _reflection.GeneratedProtocolMessageType('ResponsePublishTX', (_message.Message,), {
+  'DESCRIPTOR' : _RESPONSEPUBLISHTX,
+  '__module__' : 'bci.bci_pb2'
+  # @@protoc_insertion_point(class_scope:bci.ResponsePublishTX)
+  })
+_sym_db.RegisterMessage(ResponsePublishTX)
+
 
 DESCRIPTOR._options = None
 
@@ -476,8 +587,8 @@ _LANE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=668,
-  serialized_end=935,
+  serialized_start=850,
+  serialized_end=1177,
   methods=[
   _descriptor.MethodDescriptor(
     name='SendData',
@@ -516,6 +627,16 @@ _LANE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_REQUESTGOSSIPCALLBACK,
     output_type=_RESPONSEGOSSIPCALLBACK,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='PublishTX',
+    full_name='bci.Lane.PublishTX',
+    index=4,
+    containing_service=None,
+    input_type=_REQUESTPUBLISHTX,
+    output_type=_RESPONSEPUBLISHTX,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

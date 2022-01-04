@@ -22,7 +22,7 @@ class DockServer(dci_pb2_grpc.DockServicer):
         self.network_optimizer = network_optimizer
 
     def PackageTx(self, request, context):
-        return self.cccp.get_target_id(request)
+        return self.cccp.deliver_tx(request)
 
     def RouterInfo(self, request, context):
         log.info('Request from %s', context.peer())

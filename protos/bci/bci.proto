@@ -18,7 +18,6 @@ import "common/id.proto";
    string info = 3;
  }
 
-
  message RequestJoinRC {
    uint32 code = 1;
    string log = 2;
@@ -55,9 +54,22 @@ message ResponseGossipCallBack {
    string info = 2;
 }
 
+message RequestPublishTX {
+    bytes tx = 1;
+    common.Chain target_id = 2;
+    common.Node node_id = 3;
+    common.Chain route_path = 4;
+}
+
+message ResponsePublishTX {
+   uint32 code = 1;
+   string info = 2;
+}
+
  service Lane {
    rpc SendData(RequestSendData) returns (ResponseSendData);
    rpc JoinRC(RequestJoinRC) returns (ResponseJoinRC);
    rpc GossipQueryPath(RequestGossipQueryPath) returns (ResponseGossipQueryPath);
    rpc GossipCallBack(RequestGossipCallBack) returns (ResponseGossipCallBack);
+   rpc PublishTX(RequestPublishTX) returns (ResponsePublishTX);
  }

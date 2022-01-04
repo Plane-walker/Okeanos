@@ -3,9 +3,9 @@ import unittest
 
 
 class TestCCCP(unittest.TestCase):
-    def test_get_target_id(self):
+    def test_parse_tx_package(self):
         self.data = {'target_id': '1234', 'node_id': '2345'}
-        CrossChainCommunicationProtocol.get_target_id(self.data)
+        CrossChainCommunicationProtocol.parse_tx_package(self.data)
 
 
 if __name__ == '__main__':
