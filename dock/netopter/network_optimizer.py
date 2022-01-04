@@ -44,6 +44,7 @@ class NetworkOptimizer:
         self.community_id = target_community
         self.graph_data.get_data_from_neighbors()
         node_representation = self.get_node_representation()
+        new_community_id = self.graph_data.find_community_id(node_representation)
 
     def community_info(self, request):
         return ResponseCommunityInfo(community_id=self.community_id, node_id=self.node_id)

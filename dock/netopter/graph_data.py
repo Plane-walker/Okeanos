@@ -12,11 +12,12 @@ from interface.bci import bci_pb2, bci_pb2_grpc
 
 
 class GraphData:
-    def __init__(self, adjacency_matrix=None, feature=None, label=None, id_map=None):
+    def __init__(self, adjacency_matrix=None, feature=None, label=None, id_map=None, community_id_map=None):
         self.adjacency_matrix = adjacency_matrix
         self.feature = feature
         self.label = label
         self.id_map = id_map
+        self.community_id_map = community_id_map
 
     def get_data_from_neighbors(self):
         channel = grpc.insecure_channel('localhost:1453')
@@ -41,3 +42,6 @@ class GraphData:
         self.feature = feature
         self.label = label
         self.id_map = id_map
+
+    def find_community_id(self, node_representation):
+        return self.community_id_map[node_representation]
