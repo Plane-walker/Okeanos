@@ -38,7 +38,6 @@ def listener_configurer():
     log.addHandler(stream_handler)
     log.addHandler(error_file_handler)
     log.addHandler(info_file_handler)
-    log.info('listenning . . .')
 
 
 def listener_process(queue, configurer):
