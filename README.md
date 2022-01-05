@@ -12,6 +12,7 @@ Multi-chain based IoT network
 * scikit-learn == 1.0.1
 * networkx == 2.6.3
 * pandas == 1.3.4
+* requests == 2.26.0
 
 ## Build/Rebuild protobuf files
 ```

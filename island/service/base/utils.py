@@ -2,7 +2,8 @@
 Various utils
 """
 from io import BytesIO
-import logging, colorlog
+import logging
+import colorlog
 from google.protobuf.message import Message
 
 
