@@ -6,7 +6,7 @@ import signal
 import platform
 from .utils import *
 from io import BytesIO
-from tendermint.abci.types_pb2 import (
+from interface.sci.abci.types_pb2 import (
     Request,
     Response,
     ResponseException,

@@ -22,7 +22,7 @@ The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
 import struct
-from tendermint.abci.types_pb2 import (
+from interface.sci.abci.types_pb2 import (
     ResponseInfo,
     ResponseInitChain,
     ResponseCheckTx,
@@ -31,8 +31,8 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit,
 )
 
-from abci.server import ABCIServer
-from abci.application import BaseApplication, OkCode, ErrorCode
+from base.server import ABCIServer
+from base.application import BaseApplication, OkCode, ErrorCode
 
 
 # Tx encoding/decoding

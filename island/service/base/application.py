@@ -22,7 +22,7 @@ State Sync:
 Each of these calls are handled below
 """
 
-from tendermint.abci.types_pb2 import (
+from interface.sci.abci.types_pb2 import (
     RequestInfo,
     ResponseInfo,
     RequestInitChain,
