@@ -8,8 +8,11 @@ import grpc
 import time
 import yaml
 import uuid
+import requests
+import json
 from threading import Thread
 from interface.common.id_pb2 import Chain
+from google.protobuf.json_format import MessageToJson
 from interface.dci.dci_pb2 import (
     RequestRouterInfo,
     ResponseRouterInfo,
@@ -124,11 +127,18 @@ class Router:
             req = RequestGossipQueryPath(
                 target=target, source=source, ttl=ttl)
             req.route_chains.extend([path for path in paths])
-            with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
-                log.info('Connect to ', channel)
-                stub = LaneStub(channel)
-                res = stub.GossipQueryPath(req)
-                log.info(res)
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            data = {
+                'method': 'broadcast_tx_sync',
+                'params': {
+                    'tx': json.dumps(MessageToJson(req))
+                }
+            }
+            log.info('Connect to ', f'http://localhost:{str(lane.port)}')
+            response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+            log.info(response)
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
         """
