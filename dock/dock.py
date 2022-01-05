@@ -6,11 +6,12 @@ __all__ = [
 from concurrent import futures
 import grpc
 import yaml
+from log import log
 from interface.dci import dci_pb2_grpc
 from dock.router import Router
 from dock.netopter import NetworkOptimizer
 from dock.cccp import CrossChainCommunicationProtocol
-from log import log
+from dock.manager import ChainManager
 
 
 class DockServer(dci_pb2_grpc.DockServicer):
@@ -44,6 +45,7 @@ class Dock:
         cccp = CrossChainCommunicationProtocol(router)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
         self.dock_server = DockServer(router, cccp, network_optimizer)
+        self.chain_manager = ChainManager(config_path=config_path)
         with open(config_path) as file:
             self.config = yaml.load(file, Loader=yaml.Loader)
 
@@ -54,4 +56,7 @@ class Dock:
         port = self.config['dock']['address']['port']
         server.add_insecure_port(f'{host}:{port}')
         server.start()
+        self.chain_manager.create_chain('island')
+        for index in range(self.config['chain_manager']['lane_number']):
+            self.chain_manager.create_chain('lane', index)
         server.wait_for_termination()
