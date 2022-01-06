@@ -47,7 +47,7 @@ class Router:
         self.lanes = {}
 
         # Route table is a dict whose key is target id in str type and
-        # whose value is Lane Chain in Chain type.
+        # whose value is Lane Chain.
         self.route = {}
 
         with open(config_path, encoding='utf-8') as file:

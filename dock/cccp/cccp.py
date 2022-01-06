@@ -4,7 +4,7 @@ __all__ = [
 
 import json
 
-import grpc
+# import grpc
 from enum import Enum, unique
 
 from google.protobuf.json_format import MessageToJson
@@ -14,8 +14,8 @@ from interface.bci.bci_pb2 import (
     RequestPublishTX,
     ResponsePublishTX,
 )
-from interface.bci import bci_pb2, bci_pb2_grpc
-from interface.bci.bci_pb2_grpc import LaneStub
+# from interface.bci import bci_pb2, bci_pb2_grpc
+# from interface.bci.bci_pb2_grpc import LaneStub
 from interface.dci.dci_pb2 import (
     RequestTxPackage,
     ResponseTxPackage,
@@ -58,6 +58,7 @@ class CrossChainCommunicationProtocol:
         #     res = stub.PublishTX(req)
         #     # After obtaining return : res.TxPublishCode.Success.value
         #     log.info(res)
+        lane = self.router[next_route_path]
         headers = {
             'Content-Type': 'application/json',
         }
@@ -67,8 +68,8 @@ class CrossChainCommunicationProtocol:
                 'tx': json.dumps(MessageToJson(req))
             }
         }
-        log.info('Connect to ', f'http://localhost:1453')
-        response = requests.post(f'http://localhost:1453', headers=headers, data=data).json()
+        log.info('Connect to ', f'http://localhost:{str(lane.port)}')
+        response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
         log.info(response)
 
     def deliver_tx(self, request_tx: RequestTxPackage):
