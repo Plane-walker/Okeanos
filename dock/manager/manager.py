@@ -8,7 +8,7 @@ import signal
 
 
 class ChainManager:
-    def __init__(self, island_process):
+    def __init__(self, island_process=None):
         self.island_process = island_process
 
     def create_chain(self, chain_type):
