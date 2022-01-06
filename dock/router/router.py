@@ -47,7 +47,7 @@ class Router:
         self.lanes = {}
 
         # Route table is a dict whose key is target id in str type and
-        # whose value is Lane Chain in Chain type.
+        # whose value is Lane Chain.
         self.route = {}
 
         with open(config_path, encoding='utf-8') as file:
@@ -153,11 +153,23 @@ class Router:
                 req = RequestGossipCallBack(
                     target=target, source=source)
                 req.route_chains.extend([path for path in paths])
-                with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
-                    log.info('Connect to ', channel)
-                    stub = LaneStub(channel)
-                    res = stub.GossipCallBack(req)
-                    log.info(res)
+                # with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
+                #     log.info('Connect to ', channel)
+                #     stub = LaneStub(channel)
+                #     res = stub.GossipCallBack(req)
+                #     log.info(res)
+                headers = {
+                    'Content-Type': 'application/json',
+                }
+                data = {
+                    'method': 'broadcast_tx_sync',
+                    'params': {
+                        'tx': json.dumps(MessageToJson(req))
+                    }
+                }
+                log.info('Connect to ', f'http://localhost:{str(lane.port)}')
+                response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+                log.info(response)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
         res = ResponseRouterInfo(code=DciResCode.OK.value,

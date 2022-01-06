@@ -1,15 +1,21 @@
 __all__ = [
     'CrossChainCommunicationProtocol'
 ]
-import grpc
+
+import json
+
+# import grpc
 from enum import Enum, unique
+
+from google.protobuf.json_format import MessageToJson
+import requests
 
 from interface.bci.bci_pb2 import (
     RequestPublishTX,
     ResponsePublishTX,
 )
-from interface.bci import bci_pb2, bci_pb2_grpc
-from interface.bci.bci_pb2_grpc import LaneStub
+# from interface.bci import bci_pb2, bci_pb2_grpc
+# from interface.bci.bci_pb2_grpc import LaneStub
 from interface.dci.dci_pb2 import (
     RequestTxPackage,
     ResponseTxPackage,
@@ -46,12 +52,25 @@ class CrossChainCommunicationProtocol:
             node_id=node_id,
             route_path=next_route_path
         )
-        with grpc.insecure_channel('localhost:1453') as channel:
-            log.info('successfully connect to ', channel)
-            stub = LaneStub(channel)
-            res = stub.PublishTX(req)
-            # After obtaining return : res.TxPublishCode.Success.value
-            log.info(res)
+        # with grpc.insecure_channel('localhost:1453') as channel:
+        #     log.info('successfully connect to ', channel)
+        #     stub = LaneStub(channel)
+        #     res = stub.PublishTX(req)
+        #     # After obtaining return : res.TxPublishCode.Success.value
+        #     log.info(res)
+        lane = self.router[next_route_path]
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {
+            'method': 'broadcast_tx_sync',
+            'params': {
+                'tx': json.dumps(MessageToJson(req))
+            }
+        }
+        log.info('Connect to ', f'http://localhost:{str(lane.port)}')
+        response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+        log.info(response)
 
     def deliver_tx(self, request_tx: RequestTxPackage):
         if request_tx is not None:

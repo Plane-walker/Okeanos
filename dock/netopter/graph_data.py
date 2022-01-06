@@ -2,6 +2,7 @@ __all__ = [
     'GraphData'
 ]
 
+import json
 import os
 import grpc
 import pandas as pd
@@ -20,9 +21,19 @@ class GraphData:
         self.community_id_map = community_id_map
 
     def get_data_from_neighbors(self):
-        channel = grpc.insecure_channel('localhost:1453')
-        client = bci_pb2_grpc.LaneStub(channel=channel)
-        response = client.GetNeighborInfo()
+        # channel = grpc.insecure_channel('localhost:1453')
+        # client = bci_pb2_grpc.LaneStub(channel=channel)
+        # response = client.GetNeighborInfo()
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {
+            'method': 'broadcast_tx_sync',
+            'params': {}
+        }
+        log.info('Connect to ', f'http://localhost:1453')
+        response = requests.post(f'http://localhost:1453', headers=headers, data=data).json()
+        log.info(response)
         self.adjacency_matrix = response.adjacency_matrix
         self.feature = response.feature
         self.id_map = response.id_amp
