@@ -1,8 +1,14 @@
 __all__ = [
     'CrossChainCommunicationProtocol'
 ]
+
+import json
+
 import grpc
 from enum import Enum, unique
+
+from google.protobuf.json_format import MessageToJson
+import requests
 
 from interface.bci.bci_pb2 import (
     RequestPublishTX,
@@ -46,12 +52,24 @@ class CrossChainCommunicationProtocol:
             node_id=node_id,
             route_path=next_route_path
         )
-        with grpc.insecure_channel('localhost:1453') as channel:
-            log.info('successfully connect to ', channel)
-            stub = LaneStub(channel)
-            res = stub.PublishTX(req)
-            # After obtaining return : res.TxPublishCode.Success.value
-            log.info(res)
+        # with grpc.insecure_channel('localhost:1453') as channel:
+        #     log.info('successfully connect to ', channel)
+        #     stub = LaneStub(channel)
+        #     res = stub.PublishTX(req)
+        #     # After obtaining return : res.TxPublishCode.Success.value
+        #     log.info(res)
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        data = {
+            'method': 'broadcast_tx_sync',
+            'params': {
+                'tx': json.dumps(MessageToJson(req))
+            }
+        }
+        log.info('Connect to ', f'http://localhost:1453')
+        response = requests.post(f'http://localhost:1453', headers=headers, data=data).json()
+        log.info(response)
 
     def deliver_tx(self, request_tx: RequestTxPackage):
         if request_tx is not None:
