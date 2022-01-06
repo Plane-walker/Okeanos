@@ -13,11 +13,10 @@ from interface.sci.abci.types_pb2 import (
     ResponseFlush,
 )
 from .application import BaseApplication
+from log import log
 
 DefaultABCIPort = 26658
 MaxReadInBytes = 64 * 1024  # Max we'll consume on a read stream
-
-log = get_logger("abci.server")
 
 
 class ProtocolHandler:

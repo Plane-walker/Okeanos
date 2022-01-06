@@ -21,7 +21,10 @@ class TestRouter(unittest.TestCase):
             self.router.route[identifier] = Chain(identifier=identifier)
             self.ids.append(identifier)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        dci_pb2_grpc.add_DockServicer_to_server(DockServer(self.router), server)
+        dock = DockServer(self.router, None, None)
+        dci_pb2_grpc.add_DockServicer_to_server(
+            dock, server
+        )
         self.addr = 'localhost:1453'
         server.add_insecure_port(self.addr)
         server.start()
@@ -46,6 +49,7 @@ class TestRouter(unittest.TestCase):
             stub = dci_pb2_grpc.DockStub(channel)
             res = stub.RouterInfo(dci_pb2.RequestRouterInfo(tx=1234))
             self.assertIsInstance(res, dci_pb2.ResponseRouterInfo)
+            self.assertIs(res.code, 0)
 
     def test_transmit(self):
         log.debug('')
@@ -60,6 +64,7 @@ class TestRouter(unittest.TestCase):
                 )
             )
             self.assertIsInstance(res, dci_pb2.ResponseRouterTransmit)
+            self.assertIs(res.code, 0)
 
     def test_callback(self):
         log.debug('')
@@ -73,6 +78,7 @@ class TestRouter(unittest.TestCase):
                 )
             )
             self.assertIsInstance(res, dci_pb2.ResponseRouterPathCallback)
+            self.assertIs(res.code, 0)
 
 
 if __name__ == '__main__':
