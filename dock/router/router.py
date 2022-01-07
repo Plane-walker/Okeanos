@@ -3,13 +3,14 @@ __all__ = [
 ]
 
 
+# from interface.bci.bci_pb2_grpc import LaneStub
+# import grpc
 import random
-import grpc
 import time
 import yaml
 import uuid
-import requests
 import json
+import requests
 from threading import Thread
 from interface.common.id_pb2 import Chain
 from google.protobuf.json_format import MessageToJson
@@ -21,7 +22,6 @@ from interface.dci.dci_pb2 import (
     RequestRouterTransmit,
     ResponseRouterTransmit,
 )
-from interface.bci.bci_pb2_grpc import LaneStub
 from interface.bci.bci_pb2 import (
     RequestGossipQueryPath,
     RequestGossipCallBack,

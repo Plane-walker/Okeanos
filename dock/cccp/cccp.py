@@ -35,14 +35,13 @@ class CrossChainCommunicationProtocol:
     def __init__(self, router):
         self.router = router
 
-    def parse_tx_package(self, request_tx_passage: RequestTxPackage):
+    def parse_tx_package(self, tx_passage):
         # Parse RequestTxPackage to get it's content.
         # Content can be used for the following functions.
-        tx = request_tx_passage.tx
-        target_id = request_tx_passage.target_id
-        node_id = request_tx_passage.node_id
+        tx = tx_passage.tx
+        target_id = tx_passage.target_id
+        node_id = tx_passage.node_id
         next_route_path = self.router.next_node(self.target_id)
-        log.info('parse package result:', self.tx, self.target_id, self.node_id, self.next_route_path)
         return tx, target_id, node_id, next_route_path
 
     def publish_tx(self, tx, target_id, node_id, next_route_path):
@@ -72,7 +71,7 @@ class CrossChainCommunicationProtocol:
         response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
         log.info(response)
 
-    def deliver_tx(self, request_tx: RequestTxPackage):
+    def deliver_tx_to_next_chain(self, request_tx: RequestTxPackage):
         if request_tx is not None:
             tx, target_id, node_id, next_route_path = self.parse_tx_package(request_tx)
             self.publish_tx(tx, target_id, node_id, next_route_path)
