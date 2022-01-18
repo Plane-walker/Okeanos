@@ -20,4 +20,16 @@ GNN:
     epochs: 20
 
 chain_manager:
-  lane_number: 3
+  island:
+    base_path: '/root'
+    number: 1
+    abci_port: ['2665']
+    rpc_port: ['2663']
+    p2p_port: ['2664']
+  lane:
+    base_path: '/root'
+    number: 3
+    abci_port: ['2668', '2671', '2674']
+    rpc_port: ['2666', '2669', '2672']
+    p2p_port: ['2667', '2670', '2673']
+
