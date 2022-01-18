@@ -5,22 +5,69 @@ __all__ = [
 import os
 import subprocess
 import signal
+import yaml
 
 
 class ChainManager:
-    def __init__(self, island_process=None):
-        self.island_process = island_process
+    def __init__(self, config_path):
+        self.config_path = config_path
+        self.island_process = []
+        self.lane_process = []
 
     def create_chain(self, chain_type):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
         if chain_type == 'island':
-            self.island_process = subprocess.Popen(f"tendermint start --home /root/island &> /dev/null",
+            for chain_sequence in range(config['chain_manager']['island']['number']):
+                init_island = f"tendermint init --home {config['chain_manager']['island']['base_path']}/island &> /dev/null;" \
+                              f"sed -i " \
+                              f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['island']['abci_port'][chain_sequence]}\"#g' " \
+                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;" \
+                              f"sed -i " \
+                              f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager']['island']['rpc_port'][chain_sequence]}\"#g' " \
+                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;" \
+                              f"sed -i " \
+                              f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['island']['p2p_port'][chain_sequence]}\"#g' " \
+                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;"
+                subprocess.run(init_island, shell=True, stdout=subprocess.PIPE)
+                start_island = f"tendermint start --home {config['chain_manager']['island']['base_path']}/island &> /dev/null"
+                self.island_process.append(subprocess.Popen(start_island,
+                                                            shell=True,
+                                                            stdout=subprocess.PIPE,
+                                                            preexec_fn=os.setsid))
+        elif chain_type == 'lane':
+            for chain_sequence in range(config['chain_manager']['island']['number']):
+                init_lane = f"tendermint init --home {config['chain_manager']['lane']['base_path']}/lane_{chain_sequence} &> /dev/null;" \
+                            f"sed -i " \
+                            f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['lane']['abci_port'][chain_sequence]}\"#g' " \
+                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;" \
+                            f"sed -i " \
+                            f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager']['lane']['rpc_port'][chain_sequence]}\"#g' " \
+                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;" \
+                            f"sed -i " \
+                            f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['lane']['p2p_port'][chain_sequence]}\"#g' " \
+                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;"
+                subprocess.run(init_lane, shell=True, stdout=subprocess.PIPE)
+                start_lane = f"tendermint start --home {config['chain_manager']['lane']['base_path']}/lane_{chain_sequence} &> /dev/null"
+                self.lane_process.append(subprocess.Popen(start_lane,
+                                                          shell=True,
+                                                          stdout=subprocess.PIPE,
+                                                          preexec_fn=os.setsid))
+
+    def start_chain(self, chain_type, chain_sequence):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        process = getattr(self, chain_type + '_process', None)
+        start_process = f"tendermint start --home {config['chain_manager'][chain_type]['base_path']}/{chain_type} &> /dev/null"
+        process[chain_sequence] = subprocess.Popen(start_process,
                                                    shell=True,
                                                    stdout=subprocess.PIPE,
                                                    preexec_fn=os.setsid)
 
-    def stop_chain(self, chain_type):
-        if chain_type == 'island':
-            os.killpg(os.getpgid(self.island_process.pid), signal.SIGTERM)
+    def stop_chain(self, chain_type, chain_sequence):
+        process = getattr(self, chain_type + '_process', None)
+        if process is not None:
+            os.killpg(os.getpgid(process[chain_sequence].pid), signal.SIGTERM)
 
     def join_chain(self):
         pass

@@ -42,9 +42,9 @@ class Dock:
     def __init__(self, config_path):
         log.info('Init Dock . . .')
         router = Router(config_path=config_path)
-        cccp = CrossChainCommunicationProtocol(router)
+        cross_chain_community_protocol = CrossChainCommunicationProtocol(router)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
-        self.dock_server = DockServer(router, cccp, network_optimizer)
+        self.dock_server = DockServer(router, cross_chain_community_protocol, network_optimizer)
         self.chain_manager = ChainManager(config_path=config_path)
         with open(config_path) as file:
             self.config = yaml.load(file, Loader=yaml.Loader)
