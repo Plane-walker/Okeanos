@@ -14,7 +14,7 @@ class NetworkOptimizer:
         self.community_id = community_id
         self.graph_data = GraphData()
         self.config_path = config_path
-        self.model = GraphSAGEModel(config_path=config_path)
+        # self.model = GraphSAGEModel(config_path=config_path)
 
     def create_community(self):
         pass

@@ -16,14 +16,15 @@ from dock.manager import ChainManager
 
 class DockServer(dci_pb2_grpc.DockServicer):
 
-    def __init__(self, router, cccp, network_optimizer):
+    def __init__(self, router, cross_chain_community_protocol, network_optimizer):
         log.info('Init DockServer')
         self.router = router
-        self.cccp = cccp
+        self.cross_chain_community_protocol = cross_chain_community_protocol
         self.network_optimizer = network_optimizer
 
     def PackageTx(self, request, context):
-        return self.cccp.deliver_tx_to_next_chain(request)
+        log.info('Request from %s', context.peer())
+        return self.cross_chain_community_protocol.deliver_tx_to_next_chain(request)
 
     def RouterInfo(self, request, context):
         log.info('Request from %s', context.peer())
@@ -57,6 +58,5 @@ class Dock:
         server.add_insecure_port(f'{host}:{port}')
         server.start()
         self.chain_manager.create_chain('island')
-        for index in range(self.config['chain_manager']['lane_number']):
-            self.chain_manager.create_chain('lane', index)
+        self.chain_manager.create_chain('lane')
         server.wait_for_termination()
