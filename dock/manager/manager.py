@@ -6,6 +6,7 @@ import os
 import subprocess
 import signal
 import yaml
+from log import log
 
 
 class ChainManager:
@@ -18,6 +19,7 @@ class ChainManager:
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         if chain_type == 'island':
+            log.info('Creating island chain')
             for chain_sequence in range(config['chain_manager']['island']['number']):
                 init_island = f"tendermint init --home {config['chain_manager']['island']['base_path']}/island &> /dev/null;" \
                               f"sed -i " \
@@ -35,8 +37,10 @@ class ChainManager:
                                                             shell=True,
                                                             stdout=subprocess.PIPE,
                                                             preexec_fn=os.setsid))
+                log.info('Island chain created')
         elif chain_type == 'lane':
             for chain_sequence in range(config['chain_manager']['island']['number']):
+                log.info(f'Creating lane chain {chain_sequence}')
                 init_lane = f"tendermint init --home {config['chain_manager']['lane']['base_path']}/lane_{chain_sequence} &> /dev/null;" \
                             f"sed -i " \
                             f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['lane']['abci_port'][chain_sequence]}\"#g' " \
@@ -53,6 +57,7 @@ class ChainManager:
                                                           shell=True,
                                                           stdout=subprocess.PIPE,
                                                           preexec_fn=os.setsid))
+                log.info(f'Lane chain {chain_sequence} created')
 
     def start_chain(self, chain_type, chain_sequence):
         with open(self.config_path) as file:
