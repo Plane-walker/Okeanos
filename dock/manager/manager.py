@@ -72,5 +72,11 @@ class ChainManager:
     def join_chain(self):
         pass
 
-    def leave_chain(self):
-        pass
+    def leave_chain(self, chain_type, chain_sequence):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        process = getattr(self, chain_type + '_process', None)
+        if process is not None:
+            os.killpg(os.getpgid(process[chain_sequence].pid), signal.SIGTERM)
+        remove_directory = f"rm -rf {config['chain_manager'][chain_type]['base_path']}/{chain_type} &> /dev/null"
+        subprocess.run(remove_directory, shell=True, stdout=subprocess.PIPE)
