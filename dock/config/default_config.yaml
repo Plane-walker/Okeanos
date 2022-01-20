@@ -33,3 +33,12 @@ chain_manager:
     rpc_port: ['2666', '2669', '2672']
     p2p_port: ['2667', '2670', '2673']
 
+join:
+  chain_type: 'lane'
+  base_path: '/root'
+  port:
+    abci: '2677'
+    rpc: '2675'
+    p2p: '2676'
+  persistent_peers: ['ID@HOST:PORT', '']
+

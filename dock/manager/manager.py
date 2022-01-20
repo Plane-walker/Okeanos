@@ -74,8 +74,32 @@ class ChainManager:
         if process is not None:
             os.killpg(os.getpgid(process[chain_sequence].pid), signal.SIGTERM)
 
-    def join_chain(self):
-        pass
+    def join_chain(self, chain_type):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        dir_name = f"{chain_type}" + (f"_{str(len(self.lane_process))}" if chain_type == 'lane' else "")
+        init_command = f"tendermint init --home {config['join']['base_path']}/{dir_name} &> /dev/null;"
+        init_command += f"sed -i " \
+                        f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['join']['port']['abci']}\"#g' " \
+                        f"{config['join']['base_path']}/{dir_name}/config/config.toml &> /dev/null;" \
+                        f"sed -i " \
+                        f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['join']['port']['rpc']}\"#g' " \
+                        f"{config['join']['base_path']}/{dir_name}/config/config.toml &> /dev/null;" \
+                        f"sed -i " \
+                        f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['join']['port']['p2p']}\"#g' " \
+                        f"{config['join']['base_path']}/{dir_name}/config/config.toml &> /dev/null;"
+        subprocess.run(init_command, shell=True, stdout=subprocess.PIPE)
+        start_command = f"tendermint start --home {config['join']['base_path']} --p2p.persistent_peers=\""
+        for idx, peer in enumerate(config['join']['persistent_peers']):
+            start_command += f"{peer}"
+            if idx < len(config['join']['persistent_peers']) - 1:
+                start_command += ','
+        start_command += f"\"  &> /dev/null"
+        process = getattr(self, chain_type + '_process', None)
+        process.append(subprocess.Popen(start_command,
+                                        shell=True,
+                                        stdout=subprocess.PIPE,
+                                        preexec_fn=os.setsid))
 
     def leave_chain(self):
         pass
