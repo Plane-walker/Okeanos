@@ -3,7 +3,6 @@ __all__ = [
     'GraphSAGEModel'
 ]
 
-import os
 import tensorflow as tf
 from tensorflow.keras import optimizers, losses, metrics, Model
 from abc import ABC, abstractmethod

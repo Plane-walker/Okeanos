@@ -18,46 +18,27 @@ class ChainManager:
     def create_chain(self, chain_type):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        if chain_type == 'island':
-            log.info('Creating island chain')
-            for chain_sequence in range(config['chain_manager']['island']['number']):
-                init_island = f"tendermint init --home {config['chain_manager']['island']['base_path']}/island &> /dev/null;" \
-                              f"sed -i " \
-                              f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['island']['abci_port'][chain_sequence]}\"#g' " \
-                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;" \
-                              f"sed -i " \
-                              f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager']['island']['rpc_port'][chain_sequence]}\"#g' " \
-                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;" \
-                              f"sed -i " \
-                              f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['island']['p2p_port'][chain_sequence]}\"#g' " \
-                              f"{config['chain_manager']['island']['base_path']}/island/config/config.toml &> /dev/null;"
-                subprocess.run(init_island, shell=True, stdout=subprocess.PIPE)
-                start_island = f"tendermint start --home {config['chain_manager']['island']['base_path']}/island &> /dev/null"
-                self.island_process.append(subprocess.Popen(start_island,
-                                                            shell=True,
-                                                            stdout=subprocess.PIPE,
-                                                            preexec_fn=os.setsid))
-                log.info('Island chain created')
-        elif chain_type == 'lane':
-            for chain_sequence in range(config['chain_manager']['island']['number']):
-                log.info(f'Creating lane chain {chain_sequence}')
-                init_lane = f"tendermint init --home {config['chain_manager']['lane']['base_path']}/lane_{chain_sequence} &> /dev/null;" \
-                            f"sed -i " \
-                            f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['lane']['abci_port'][chain_sequence]}\"#g' " \
-                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;" \
-                            f"sed -i " \
-                            f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager']['lane']['rpc_port'][chain_sequence]}\"#g' " \
-                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;" \
-                            f"sed -i " \
-                            f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['lane']['p2p_port'][chain_sequence]}\"#g' " \
-                            f"{config['chain_manager']['lane']['base_path']}/lane_{chain_sequence}/config/config.toml &> /dev/null;"
-                subprocess.run(init_lane, shell=True, stdout=subprocess.PIPE)
-                start_lane = f"tendermint start --home {config['chain_manager']['lane']['base_path']}/lane_{chain_sequence} &> /dev/null"
-                self.lane_process.append(subprocess.Popen(start_lane,
-                                                          shell=True,
-                                                          stdout=subprocess.PIPE,
-                                                          preexec_fn=os.setsid))
-                log.info(f'Lane chain {chain_sequence} created')
+        process = getattr(self, chain_type + '_process', None)
+        process.clear()
+        for chain_sequence in range(config['chain_manager'][chain_type]['number']):
+            log.info(f'Creating {chain_type} chain {chain_sequence}')
+            init_chain = f"tendermint init --home {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence} &> /dev/null;" \
+                          f"sed -i " \
+                          f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager'][chain_type]['abci_port'][chain_sequence]}\"#g' " \
+                          f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/config.toml &> /dev/null;" \
+                          f"sed -i " \
+                          f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager'][chain_type]['rpc_port'][chain_sequence]}\"#g' " \
+                          f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/config.toml &> /dev/null;" \
+                          f"sed -i " \
+                          f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager'][chain_type]['p2p_port'][chain_sequence]}\"#g' " \
+                          f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/config.toml &> /dev/null;"
+            subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
+            start_process = f"tendermint start --home {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence} &> /dev/null"
+            process.append(subprocess.Popen(start_process,
+                                            shell=True,
+                                            stdout=subprocess.PIPE,
+                                            preexec_fn=os.setsid))
+            log.info(f'{chain_type.capitalize()} chain {chain_sequence} created')
 
     def start_chain(self, chain_type, chain_sequence):
         with open(self.config_path) as file:
