@@ -41,14 +41,16 @@ class CrossChainCommunicationProtocol:
         tx = tx_passage.tx
         target_id = tx_passage.target_id
         node_id = tx_passage.node_id
+        flag = tx_passage.flag
         next_route_path = self.router.next_node(self.target_id)
         return tx, target_id, node_id, next_route_path
 
-    def publish_tx(self, tx, target_id, node_id, next_route_path):
+    def publish_tx(self, tx, target_id, flag, node_id, next_route_path):
         req = RequestPublishTX(
             tx=tx,
             target_id=target_id,
             node_id=node_id,
+            flag=flag,
             route_path=next_route_path
         )
         # with grpc.insecure_channel('localhost:1453') as channel:
