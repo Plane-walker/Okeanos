@@ -94,19 +94,14 @@ class SimpleCounter(BaseApplication):
         # Convert tx to JSON format
         tx_json_value = json.load(tx_string_value)
         tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
-        # test
-        # tx_json_test = {
-        #     "test_node_id": "124564572",
-        #     "test_target_id": "0x2367ba34e"
-        # }
         # Get the key named test_target_id(target_id) in json
         if "test_target_id" in tx_convert:
             log.info("this is a cross chain tx")
         # Execute calling the RPC interface in CCCP
             req = dci_pb2.RequestTxPackage(
-                tx=tx,
-                target_id=tx_convert["test_target_id"],
-                node_id=tx_convert["test_node_id"]
+                tx=tx_convert["tx"],
+                target_id=tx_convert["target_id"],
+                node_id=tx_convert["node_id"]
             )
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)

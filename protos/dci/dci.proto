@@ -14,6 +14,7 @@ message RequestTxPackage {
     bytes tx = 1;
     common.Chain target_id = 2;
     common.Node node_id = 3;
+    string  flag = 4;
 }
 
 message RequestRouterInfo {
