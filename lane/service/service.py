@@ -23,7 +23,7 @@ in the tendermint console output (see app_hash).
 """
 import json
 import struct
-
+import sys
 import grpc
 
 import log
@@ -52,7 +52,7 @@ def decode_number(raw):
     return int.from_bytes(raw, byteorder="big")
 
 
-class SimpleCounter(BaseApplication):
+class LaneService(BaseApplication):
     def info(self, req) -> ResponseInfo:
         """
         Since this will always respond with height=0, Tendermint
@@ -150,10 +150,10 @@ class SimpleCounter(BaseApplication):
         return ResponseCommit(data=hash)
 
 
-def main():
-    app = ABCIServer(app=SimpleCounter())
+def main(args):
+    app = ABCIServer(app=LaneService(), port=args[1])
     app.run()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
