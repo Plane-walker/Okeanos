@@ -25,7 +25,7 @@ import struct
 import sys
 import json
 import grpc
-import log
+from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
 
 from interface.sci.abci.types_pb2 import (
@@ -126,6 +126,7 @@ class IslandService(BaseApplication):
 
 
 def main(args):
+    init_log()
     app = ABCIServer(app=IslandService(), port=args[1])
     app.run()
 
