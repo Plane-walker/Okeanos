@@ -22,6 +22,7 @@ The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
 import struct
+import sys
 import json
 import grpc
 import log
@@ -51,7 +52,7 @@ def decode_number(raw):
     return int.from_bytes(raw, byteorder="big")
 
 
-class SimpleCounter(BaseApplication):
+class IslandService(BaseApplication):
     def __init__(self):
         self.txCount = None
         self.last_block_height = None
@@ -124,10 +125,10 @@ class SimpleCounter(BaseApplication):
         return ResponseCommit(data=hash)
 
 
-def main():
-    app = ABCIServer(app=SimpleCounter())
+def main(args):
+    app = ABCIServer(app=IslandService(), port=args[1])
     app.run()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

@@ -13,12 +13,15 @@ class ChainManager:
     def __init__(self, config_path):
         self.config_path = config_path
         self.island_process = []
+        self.island_service = []
         self.lane_process = []
+        self.lane_service = []
 
     def create_chain(self, chain_type):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         process = getattr(self, chain_type + '_process', None)
+        service = getattr(self, chain_type + '_service', None)
         process.clear()
         for chain_sequence in range(config['chain_manager'][chain_type]['number']):
             log.info(f'Creating {chain_type} chain {chain_sequence}')
@@ -38,6 +41,11 @@ class ChainManager:
                                             shell=True,
                                             stdout=subprocess.PIPE,
                                             preexec_fn=os.setsid))
+            start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} &> /dev/null"
+            service.append(subprocess.Popen(start_service,
+                                            shell=True,
+                                            stdout=subprocess.PIPE,
+                                            preexec_fn=os.setsid))
             log.info(f'{chain_type.capitalize()} chain {chain_sequence} created')
 
     def start_chain(self, chain_type, chain_sequence):
@@ -49,11 +57,6 @@ class ChainManager:
                                                    shell=True,
                                                    stdout=subprocess.PIPE,
                                                    preexec_fn=os.setsid)
-
-    def stop_chain(self, chain_type, chain_sequence):
-        process = getattr(self, chain_type + '_process', None)
-        if process is not None:
-            os.killpg(os.getpgid(process[chain_sequence].pid), signal.SIGTERM)
 
     def join_chain(self, chain_type):
         with open(self.config_path) as file:
@@ -82,9 +85,29 @@ class ChainManager:
                                         stdout=subprocess.PIPE,
                                         preexec_fn=os.setsid))
 
+    def stop_chain(self, chain_type, chain_sequence):
+        process = getattr(self, chain_type + '_process', None)
+        if process[chain_sequence] is not None:
+            os.killpg(os.getpgid(process[chain_sequence].pid), signal.SIGTERM)
+
     def leave_chain(self, chain_type, chain_sequence):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        self.stop_chain(self, chain_type, chain_sequence)
+        self.stop_chain(chain_type, chain_sequence)
         remove_directory = f"rm -rf {config['chain_manager'][chain_type]['base_path']}/{chain_type} &> /dev/null"
         subprocess.run(remove_directory, shell=True, stdout=subprocess.PIPE)
+
+    def start_service(self, chain_type, chain_sequence):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        service = getattr(self, chain_type + '_service', None)
+        start_process = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} &> /dev/null"
+        service[chain_sequence] = subprocess.Popen(start_process,
+                                                   shell=True,
+                                                   stdout=subprocess.PIPE,
+                                                   preexec_fn=os.setsid)
+
+    def stop_service(self, chain_type, chain_sequence):
+        service = getattr(self, chain_type + '_service', None)
+        if service[chain_sequence] is not None:
+            os.killpg(os.getpgid(service[chain_sequence].pid), signal.SIGTERM)
