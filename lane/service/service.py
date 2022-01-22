@@ -21,12 +21,13 @@ curl http://localhost:26657/abci_query
 The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
-import struct
 import json
+import struct
+import sys
 import grpc
+
 import log
 from interface.dci import dci_pb2_grpc, dci_pb2
-
 from interface.sci.abci.types_pb2 import (
     ResponseInfo,
     ResponseInitChain,
@@ -51,15 +52,11 @@ def decode_number(raw):
     return int.from_bytes(raw, byteorder="big")
 
 
-class SimpleCounter(BaseApplication):
-    def __init__(self):
-        self.txCount = None
-        self.last_block_height = None
-
+class LaneService(BaseApplication):
     def info(self, req) -> ResponseInfo:
         """
         Since this will always respond with height=0, Tendermint
-        will resync this app from the beginning
+        will resync this app from the begining
         """
         r = ResponseInfo()
         r.version = req.version
@@ -89,25 +86,54 @@ class SimpleCounter(BaseApplication):
         """
         We have a valid tx, increment the state.
         """
-        # Convert tx(according to tx format)
+        # Get the key named (target_id) in json
         tx_string_value = tx.decode('utf-8')
-        # Convert tx to JSON format
-        tx_json_value = json.load(tx_string_value)
+        tx_json_value = json.loads(tx_string_value)
         tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
-        # Get the key named test_target_id(target_id) in json
-        if "test_target_id" in tx_convert:
+
+        # Set flags to distinguish between three types of delivery, But not yet
+        # Flag of TxPackage
+        if tx_convert["Flag"] == "TxPackage":
             log.info("this is a cross chain tx")
-        # Execute calling the RPC interface in CCCP
+            # Execute calling the RPC interface in CCCP
             req = dci_pb2.RequestTxPackage(
-                tx=tx_convert["tx"],
-                target_id=tx_convert["target_id"],
-                node_id=tx_convert["node_id"]
+                tx=tx,
+                flag=tx_convert["Flag"],
+                target_id=tx_convert["test_target_id"],
+                node_id=tx_convert["test_node_id"]
             )
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)
                 stub = dci_pb2_grpc.DockStub(channel)
                 response = stub.PackageTx(req)
                 log.info("Client return status code: " + response.code)
+
+        # Flag of transmit
+        elif tx_convert["Flag"] == "transmit":
+            with grpc.insecure_channel('localhost:1453') as channel:
+                log.info('Connect to ', channel)
+                stub = dci_pb2_grpc.DockStub(channel)
+                res = stub.RouterTransmit(
+                    dci_pb2.RequestRouterTransmit(
+                        source=tx_convert["source"],
+                        target=tx_convert["target"],
+                        ttl=3,
+                        paths=tx_convert["paths"]
+                    )
+                )
+
+        # Flag of callback
+        elif tx_convert["Flag"] == "callback":
+            with grpc.insecure_channel('localhost:1453') as channel:
+                log.info('Connect to ', channel)
+                stub = dci_pb2_grpc.DockStub(channel)
+                res = stub.RouterTransmit(
+                    dci_pb2.RequestRouterTransmit(
+                        source=tx_convert["source"],
+                        target=tx_convert["target"],
+                        paths=tx_convert["paths"]
+                    )
+                )
         self.txCount += 1
         return ResponseDeliverTx(code=OkCode)
 
@@ -124,10 +150,10 @@ class SimpleCounter(BaseApplication):
         return ResponseCommit(data=hash)
 
 
-def main():
-    app = ABCIServer(app=SimpleCounter())
+def main(args):
+    app = ABCIServer(app=LaneService(), port=args[1])
     app.run()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
