@@ -1,7 +1,7 @@
 """
 Simple counting app.  It only accepts values sent to it in correct order.  The
 state maintains the current count. For example, if starting at state 0, sending:
--> 0x01 = OK!
+-> 0x01 = OK
 -> 0x03 = Will fail! (expects 2)
 
 To run it:
@@ -11,12 +11,12 @@ To run it:
 - The send transactions to the app:
 
 
-curl http://localhost:26657/broadcast_tx_commit?tx=0x01
-curl http://localhost:26657/broadcast_tx_commit?tx=0x02
+curl http://localhost:2663/broadcast_tx_commit?tx=0x01
+curl http://localhost:2663/broadcast_tx_commit?tx=0x02
 ...
 
 To see the latest count:
-curl http://localhost:26657/abci_query
+curl http://localhost:2663/abci_query
 
 The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
@@ -86,7 +86,7 @@ class LaneService(BaseApplication):
         """
         We have a valid tx, increment the state.
         """
-        # Get the key named (target_id) in json
+        # Get the key named (target) in json
         tx_string_value = tx.decode('utf-8')
         tx_json_value = json.loads(tx_string_value)
         tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
@@ -99,8 +99,8 @@ class LaneService(BaseApplication):
             req = dci_pb2.RequestTxPackage(
                 tx=tx,
                 flag=tx_convert["Flag"],
-                target_id=tx_convert["test_target_id"],
-                node_id=tx_convert["test_node_id"]
+                target=tx_convert["target"],
+                source=tx_convert["source"]
             )
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)
@@ -108,8 +108,8 @@ class LaneService(BaseApplication):
                 response = stub.PackageTx(req)
                 log.info("Client return status code: " + response.code)
 
-        # Flag of transmit
-        elif tx_convert["Flag"] == "transmit":
+        # Flag of transmit: TTL
+        elif tx_convert["ttl"]:
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)
                 stub = dci_pb2_grpc.DockStub(channel)
@@ -123,7 +123,7 @@ class LaneService(BaseApplication):
                 )
 
         # Flag of callback
-        elif tx_convert["Flag"] == "callback":
+        else:
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)
                 stub = dci_pb2_grpc.DockStub(channel)

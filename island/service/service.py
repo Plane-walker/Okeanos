@@ -96,13 +96,14 @@ class IslandService(BaseApplication):
         tx_json_value = json.load(tx_string_value)
         tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
         # Get the key named test_target_id(target_id) in json
-        if "test_target_id" in tx_convert:
+        if "target" in tx_convert:
             log.info("this is a cross chain tx")
         # Execute calling the RPC interface in CCCP
             req = dci_pb2.RequestTxPackage(
                 tx=tx_convert["tx"],
-                target_id=tx_convert["target_id"],
-                node_id=tx_convert["node_id"]
+                target=tx_convert["target"],
+                source=tx_convert["source"],
+                flag=tx_convert["flag"]
             )
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Connect to ', channel)

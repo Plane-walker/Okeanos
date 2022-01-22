@@ -4,7 +4,6 @@ import grpc
 
 import interface.dci.dci_pb2 as dci_dot_dci__pb2
 
-
 class DockStub(object):
     """Missing associated documentation comment in .proto file."""
 
