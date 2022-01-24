@@ -33,25 +33,25 @@ class TxDeliverCode(Enum):
 class CrossChainCommunicationProtocol:
 
     def __init__(self, router):
+        self.lane = None
         self.router = router
 
     def parse_tx_package(self, tx_passage):
         # Parse RequestTxPackage to get it's content.
         # Content can be used for the following functions.
         tx = tx_passage.tx
-        target_id = tx_passage.target_id
-        node_id = tx_passage.node_id
+        target = tx_passage.target
+        source = tx_passage.source
         flag = tx_passage.flag
-        next_route_path = self.router.next_node(self.target_id)
-        return tx, target_id, node_id, next_route_path
+        self.lane = self.router.next_node(target)
+        return tx, target, source, self.lane
 
-    def publish_tx(self, tx, target_id, flag, node_id, next_route_path):
+    def publish_tx(self, tx, target, source, flag):
         req = RequestPublishTX(
             tx=tx,
-            target_id=target_id,
-            node_id=node_id,
-            flag=flag,
-            route_path=next_route_path
+            target=target,
+            source=source,
+            flag=flag
         )
         # with grpc.insecure_channel('localhost:1453') as channel:
         #     log.info('successfully connect to ', channel)
@@ -59,7 +59,7 @@ class CrossChainCommunicationProtocol:
         #     res = stub.PublishTX(req)
         #     # After obtaining return : res.TxPublishCode.Success.value
         #     log.info(res)
-        lane = self.router[next_route_path]
+        # lane = self.router[next_route_path]
         headers = {
             'Content-Type': 'application/json',
         }
@@ -69,15 +69,19 @@ class CrossChainCommunicationProtocol:
                 'tx': json.dumps(MessageToJson(req))
             }
         }
-        log.info('Connect to ', f'http://localhost:{str(lane.port)}')
-        response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+        log.info('Connect to ', f'http://localhost:{str(self.lane.port)}')
+        response = requests.post(f'http://localhost:{str(self.lane.port)}', headers=headers, data=data).json()
         log.info(response)
 
     def deliver_tx_to_next_chain(self, request_tx: RequestTxPackage):
         if request_tx is not None:
-            tx, target_id, node_id, next_route_path = self.parse_tx_package(request_tx)
-            self.publish_tx(tx, target_id, node_id, next_route_path)
-            return ResponseTxPackage(code=TxDeliverCode.Success.value)
+            tx, target, source, flag = self.parse_tx_package(request_tx)
+            if self.lane.identifier == target.identifier:
+                # There should be a function to connect to DAPP.
+                log.info("Target chain reached.")
+            else:
+                self.publish_tx(tx, target, source, flag)
+                return ResponseTxPackage(code=TxDeliverCode.Success.value)
         else:
             return ResponseTxPackage(code=TxDeliverCode.FAIL.value)
 

@@ -12,8 +12,8 @@ enum CheckTxType {
 }
 message RequestTxPackage {
     bytes tx = 1;
-    common.Chain target_id = 2;
-    common.Node node_id = 3;
+    common.Chain source = 2;
+    common.Chain target = 3;
     string  flag = 4;
 }
 
