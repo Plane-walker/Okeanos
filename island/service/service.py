@@ -91,7 +91,7 @@ class IslandService(BaseApplication):
                 response = client.PackageTx(request_tx_package)
                 log.info(f'Dock return with status code: {response.code}')
         else:
-            self.db.Put(tx_json['user_id'], tx_json['user_data'])
+            self.db.Put(tx_json['user_id'].encode('uft-8'), tx_json['user_data'].encode('uft-8'))
         return ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> ResponseQuery:
