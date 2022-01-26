@@ -95,9 +95,9 @@ class IslandService(BaseApplication):
         return ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> ResponseQuery:
-        value = self.db.Get(req)
+        value = self.db.Get(req.data)
         return ResponseQuery(
-            code=OkCode, value=value, height=self.last_block_height
+            code=OkCode, value=bytes(value), height=self.last_block_height
         )
 
     def commit(self) -> ResponseCommit:
