@@ -54,7 +54,7 @@ class Router:
             config = yaml.load(file, Loader=yaml.Loader)
             self.configure(config['router'])
 
-        Thread(target=self.periodical_gossip, daemon=True).start()
+        # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def periodical_gossip(self):
         while True:
