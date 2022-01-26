@@ -22,9 +22,11 @@ The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
 import struct
+import os
 import sys
 import json
 import grpc
+import leveldb
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
 
@@ -38,10 +40,7 @@ from interface.sci.abci.types_pb2 import (
 )
 
 from base.server import ABCIServer
-from base.application import BaseApplication, OkCode, ErrorCode
-
-
-# Tx encoding/decoding
+from base.application import BaseApplication, OkCode
 
 
 def encode_number(value):
@@ -54,7 +53,8 @@ def decode_number(raw):
 
 class IslandService(BaseApplication):
     def __init__(self):
-        self.txCount = None
+        current_path = os.path.dirname(__file__)
+        self.db = leveldb.LevelDB(os.path.join(current_path, 'db'))
         self.last_block_height = None
 
     def info(self, req) -> ResponseInfo:
@@ -70,59 +70,39 @@ class IslandService(BaseApplication):
 
     def init_chain(self, req) -> ResponseInitChain:
         """Set initial state on first run"""
-        self.txCount = 0
         self.last_block_height = 0
         return ResponseInitChain()
 
     def check_tx(self, tx) -> ResponseCheckTx:
-        """
-        Validate the Tx before entry into the mempool
-        Checks the txs are submitted in order 1,2,3...
-        If not an order, a non-zero code is returned and the tx
-        will be dropped.
-        """
-        value = decode_number(tx)
-        if not value == (self.txCount + 1):
-            return ResponseCheckTx(code=ErrorCode)
         return ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> ResponseDeliverTx:
-        """
-        We have a valid tx, increment the state.
-        """
-        # Convert tx(according to tx format)
-        tx_string_value = tx.decode('utf-8')
-        # Convert tx to JSON format
-        tx_json_value = json.load(tx_string_value)
-        tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
-        # Get the key named test_target_id(target_id) in json
-        if "target" in tx_convert:
-            log.info("this is a cross chain tx")
-        # Execute calling the RPC interface in CCCP
-            req = dci_pb2.RequestTxPackage(
-                tx=tx_convert["tx"],
-                target=tx_convert["target"],
-                source=tx_convert["source"],
-                flag=tx_convert["flag"]
+        tx_json = json.loads(tx.decode('utf-8'))
+        if tx_json.get('target') is not None:
+            request_tx_package = dci_pb2.RequestTxPackage(
+                tx=tx,
+                target=tx_json['target'],
+                source=tx_json['source'],
+                flag=tx_json['flag']
             )
             with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Connect to ', channel)
-                stub = dci_pb2_grpc.DockStub(channel)
-                response = stub.PackageTx(req)
-                log.info("Client return status code: " + response.code)
-        self.txCount += 1
+                log.info('Call dock grpc : PackageTx')
+                client = dci_pb2_grpc.DockStub(channel)
+                response = client.PackageTx(request_tx_package)
+                log.info(f'Dock return with status code: {response.code}')
+        else:
+            self.db.Put(tx_json['user_id'], tx_json['user_data'])
         return ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> ResponseQuery:
-        """Return the last tx count"""
-        v = encode_number(self.txCount)
+        value = self.db.Get(req)
         return ResponseQuery(
-            code=OkCode, value=v, height=self.last_block_height
+            code=OkCode, value=value, height=self.last_block_height
         )
 
     def commit(self) -> ResponseCommit:
         """Return the current encode state value to tendermint"""
-        hash = struct.pack(">Q", self.txCount)
+        hash = struct.pack(">Q", self.last_block_height)
         return ResponseCommit(data=hash)
 
 
