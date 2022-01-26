@@ -60,3 +60,5 @@ class Dock:
         self.chain_manager.create_chain('island')
         self.chain_manager.create_chain('lane')
         server.wait_for_termination()
+        while True:
+            continue
