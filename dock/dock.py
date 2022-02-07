@@ -42,23 +42,26 @@ class DockServer(dci_pb2_grpc.DockServicer):
 class Dock:
     def __init__(self, config_path):
         log.info('Init Dock . . .')
+        self.config_path = config_path
         router = Router(config_path=config_path)
         cross_chain_community_protocol = CrossChainCommunicationProtocol(router)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
         self.dock_server = DockServer(router, cross_chain_community_protocol, network_optimizer)
         self.chain_manager = ChainManager(config_path=config_path)
-        with open(config_path) as file:
-            self.config = yaml.load(file, Loader=yaml.Loader)
 
     def run(self):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         dci_pb2_grpc.add_DockServicer_to_server(self.dock_server, server)
-        host = self.config['dock']['address']['host']
-        port = self.config['dock']['address']['port']
+        host = config['dock']['address']['host']
+        port = config['dock']['address']['port']
         server.add_insecure_port(f'{host}:{port}')
         server.start()
-        self.chain_manager.create_chain('island')
-        self.chain_manager.create_chain('lane')
+        for chain_sequence in range(config['chain_manager']['island']['number']):
+            self.chain_manager.create_chain('island', chain_sequence)
+        for chain_sequence in range(config['chain_manager']['lane']['number']):
+            self.chain_manager.create_chain('lane', chain_sequence)
         server.wait_for_termination()
         while True:
             continue
