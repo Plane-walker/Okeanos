@@ -21,6 +21,8 @@ curl http://localhost:2663/abci_query
 The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
+import os
+import leveldb
 import json
 import struct
 import sys
@@ -53,6 +55,11 @@ def decode_number(raw):
 
 
 class LaneService(BaseApplication):
+    def __init__(self):
+        current_path = os.path.dirname(__file__)
+        self.db = leveldb.LevelDB(os.path.join(current_path, 'db'))
+        self.last_block_height = None
+
     def info(self, req) -> ResponseInfo:
         """
         Since this will always respond with height=0, Tendermint
@@ -66,82 +73,34 @@ class LaneService(BaseApplication):
 
     def init_chain(self, req) -> ResponseInitChain:
         """Set initial state on first run"""
-        self.txCount = 0
         self.last_block_height = 0
         return ResponseInitChain()
 
     def check_tx(self, tx) -> ResponseCheckTx:
-        """
-        Validate the Tx before entry into the mempool
-        Checks the txs are submitted in order 1,2,3...
-        If not an order, a non-zero code is returned and the tx
-        will be dropped.
-        """
-        value = decode_number(tx)
-        if not value == (self.txCount + 1):
-            return ResponseCheckTx(code=ErrorCode)
         return ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> ResponseDeliverTx:
-        """
-        We have a valid tx, increment the state.
-        """
-        # Get the key named (target) in json
-        tx_string_value = tx.decode('utf-8')
-        tx_json_value = json.loads(tx_string_value)
-        tx_convert = json.dumps(tx_json_value, indent=4, sort_keys=True)
-
-        # Set flags to distinguish between three types of delivery, But not yet
-        # Flag of TxPackage
-        if tx_convert["Flag"] == "TxPackage":
-            log.info("this is a cross chain tx")
-            # Execute calling the RPC interface in CCCP
-            req = dci_pb2.RequestTxPackage(
+        tx_json = json.loads(tx.decode('utf-8'))
+        if tx_json.get('target') is not None:
+            request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
-                flag=tx_convert["Flag"],
-                target=tx_convert["target"],
-                source=tx_convert["source"]
+                target=tx_json['target'],
+                source=tx_json['source'],
+                flag=tx_json['flag']
             )
             with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Connect to ', channel)
-                stub = dci_pb2_grpc.DockStub(channel)
-                response = stub.PackageTx(req)
-                log.info("Client return status code: " + response.code)
-
-        # Flag of transmit: TTL
-        elif tx_convert["ttl"]:
-            with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Connect to ', channel)
-                stub = dci_pb2_grpc.DockStub(channel)
-                res = stub.RouterTransmit(
-                    dci_pb2.RequestRouterTransmit(
-                        source=tx_convert["source"],
-                        target=tx_convert["target"],
-                        ttl=3,
-                        paths=tx_convert["paths"]
-                    )
-                )
-
-        # Flag of callback
+                log.info('Call dock grpc : PackageTx')
+                client = dci_pb2_grpc.DockStub(channel)
+                response = client.DeliverTx(request_tx_package)
+                log.info(f'Dock return with status code: {response.code}')
         else:
-            with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Connect to ', channel)
-                stub = dci_pb2_grpc.DockStub(channel)
-                res = stub.RouterTransmit(
-                    dci_pb2.RequestRouterTransmit(
-                        source=tx_convert["source"],
-                        target=tx_convert["target"],
-                        paths=tx_convert["paths"]
-                    )
-                )
-        self.txCount += 1
+            self.db.Put(tx_json['user_id'].encode('utf-8'), tx_json['user_data'].encode('utf-8'))
         return ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> ResponseQuery:
-        """Return the last tx count"""
-        v = encode_number(self.txCount)
+        value = self.db.Get(req.data)
         return ResponseQuery(
-            code=OkCode, value=v, height=self.last_block_height
+            code=OkCode, value=bytes(value), height=self.last_block_height
         )
 
     def commit(self) -> ResponseCommit:

@@ -79,7 +79,7 @@ class IslandService(BaseApplication):
     def deliver_tx(self, tx) -> ResponseDeliverTx:
         tx_json = json.loads(tx.decode('utf-8'))
         if tx_json.get('target') is not None:
-            request_tx_package = dci_pb2.RequestTxPackage(
+            request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
                 target=tx_json['target'],
                 source=tx_json['source'],
@@ -88,7 +88,7 @@ class IslandService(BaseApplication):
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Call dock grpc : PackageTx')
                 client = dci_pb2_grpc.DockStub(channel)
-                response = client.PackageTx(request_tx_package)
+                response = client.DeliverTx(request_tx_package)
                 log.info(f'Dock return with status code: {response.code}')
         else:
             self.db.Put(tx_json['user_id'].encode('utf-8'), tx_json['user_data'].encode('utf-8'))

@@ -4,7 +4,7 @@ __all__ = [
 
 
 # from interface.bci.bci_pb2_grpc import LaneStub
-# import grpc
+import os
 import random
 import time
 import yaml
@@ -41,19 +41,14 @@ class Router:
     def __init__(self, config_path) -> None:
         self.node_id = '0'
         self.data_chain_id = '0'
-
         # Key is the id of Router Chain
         # Value contains ip:port and some other info
         self.lanes = {}
-
         # Route table is a dict whose key is target id in str type and
         # whose value is Lane Chain.
         self.route = {}
-
-        with open(config_path, encoding='utf-8') as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-            self.configure(config['router'])
-
+        self.config_path = config_path
+        self.import_route()
         # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def periodical_gossip(self):
@@ -64,32 +59,25 @@ class Router:
             self.gossip(Chain(identifier=self.data_chain_id), target, 10, [])
             time.sleep(10)
 
-    def configure(self, config: dict, config_key=None):
-        if not isinstance(config, dict):
-            return
-        if config_key is None:
-            keys = ('ttl', 'min_router_chain', 'min_search')
-            for key in keys:
-                if key not in config:
-                    raise KeyError
-                self.__setattr__(key, config[key])
-        else:
-            if config_key not in config:
-                raise KeyError
-            self.__setattr__(config_key, config[config_key])
+    def import_route(self):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        route_path = os.path.join(os.path.dirname(self.config_path), config['router']['route_path'])
+        if os.path.exists(route_path):
+            with open(route_path) as file:
+                self.route = yaml.load(file, Loader=yaml.Loader)
 
-    def next_node(self, target: Chain) -> Chain:
-        ttl = self.ttl
-        paths = []
-        id = target.identifier
-        while True:
-            if id in self.route:
-                break
-            code = self.gossip(Chain(identifier=self.data_chain_id), target, ttl, paths)
-            if code is None:
-                return None
-            ttl += self.ttl
-            time.sleep(20)
+    def next_jump(self, target: Chain) -> Chain:
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        if target.identifier not in self.route.keys():
+            ttl = config['router']['ttl']
+            paths = []
+            while True:
+                code = self.gossip(Chain(identifier=self.data_chain_id), target, ttl, paths)
+                if code is None:
+                    return None
+                ttl += config['router']['ttl']
         return self.route[target.identifier]
 
     def gossip(self, source: Chain, target: Chain, ttl, paths: list):

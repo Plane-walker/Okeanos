@@ -22,9 +22,9 @@ class DockServer(dci_pb2_grpc.DockServicer):
         self.cross_chain_community_protocol = cross_chain_community_protocol
         self.network_optimizer = network_optimizer
 
-    def PackageTx(self, request, context):
+    def DeliverTx(self, request, context):
         log.info('Request from %s', context.peer())
-        return self.cross_chain_community_protocol.deliver_tx_to_next_chain(request)
+        return self.cross_chain_community_protocol.deliver_tx(request)
 
     def RouterInfo(self, request, context):
         log.info('Request from %s', context.peer())
@@ -59,9 +59,9 @@ class Dock:
         server.add_insecure_port(f'{host}:{port}')
         server.start()
         for chain_sequence in range(config['chain_manager']['island']['number']):
-            self.chain_manager.create_chain('island', chain_sequence)
+            self.chain_manager.init_chain('island', chain_sequence)
+            self.chain_manager.add_chain('island', chain_sequence)
         for chain_sequence in range(config['chain_manager']['lane']['number']):
-            self.chain_manager.create_chain('lane', chain_sequence)
+            self.chain_manager.init_chain('lane', chain_sequence)
+            self.chain_manager.add_chain('lane', chain_sequence)
         server.wait_for_termination()
-        while True:
-            continue

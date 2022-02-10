@@ -10,11 +10,12 @@ from log import log
 
 
 class BaseChain:
-    def __init__(self, chain_pid, service_pid, chain_type, chain_sequence):
+    def __init__(self, chain_pid, service_pid, chain_type, chain_sequence, rpc_port):
         self.chain_pid = chain_pid
         self.service_pid = service_pid
         self.chain_type = chain_type
         self.chain_sequence = chain_sequence
+        self.rpc_port = rpc_port
 
 
 class ChainManager:
@@ -57,7 +58,7 @@ class ChainManager:
                                        preexec_fn=os.setsid).pid
         log.info(f'{chain_type.capitalize()} chain {chain_sequence} started')
         chain_id = chain_sequence
-        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence)
+        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence, config['chain_manager'][chain_type]['rpc_port'][chain_sequence])
 
     def start_chain(self, chain_id):
         chain_type = self.chains[chain_id].chain_type
@@ -77,7 +78,7 @@ class ChainManager:
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
         log.info(f'{chain_type.capitalize()} chain {chain_sequence} started')
-        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence)
+        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence, config['chain_manager'][chain_type]['rpc_port'][chain_sequence])
 
     def join_chain(self, chain_type, chain_sequence):
         with open(self.config_path) as file:
@@ -100,7 +101,7 @@ class ChainManager:
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
         chain_id = chain_sequence
-        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence)
+        self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence, config['chain_manager'][chain_type]['rpc_port'][chain_sequence])
 
     def stop_chain(self, chain_id):
         chain_pid = self.chains[chain_id].chain_pid
