@@ -24,7 +24,7 @@ class DockServer(dci_pb2_grpc.DockServicer):
 
     def DeliverTx(self, request, context):
         log.info('Request from %s', context.peer())
-        return self.cross_chain_community_protocol.deliver_tx_to_next_chain(request)
+        return self.cross_chain_community_protocol.deliver_tx(request)
 
     def RouterInfo(self, request, context):
         log.info('Request from %s', context.peer())
