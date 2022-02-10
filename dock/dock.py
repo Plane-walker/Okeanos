@@ -43,11 +43,11 @@ class Dock:
     def __init__(self, config_path):
         log.info('Init Dock . . .')
         self.config_path = config_path
+        self.chain_manager = ChainManager(config_path=config_path)
         router = Router(config_path=config_path)
-        cross_chain_community_protocol = CrossChainCommunicationProtocol(router)
+        cross_chain_community_protocol = CrossChainCommunicationProtocol(router, self.chain_manager)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
         self.dock_server = DockServer(router, cross_chain_community_protocol, network_optimizer)
-        self.chain_manager = ChainManager(config_path=config_path)
 
     def run(self):
         with open(self.config_path) as file:

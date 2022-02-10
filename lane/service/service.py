@@ -30,6 +30,7 @@ import grpc
 
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
+from interface.common import id_pb2
 from interface.sci.abci.types_pb2 import (
     ResponseInfo,
     ResponseInitChain,
@@ -83,8 +84,8 @@ class LaneService(BaseApplication):
         if tx_json.get('target') is not None:
             request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
-                target=tx_json['target'],
-                source=tx_json['source'],
+                target=id_pb2.Chain(identifier=tx_json['target']),
+                source=id_pb2.Chain(identifier=tx_json['source']),
                 flag=tx_json['flag']
             )
             with grpc.insecure_channel('localhost:1453') as channel:
