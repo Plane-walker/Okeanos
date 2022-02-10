@@ -4,6 +4,7 @@ import grpc
 
 import interface.dci.dci_pb2 as dci_dot_dci__pb2
 
+
 class DockStub(object):
     """Missing associated documentation comment in .proto file."""
 
@@ -13,10 +14,10 @@ class DockStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.PackageTx = channel.unary_unary(
-                '/dci.Dock/PackageTx',
-                request_serializer=dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseTxPackage.FromString,
+        self.DeliverTx = channel.unary_unary(
+                '/dci.Dock/DeliverTx',
+                request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
                 )
         self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
@@ -53,7 +54,7 @@ class DockStub(object):
 class DockServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def PackageTx(self, request, context):
+    def DeliverTx(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -98,10 +99,10 @@ class DockServicer(object):
 
 def add_DockServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'PackageTx': grpc.unary_unary_rpc_method_handler(
-                    servicer.PackageTx,
-                    request_deserializer=dci_dot_dci__pb2.RequestTxPackage.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseTxPackage.SerializeToString,
+            'DeliverTx': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeliverTx,
+                    request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
             ),
             'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
@@ -144,7 +145,7 @@ class Dock(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def PackageTx(request,
+    def DeliverTx(request,
             target,
             options=(),
             channel_credentials=None,
@@ -154,9 +155,9 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/PackageTx',
-            dci_dot_dci__pb2.RequestTxPackage.SerializeToString,
-            dci_dot_dci__pb2.ResponseTxPackage.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/DeliverTx',
+            dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
+            dci_dot_dci__pb2.ResponseDeliverTx.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
