@@ -50,7 +50,7 @@ class ChainManager:
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
-        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} " \
+        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence} " \
                         f"> {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/service_log.txt;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
@@ -71,7 +71,7 @@ class ChainManager:
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
-        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} " \
+        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence} " \
                         f"> {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/service_log.txt;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
@@ -94,7 +94,7 @@ class ChainManager:
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
-        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} " \
+        start_service = f"python {chain_type}/service/service.py {config['chain_manager'][chain_type]['abci_port'][chain_sequence]} {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence} " \
                         f"> {config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/service_log.txt;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,

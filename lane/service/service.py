@@ -55,9 +55,8 @@ def decode_number(raw):
 
 
 class LaneService(BaseApplication):
-    def __init__(self):
-        current_path = os.path.dirname(__file__)
-        self.db = leveldb.LevelDB(os.path.join(current_path, 'db'))
+    def __init__(self, db_path):
+        self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
         self.last_block_height = None
 
     def info(self, req) -> ResponseInfo:
@@ -105,13 +104,13 @@ class LaneService(BaseApplication):
 
     def commit(self) -> ResponseCommit:
         """Return the current encode state value to tendermint"""
-        hash = struct.pack(">Q", self.txCount)
+        hash = struct.pack(">Q", self.last_block_height)
         return ResponseCommit(data=hash)
 
 
 def main(args):
     init_log()
-    app = ABCIServer(app=LaneService(), port=args[1])
+    app = ABCIServer(app=LaneService(args[2]), port=args[1])
     app.run()
 
 

@@ -52,9 +52,8 @@ def decode_number(raw):
 
 
 class IslandService(BaseApplication):
-    def __init__(self):
-        current_path = os.path.dirname(__file__)
-        self.db = leveldb.LevelDB(os.path.join(current_path, 'db'))
+    def __init__(self, db_path):
+        self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
         self.last_block_height = None
 
     def info(self, req) -> ResponseInfo:
@@ -108,7 +107,7 @@ class IslandService(BaseApplication):
 
 def main(args):
     init_log()
-    app = ABCIServer(app=IslandService(), port=args[1])
+    app = ABCIServer(app=IslandService(args[2]), port=args[1])
     app.run()
 
 
