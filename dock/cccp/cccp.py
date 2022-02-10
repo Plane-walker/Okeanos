@@ -39,8 +39,8 @@ class CrossChainCommunicationProtocol:
 
     def deliver_tx(self, request: RequestDeliverTx):
         if request is not None:
-            if request.target in self.chain_manager.chains.keys():
-                chain = self.chain_manager.chains[request.target]
+            if request.target.identifier in self.chain_manager.chains.keys():
+                chain = self.chain_manager.chains[request.target.identifier]
                 headers = {
                     'Content-Type': 'application/json',
                 }
@@ -50,8 +50,8 @@ class CrossChainCommunicationProtocol:
                         'tx': request.tx
                     }
                 }
-                log.info('Connect to ', f'http://localhost:{chain.port}')
-                response = requests.post(f'http://localhost:{chain.port}', headers=headers, data=data).json()
+                log.info('Connect to ', f'http://localhost:{chain.rpc_port}')
+                response = requests.post(f'http://localhost:{chain.rpc_port}', headers=headers, data=data).json()
                 log.info(response)
             else:
                 self.transfer_tx(request)
