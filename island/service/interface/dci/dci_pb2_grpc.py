@@ -14,7 +14,7 @@ class DockStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DeliverTx = channel.unary_unary(
+        self.DeliverTx = channel.unary_stream(
                 '/dci.Dock/DeliverTx',
                 request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
@@ -99,7 +99,7 @@ class DockServicer(object):
 
 def add_DockServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DeliverTx': grpc.unary_unary_rpc_method_handler(
+            'DeliverTx': grpc.unary_stream_rpc_method_handler(
                     servicer.DeliverTx,
                     request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
@@ -155,7 +155,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/DeliverTx',
+        return grpc.experimental.unary_stream(request, target, '/dci.Dock/DeliverTx',
             dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
             dci_dot_dci__pb2.ResponseDeliverTx.FromString,
             options, channel_credentials,

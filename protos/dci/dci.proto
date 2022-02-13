@@ -99,7 +99,7 @@ message ResponseCommunityConfig {
 }
 
 service Dock {
-    rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
+    rpc DeliverTx(RequestDeliverTx) returns (stream ResponseDeliverTx);
 
     rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
