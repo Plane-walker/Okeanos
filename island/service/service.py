@@ -88,7 +88,7 @@ class IslandService(BaseApplication):
             with grpc.insecure_channel('localhost:1453') as channel:
                 log.info('Call dock grpc : PackageTx')
                 client = dci_pb2_grpc.DockStub(channel)
-                response = client.DeliverTx(request_tx_package)
+                response = next(client.DeliverTx(request_tx_package))
                 log.info(f'Dock return with status code: {response.code}')
         else:
             self.db.Put(tx_json['user_id'].encode('utf-8'), tx_json['user_data'].encode('utf-8'))

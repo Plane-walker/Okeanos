@@ -5,6 +5,7 @@ __all__ = [
 
 from enum import Enum, unique
 import requests
+import json
 from interface.dci.dci_pb2 import RequestDeliverTx, ResponseDeliverTx
 from log import log
 
@@ -38,24 +39,18 @@ class CrossChainCommunicationProtocol:
         log.info(response)
 
     def deliver_tx(self, request: RequestDeliverTx):
-        if request is not None:
-            if request.target.identifier in self.chain_manager.chains.keys():
-                chain = self.chain_manager.chains[request.target.identifier]
-                headers = {
-                    'Content-Type': 'application/json',
-                }
-                data = {
-                    'method': 'broadcast_tx_sync',
-                    'params': {
-                        'tx': request.tx
-                    }
-                }
-                log.info('Connect to ', f'http://localhost:{chain.rpc_port}')
-                response = requests.post(f'http://localhost:{chain.rpc_port}', headers=headers, data=data).json()
-                log.info(response)
-            else:
-                self.transfer_tx(request)
-            return ResponseDeliverTx(code=TxDeliverCode.Success.value)
+        yield ResponseDeliverTx(code=TxDeliverCode.Success.value)
+        if request.target.identifier in self.chain_manager.chains.keys():
+            chain = self.chain_manager.chains[request.target.identifier]
+            tx_json = json.loads(request.tx.decode('utf-8'))
+            tx_json.pop('target')
+            params = (
+                ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+            )
+            log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+            log.info(f'Connect to http://localhost:{chain.rpc_port}')
+            response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
+            log.info(response.text)
         else:
-            return ResponseDeliverTx(code=TxDeliverCode.FAIL.value)
+            self.transfer_tx(request)
 
