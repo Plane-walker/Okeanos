@@ -57,7 +57,9 @@ class ChainManager:
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
         log.info(f'{chain_type.capitalize()} chain {chain_sequence} started')
-        chain_id = f'{chain_type}_{chain_sequence}'
+        with open(f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/genesis.json") as file:
+            genesis = yaml.load(file, Loader=yaml.Loader)
+        chain_id = genesis['chain_id']
         self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence, config['chain_manager'][chain_type]['rpc_port'][chain_sequence])
 
     def start_chain(self, chain_id):
@@ -100,7 +102,9 @@ class ChainManager:
                                        shell=True,
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
-        chain_id = f'{chain_type}_{chain_sequence}'
+        with open(f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/genesis.json") as file:
+            genesis = yaml.load(file, Loader=yaml.Loader)
+        chain_id = genesis['chain_id']
         self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_type, chain_sequence, config['chain_manager'][chain_type]['rpc_port'][chain_sequence])
 
     def stop_chain(self, chain_id):
