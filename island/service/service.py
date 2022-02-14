@@ -27,18 +27,14 @@ import sys
 import json
 import grpc
 import leveldb
+import base64
+import hashlib
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
 from interface.common import id_pb2
 
-from interface.sci.abci.types_pb2 import (
-    ResponseInfo,
-    ResponseInitChain,
-    ResponseCheckTx,
-    ResponseDeliverTx,
-    ResponseQuery,
-    ResponseCommit,
-)
+from interface.sci.abci import types_pb2
+from interface.sci.crypto import keys_pb2
 
 from base.server import ABCIServer
 from base.application import BaseApplication, OkCode
@@ -56,28 +52,43 @@ class IslandService(BaseApplication):
     def __init__(self, db_path):
         self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
         self.last_block_height = None
+        self.validator_updates = []
+        self.address_to_public_key = {}
 
-    def info(self, req) -> ResponseInfo:
+    def info(self, req) -> types_pb2.ResponseInfo:
         """
         Since this will always respond with height=0, Tendermint
         will resync this app from the beginning
         """
-        r = ResponseInfo()
+        r = types_pb2.ResponseInfo()
         r.version = req.version
         r.last_block_height = 0
         r.last_block_app_hash = b""
         return r
 
-    def init_chain(self, req) -> ResponseInitChain:
-        """Set initial state on first run"""
+    def update_validator(self, validator_update):
+        address = hashlib.sha256(validator_update.pub_key.sum).hexdigest()[0: 40]
+        if validator_update.power == 0:
+            self.address_to_public_key.pop(address)
+        else:
+            self.address_to_public_key[address] = validator_update.pub_key
+        self.validator_updates.append(validator_update)
+
+    def init_chain(self, request) -> types_pb2.ResponseInitChain:
+        for validator in request.validators:
+            self.update_validator(validator)
         self.last_block_height = 0
-        return ResponseInitChain()
+        return types_pb2.ResponseInitChain()
 
-    def check_tx(self, tx) -> ResponseCheckTx:
-        return ResponseCheckTx(code=OkCode)
+    def check_tx(self, tx) -> types_pb2.ResponseCheckTx:
+        return types_pb2.ResponseCheckTx(code=OkCode)
 
-    def deliver_tx(self, tx) -> ResponseDeliverTx:
+    def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
         tx_json = json.loads(tx.decode('utf-8'))
+        if tx_json.get('validator') is not None:
+            validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(sum=tx_json['validator']['public_key']),
+                                                         power=tx_json['validator']['power'])
+            self.update_validator(validator_update)
         if tx_json.get('target') is not None:
             request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
@@ -92,18 +103,28 @@ class IslandService(BaseApplication):
                 log.info(f'Dock return with status code: {response.code}')
         else:
             self.db.Put(tx_json['user_id'].encode('utf-8'), tx_json['user_data'].encode('utf-8'))
-        return ResponseDeliverTx(code=OkCode)
+        return types_pb2.ResponseDeliverTx(code=OkCode)
 
-    def query(self, req) -> ResponseQuery:
+    def query(self, req) -> types_pb2.ResponseQuery:
         value = self.db.Get(req.data)
-        return ResponseQuery(
+        return types_pb2.ResponseQuery(
             code=OkCode, value=bytes(value), height=self.last_block_height
         )
 
-    def commit(self) -> ResponseCommit:
+    def commit(self) -> types_pb2.ResponseCommit:
         """Return the current encode state value to tendermint"""
         hash = struct.pack(">Q", self.last_block_height)
-        return ResponseCommit(data=hash)
+        return types_pb2.ResponseCommit(data=hash)
+
+    def begin_block(self, req: types_pb2.RequestBeginBlock) -> types_pb2.ResponseBeginBlock:
+        self.validator_updates = []
+        return types_pb2.ResponseBeginBlock()
+
+    def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
+        response = types_pb2.ResponseEndBlock()
+        for validator in self.validator_updates:
+            response.validator_updates.add(validator)
+        return response
 
 
 def main(args):
