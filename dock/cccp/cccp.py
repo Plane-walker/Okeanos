@@ -24,18 +24,14 @@ class CrossChainCommunicationProtocol:
         self.chain_manager = chain_manager
 
     def transfer_tx(self, request):
-        lane_chain = self.chain_manager[self.router.next_jump(request.target)]
-        headers = {
-            'Content-Type': 'application/json',
-        }
-        data = {
-            'method': 'broadcast_tx_sync',
-            'params': {
-                'tx': request.tx
-            }
-        }
-        log.info('Connect to ', f'http://localhost:{lane_chain.rpc_port}')
-        response = requests.post(f'http://localhost:{lane_chain.rpc_port}', headers=headers, data=data).json()
+        lane_chain = self.chain_manager.chains[self.router.next_jump(request.target)]
+        tx_json = json.loads(request.tx.decode('utf-8'))
+        params = (
+            ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+        )
+        log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+        log.info(f'Connect to http://localhost:{lane_chain.rpc_port}')
+        response = requests.get(f'http://localhost:{lane_chain.rpc_port}/broadcast_tx_commit', params=params)
         log.info(response)
 
     def deliver_tx(self, request: RequestDeliverTx):

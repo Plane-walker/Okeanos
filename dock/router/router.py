@@ -38,17 +38,22 @@ class DciResCode(Enum):
 
 class Router:
 
-    def __init__(self, config_path) -> None:
+    def __init__(self, config_path, chain_manager) -> None:
         self.node_id = '0'
         self.data_chain_id = '0'
         # Key is the id of Router Chain
         # Value contains ip:port and some other info
         self.lanes = {}
+        # for key in chain_manager.chains.keys():
+        #     self.lanes[key] = chain_manager[key]
+
+        self.chain_manager = chain_manager
+
         # Route table is a dict whose key is target id in str type and
         # whose value is Lane Chain.
         self.route = {}
-        self.config_path = config_path
-        self.import_route()
+
+        self.configure(config_path)
         # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def periodical_gossip(self):
@@ -59,43 +64,45 @@ class Router:
             self.gossip(Chain(identifier=self.data_chain_id), target, 10, [])
             time.sleep(10)
 
-    def import_route(self):
-        with open(self.config_path) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-        route_path = os.path.join(os.path.dirname(self.config_path), config['router']['route_path'])
+    def configure(self, config_path):
+        with open(config_path) as file:
+            self.config = yaml.load(file, Loader=yaml.Loader)['router']
+        route_path = os.path.join(os.path.dirname(config_path), self.config['route_path'])
         if os.path.exists(route_path):
             with open(route_path) as file:
                 self.route = yaml.load(file, Loader=yaml.Loader)
 
     def next_jump(self, target: Chain) -> Chain:
-        with open(self.config_path) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
         if target.identifier not in self.route.keys():
-            ttl = config['router']['ttl']
-            paths = []
+            ttl = self.config['ttl']
             while True:
+                paths = []
                 code = self.gossip(Chain(identifier=self.data_chain_id), target, ttl, paths)
                 if code is None:
                     return None
-                ttl += config['router']['ttl']
+                ttl += self.config['ttl']
         return self.route[target.identifier]
 
     def gossip(self, source: Chain, target: Chain, ttl, paths: list):
         num_of_neighbours = len(self.lanes)
-        if num_of_neighbours <= self.min_router_chain:
+        if num_of_neighbours == 0:
+            for key in self.chain_manager.chains.keys():
+                if self.chain_manager.chains[key].chain_type == 'lane':
+                    self.lanes[key] = self.chain_manager.chains[key]
+        num_of_neighbours = len(self.lanes)
+        log.info(self.lanes)
+        if num_of_neighbours < self.config['min_router_chain']:
             return None
         selecteds = set()
-        if num_of_neighbours < self.min_seacher:
-            for lane in self.lanes:
-                selecteds.add(lane)
+        if num_of_neighbours <= self.config['min_search']:
+            for key in self.lanes.keys():
+                selecteds.add(self.lanes[key])
         else:
-            while True:
-                if len(selecteds) == self.min_seacher:
-                    break
-                selecteds.add(
-                    self.lanes[random.randint(0, num_of_neighbours-1)])
-        self.transmit_to_others(
-            selecteds, source, target, ttl=ttl, paths=paths)
+            keys = random.sample(self.lanes.keys(), self.config['min_search'])
+            log.info(keys)
+            for key in keys:
+                selecteds.add(self.lanes[keys])
+        self.transmit_to_others(selecteds, source, target, ttl=ttl, paths=paths)
         return DciResCode.OK.value
 
     def transmit_to_others(self, lanes, source: Chain, target: Chain, ttl, paths: list):
@@ -106,26 +113,23 @@ class Router:
             source (Chain): The source data chain who sent gossip
             target (Chain): The target data chain who will been found
             ttl (int): ttl
-            paths (list): The list of route path consists of route chain
+            paths (list): The list of route path consists of route chain id
         """
         for lane in lanes:
-            if lane.identifier == paths[-1].identifier:
+            if len(paths) > 0 and lane.chain_id == paths[-1]:
                 continue
-            paths.append(Chain(lane.identifier))
+            paths.append(Chain(identifier=lane.chain_id))
             req = RequestGossipQueryPath(
                 target=target, source=source, ttl=ttl)
             req.route_chains.extend([path for path in paths])
-            headers = {
-                'Content-Type': 'application/json',
-            }
-            data = {
-                'method': 'broadcast_tx_sync',
-                'params': {
-                    'tx': json.dumps(MessageToJson(req))
-                }
-            }
-            log.info('Connect to ', f'http://localhost:{str(lane.port)}')
-            response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+            tx_json = json.loads(MessageToJson(req))
+            log.info(tx_json)
+            params = (
+                ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+            )
+            log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+            log.info(f'Connect to http://localhost:{lane.rpc_port}')
+            response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
             log.info(response)
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
@@ -134,7 +138,7 @@ class Router:
         :target is data chain who sent gossip first
         """
         for lane in self.lanes:
-            if lane.identifier == paths[-1].identifier:
+            if len(paths) > 0 and lane.chain_id == paths[-1]:
                 # The source in RequestGossipCallBack is who has been found and
                 # then sends callback. And the target in RequestGossipCallBack
                 # is who sent gossip first and waiting now.
@@ -146,17 +150,13 @@ class Router:
                 #     stub = LaneStub(channel)
                 #     res = stub.GossipCallBack(req)
                 #     log.info(res)
-                headers = {
-                    'Content-Type': 'application/json',
-                }
-                data = {
-                    'method': 'broadcast_tx_sync',
-                    'params': {
-                        'tx': json.dumps(MessageToJson(req))
-                    }
-                }
-                log.info('Connect to ', f'http://localhost:{str(lane.port)}')
-                response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+                tx_json = json.loads(MessageToJson(req))
+                params = (
+                    ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                )
+                log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+                log.info(f'Connect to http://localhost:{str(lane.port)}')
+                response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
                 log.info(response)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
