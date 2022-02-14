@@ -27,7 +27,6 @@ import sys
 import json
 import grpc
 import leveldb
-import base64
 import hashlib
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
@@ -89,7 +88,7 @@ class IslandService(BaseApplication):
             validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(sum=tx_json['validator']['public_key']),
                                                          power=tx_json['validator']['power'])
             self.update_validator(validator_update)
-        if tx_json.get('target') is not None:
+        elif tx_json.get('target') is not None:
             request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
                 target=id_pb2.Chain(identifier=tx_json['target']),
