@@ -33,7 +33,7 @@ class ChainManager:
                      f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/config.toml &> /dev/null;" \
                      f"sleep 3;" \
                      f"sed -i " \
-                     f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://127.0.0.1:{config['chain_manager'][chain_type]['rpc_port'][chain_sequence]}\"#g' " \
+                     f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager'][chain_type]['rpc_port'][chain_sequence]}\"#g' " \
                      f"{config['chain_manager'][chain_type]['base_path']}/{chain_type}_{chain_sequence}/config/config.toml &> /dev/null;" \
                      f"sleep 3;" \
                      f"sed -i " \

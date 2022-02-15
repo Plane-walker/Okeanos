@@ -27,6 +27,7 @@ import sys
 import json
 import grpc
 import leveldb
+import base64
 import hashlib
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
@@ -66,7 +67,7 @@ class IslandService(BaseApplication):
         return r
 
     def update_validator(self, validator_update):
-        address = hashlib.sha256(validator_update.pub_key.sum).hexdigest()[0: 40]
+        address = hashlib.sha256(validator_update.pub_key.ed25519).hexdigest()[0: 40]
         if validator_update.power == 0:
             self.address_to_public_key.pop(address)
         else:
@@ -85,7 +86,7 @@ class IslandService(BaseApplication):
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
         tx_json = json.loads(tx.decode('utf-8'))
         if tx_json.get('validator') is not None:
-            validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(sum=tx_json['validator']['public_key']),
+            validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['validator']['public_key'])),
                                                          power=tx_json['validator']['power'])
             self.update_validator(validator_update)
         elif tx_json.get('target') is not None:
@@ -120,10 +121,7 @@ class IslandService(BaseApplication):
         return types_pb2.ResponseBeginBlock()
 
     def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
-        response = types_pb2.ResponseEndBlock()
-        for validator in self.validator_updates:
-            response.validator_updates.add(validator)
-        return response
+        return types_pb2.ResponseEndBlock(validator_updates=self.validator_updates)
 
 
 def main(args):
