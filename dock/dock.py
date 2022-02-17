@@ -58,10 +58,10 @@ class Dock:
         port = config['dock']['address']['port']
         server.add_insecure_port(f'{host}:{port}')
         server.start()
-        for chain_sequence in range(config['chain_manager']['island']['number']):
-            self.chain_manager.init_chain('island', chain_sequence)
-            self.chain_manager.add_chain('island', chain_sequence)
-        for chain_sequence in range(config['chain_manager']['lane']['number']):
-            self.chain_manager.init_chain('lane', chain_sequence)
-            self.chain_manager.add_chain('lane', chain_sequence)
+        for chain_name in config['chain_manager']['chain'].keys():
+            self.chain_manager.init_chain(chain_name)
+            if not config['chain_manager']['chain'][chain_name]['join']:
+                self.chain_manager.add_chain(chain_name)
+            else:
+                self.chain_manager.join_chain(chain_name)
         server.wait_for_termination()
