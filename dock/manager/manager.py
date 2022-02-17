@@ -130,8 +130,3 @@ class ChainManager:
         subprocess.run(remove_path,
                        shell=True,
                        stdout=subprocess.PIPE)
-
-if __name__ == '__main__':
-    a = {'t': {'121': {'port': ['awdwad', 'adwad']}, '2323': {'port': ['awdwadawawd', 'adwawadwad']}}}
-    for ids in a['t'].keys():
-        print(f"\"{', '.join(a['t'][ids]['port'])}\"")
