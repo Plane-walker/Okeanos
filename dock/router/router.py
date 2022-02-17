@@ -115,17 +115,14 @@ class Router:
             req = RequestGossipQueryPath(
                 target=target, source=source, ttl=ttl)
             req.route_chains.extend([path for path in paths])
-            headers = {
-                'Content-Type': 'application/json',
-            }
-            data = {
-                'method': 'broadcast_tx_sync',
-                'params': {
-                    'tx': json.dumps(MessageToJson(req))
-                }
-            }
-            log.info('Connect to ', f'http://localhost:{str(lane.port)}')
-            response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+            tx_json = json.loads(MessageToJson(req))
+            log.info(tx_json)
+            params = (
+                ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+            )
+            log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+            log.info(f'Connect to http://localhost:{lane.rpc_port}')
+            response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
             log.info(response)
 
     def callback_to_finder(self, source: Chain, target: Chain, paths: list):
@@ -146,17 +143,13 @@ class Router:
                 #     stub = LaneStub(channel)
                 #     res = stub.GossipCallBack(req)
                 #     log.info(res)
-                headers = {
-                    'Content-Type': 'application/json',
-                }
-                data = {
-                    'method': 'broadcast_tx_sync',
-                    'params': {
-                        'tx': json.dumps(MessageToJson(req))
-                    }
-                }
-                log.info('Connect to ', f'http://localhost:{str(lane.port)}')
-                response = requests.post(f'http://localhost:{str(lane.port)}', headers=headers, data=data).json()
+                tx_json = json.loads(MessageToJson(req))
+                params = (
+                    ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                )
+                log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
+                log.info(f'Connect to http://localhost:{str(lane.port)}')
+                response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
                 log.info(response)
 
     def info(self, req: RequestRouterInfo) -> ResponseRouterInfo:
