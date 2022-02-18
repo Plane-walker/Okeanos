@@ -65,10 +65,10 @@ class ChainManager:
                                        shell=True,
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
-        log.info(f'{chain_name.capitalize()} started')
         with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json") as file:
             genesis = yaml.load(file, Loader=yaml.Loader)
         chain_id = genesis['chain_id']
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self.chains[chain_id] = BaseChain(chain_pid, service_pid, chain_name, config['chain_manager']['chain'][chain_name]['rpc_port'])
 
     def start_chain(self, chain_id):
