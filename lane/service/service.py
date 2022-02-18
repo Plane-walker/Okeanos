@@ -95,8 +95,8 @@ class LaneService(BaseApplication):
         elif tx_json.get('target') is not None:
             request_tx_package = dci_pb2.RequestDeliverTx(
                 tx=tx,
-                target=id_pb2.Chain(identifier=tx_json['target']),
-                source=id_pb2.Chain(identifier=tx_json['source']),
+                target=id_pb2.Chain(identifier=tx_json['target']['identifier']),
+                source=id_pb2.Chain(identifier=tx_json['source']['identifier']),
                 flag=tx_json['flag']
             )
             with grpc.insecure_channel('localhost:1453') as channel:
