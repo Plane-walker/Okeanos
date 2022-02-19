@@ -1,9 +1,12 @@
-name: Python Package using Conda
+name: Run pytest
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - 'main'
 
 jobs:
-  build-linux:
+  run-pytest:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
@@ -37,4 +40,3 @@ jobs:
         source ~/.profile
         conda install pytest
         pytest
-        kill -9 $(lsof -t -i:2665 -i:2668 -i:2671 -i:2674)
