@@ -37,3 +37,4 @@ jobs:
         source ~/.profile
         conda install pytest
         pytest
+        kill -9 $(lsof -t -i:2665 -i:2668 -i:2671 -i:2674)
