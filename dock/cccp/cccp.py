@@ -24,29 +24,27 @@ class CrossChainCommunicationProtocol:
         self.chain_manager = chain_manager
 
     def transfer_tx(self, request):
-        lane_chain = self.chain_manager.chains[self.router.next_jump(request.target)]
+        lane = self.router.next_jump(request.target)
         tx_json = json.loads(request.tx.decode('utf-8'))
         params = (
             ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
         )
-        log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
-        log.info(f'Connect to http://localhost:{lane_chain.rpc_port}')
-        response = requests.get(f'http://localhost:{lane_chain.rpc_port}/broadcast_tx_commit', params=params)
-        log.info(response.text)
+        log.info(f'Transfer cross-chain-tx to lane: {lane.chain_name}')
+        response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
+        log.debug(f"{lane.chain_name} return: {response.text}")
 
     def deliver_tx(self, request: RequestDeliverTx):
         yield ResponseDeliverTx(code=TxDeliverCode.Success.value)
-        if request.target.identifier in self.chain_manager.chains.keys():
-            chain = self.chain_manager.chains[request.target.identifier]
+        island = self.chain_manager.get_island(request.target.identifier)
+        if island is not None:
             tx_json = json.loads(request.tx.decode('utf-8'))
             tx_json.pop('target')
             params = (
                 ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
             )
-            log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
-            log.info(f'Connect to http://localhost:{chain.rpc_port}')
-            response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
-            log.info(response.text)
+            log.info(f'Deliver cross-chain-tx to island: {island.chain_name}')
+            response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
+            log.debug(f"{island.chain_name} return: {response.text}")
         else:
             self.transfer_tx(request)
 

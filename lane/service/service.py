@@ -100,16 +100,26 @@ class LaneService(BaseApplication):
                 flag=tx_json['flag']
             )
             with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Call dock grpc : PackageTx')
+                log.info('Call dock grpc: DeliverTx')
                 client = dci_pb2_grpc.DockStub(channel)
-                response = client.DeliverTx(request_tx_package)
+                response = next(client.DeliverTx(request_tx_package))
                 log.info(f'Dock return with status code: {response.code}')
         else:
-            self.db.Put(tx_json['user_id'].encode('utf-8'), tx_json['user_data'].encode('utf-8'))
+            try:
+                self.db.Put(tx_json['key'].encode('utf-8'), tx_json['value'].encode('utf-8'))
+            except Exception as exception:
+                log.error(exception)
+                return types_pb2.ResponseDeliverTx(code=ErrorCode)
         return types_pb2.ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> types_pb2.ResponseQuery:
-        value = self.db.Get(req.data)
+        try:
+            value = self.db.Get(req.data)
+        except Exception as exception:
+            log.error(exception)
+            return types_pb2.ResponseQuery(
+                code=ErrorCode, value=bytes(""), height=self.last_block_height
+            )
         return types_pb2.ResponseQuery(
             code=OkCode, value=bytes(value), height=self.last_block_height
         )
