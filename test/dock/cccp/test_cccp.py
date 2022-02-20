@@ -1,13 +1,12 @@
 from dock import Dock
 import os
 import requests
-from log import init_log
+import json
 from concurrent import futures
 import grpc
 import yaml
 from interface.dci import dci_pb2_grpc
 import unittest
-import subprocess
 
 
 class TestCCCP(unittest.TestCase):
@@ -30,9 +29,14 @@ class TestCCCP(unittest.TestCase):
         server.add_insecure_port(f'{host}:{port}')
         server.start()
         params = (
-            ('tx', '0x' + '7b226b6579223a2022746573745f6b6579222c202276616c7565223a2022746573745f76616c7565227d'.encode('utf-8').hex()),
+            ('tx', '0x' + '{"key": "test_key", "value": "test_value"}'.encode('utf-8').hex()),
         )
-        response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
+        requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
+        params = (
+            ('data', '0x' + 'test_key'.encode('utf-8').hex()),
+        )
+        response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], 'dGVzdF92YWx1ZQ==')
 
 
 if __name__ == '__main__':
