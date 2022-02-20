@@ -118,7 +118,7 @@ class LaneService(BaseApplication):
         except Exception as exception:
             log.error(exception)
             return types_pb2.ResponseQuery(
-                code=ErrorCode, value=bytes(""), height=self.last_block_height
+                code=ErrorCode, height=self.last_block_height
             )
         return types_pb2.ResponseQuery(
             code=OkCode, value=bytes(value), height=self.last_block_height
