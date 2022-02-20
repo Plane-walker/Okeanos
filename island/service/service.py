@@ -115,7 +115,7 @@ class IslandService(BaseApplication):
         except Exception as exception:
             log.error(repr(exception))
             return types_pb2.ResponseQuery(
-                code=ErrorCode, height=self.last_block_height
+                code=ErrorCode, value=repr(exception).encode('utf-8'), height=self.last_block_height
             )
         return types_pb2.ResponseQuery(
             code=OkCode, value=bytes(value), height=self.last_block_height
