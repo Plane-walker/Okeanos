@@ -126,7 +126,8 @@ class ChainManager:
         shutil.copy(f"{config['chain_manager']['base_path']}/{config['chain_manager']['chain'][chain_name]['genesis_path']}/genesis.json",
                     f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\""
+                      f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
@@ -141,6 +142,7 @@ class ChainManager:
         with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json") as file:
             genesis = yaml.load(file, Loader=yaml.Loader)
         chain_id = genesis['chain_id']
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
                                            chain_pid,
