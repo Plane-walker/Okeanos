@@ -108,7 +108,7 @@ class LaneService(BaseApplication):
             try:
                 self.db.Put(tx_json['key'].encode('utf-8'), tx_json['value'].encode('utf-8'))
             except Exception as exception:
-                log.error(exception)
+                log.error(repr(exception))
                 return types_pb2.ResponseDeliverTx(code=ErrorCode)
         return types_pb2.ResponseDeliverTx(code=OkCode)
 
@@ -116,7 +116,7 @@ class LaneService(BaseApplication):
         try:
             value = self.db.Get(req.data)
         except Exception as exception:
-            log.error(exception)
+            log.error(repr(exception))
             return types_pb2.ResponseQuery(
                 code=ErrorCode, height=self.last_block_height
             )
