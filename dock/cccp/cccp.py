@@ -47,4 +47,3 @@ class CrossChainCommunicationProtocol:
             log.debug(f"{island.chain_name} return: {response.text}")
         else:
             self.transfer_tx(request)
-

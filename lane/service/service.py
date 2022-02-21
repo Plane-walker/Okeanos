@@ -87,23 +87,61 @@ class LaneService(BaseApplication):
         return types_pb2.ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
-        tx_json = json.loads(tx.decode('utf-8'))
+        try:
+            tx_json = json.loads(tx.decode('utf-8'))
+        except Exception as exception:
+            log.error(repr(exception))
+            return types_pb2.ResponseDeliverTx(code=ErrorCode)
+        if tx_json.get('info') is not None:
+            try:
+                with grpc.insecure_channel('localhost:1453') as channel:
+                    log.info('Call dock grpc')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.RouterInfo(dci_pb2.RequestRouterInfo(tx=1))
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            except Exception as exception:
+                log.error(repr(exception))
+                return types_pb2.ResponseDeliverTx(code=ErrorCode)
         if tx_json.get('validator') is not None:
             validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['validator']['public_key'])),
                                                          power=tx_json['validator']['power'])
             self.update_validator(validator_update)
         elif tx_json.get('target') is not None:
-            request_tx_package = dci_pb2.RequestDeliverTx(
-                tx=tx,
-                target=id_pb2.Chain(identifier=tx_json['target']['identifier']),
-                source=id_pb2.Chain(identifier=tx_json['source']['identifier']),
-                flag=tx_json['flag']
-            )
-            with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Call dock grpc: DeliverTx')
-                client = dci_pb2_grpc.DockStub(channel)
-                response = next(client.DeliverTx(request_tx_package))
-                log.info(f'Dock return with status code: {response.code}')
+            try:
+                if tx_json.get('paths') is not None:
+                    if tx_json.get('ttl') is not None:
+                        request_tx_package = dci_pb2.RequestRouterTransmit(
+                            source=id_pb2.Chain(identifier=tx_json['source']),
+                            target=id_pb2.Chain(identifier=tx_json['target']),
+                            ttl=tx_json['ttl']
+                        )
+                    else:
+                        request_tx_package = dci_pb2.RequestRouterPathCallback(
+                            source=id_pb2.Chain(identifier=tx_json['source']),
+                            target=id_pb2.Chain(identifier=tx_json['target'])
+                        )
+                    for path in tx_json['paths']:
+                        request_tx_package.paths.append(id_pb2.Chain(identifier=path))
+                    with grpc.insecure_channel('localhost:1453') as channel:
+                        log.info('Call dock grpc')
+                        client = dci_pb2_grpc.DockStub(channel)
+                        response = next(client.RouterTransmit(request_tx_package)) if 'ttl' in tx_json else next(client.RouterPathCallback(request_tx_package))
+                        log.info(f'Dock return with status code: {response.code}')
+                    return types_pb2.ResponseDeliverTx(code=OkCode)
+                request_tx_package = dci_pb2.RequestDeliverTx(
+                    tx=tx,
+                    target=id_pb2.Chain(identifier=tx_json['target']),
+                    source=id_pb2.Chain(identifier=tx_json['source']),
+                )
+                with grpc.insecure_channel('localhost:1453') as channel:
+                    log.info('Call dock grpc: DeliverTx')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = next(client.DeliverTx(request_tx_package))
+                    log.info(f'Dock return with status code: {response.code}')
+            except Exception as exception:
+                log.error(repr(exception))
+                return types_pb2.ResponseDeliverTx(code=ErrorCode)
         else:
             try:
                 self.db.Put(tx_json['key'].encode('utf-8'), tx_json['value'].encode('utf-8'))
