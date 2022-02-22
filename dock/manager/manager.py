@@ -46,23 +46,23 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['rpc_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['p2p_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#create_empty_blocks = true#create_empty_blocks = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;"
