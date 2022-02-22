@@ -2,6 +2,7 @@ __all__ = [
     'ChainManager'
 ]
 
+import multiprocessing
 import os
 import shutil
 import subprocess
@@ -46,23 +47,23 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['rpc_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['p2p_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#create_empty_blocks = true#create_empty_blocks = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"wait;" \
                      f"sed -i " \
                      f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;"
@@ -72,14 +73,14 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -100,14 +101,14 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -133,7 +134,7 @@ class ChainManager:
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
