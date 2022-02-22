@@ -101,9 +101,9 @@ message ResponseCommunityConfig {
 service Dock {
     rpc DeliverTx(RequestDeliverTx) returns (stream ResponseDeliverTx);
 
-    rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
-    rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
-    rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
+    rpc RouterInfo(RequestRouterInfo) returns (stream ResponseRouterInfo);
+    rpc RouterTransmit(RequestRouterTransmit) returns (stream ResponseRouterTransmit);
+    rpc RouterPathCallback(RequestRouterPathCallback) returns (stream ResponseRouterPathCallback);
 
     rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
     rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
