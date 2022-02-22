@@ -46,7 +46,7 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
-                     f"wait;" \
+                     f"sleep 3;" \
                      f"sed -i " \
                      f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
@@ -72,14 +72,14 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -100,14 +100,14 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -127,14 +127,14 @@ class ChainManager:
                     f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
         start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
                       f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
