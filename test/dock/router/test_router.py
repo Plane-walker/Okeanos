@@ -1,4 +1,3 @@
-from time import sleep
 import unittest
 from concurrent import futures
 import grpc

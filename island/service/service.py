@@ -49,7 +49,8 @@ def decode_number(raw):
 
 
 class IslandService(BaseApplication):
-    def __init__(self, db_path):
+    def __init__(self, node_id, db_path):
+        self.node_id = node_id
         self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
         self.last_block_height = None
         self.validator_updates = []
@@ -136,7 +137,7 @@ class IslandService(BaseApplication):
 
 def main(args):
     init_log()
-    app = ABCIServer(app=IslandService(args[2]), port=args[1])
+    app = ABCIServer(app=IslandService(args[2], args[3]), port=args[1])
     app.run()
 
 
