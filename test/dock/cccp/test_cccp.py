@@ -37,6 +37,8 @@ class TestCCCP(unittest.TestCase):
         )
         response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
         self.assertEqual(json.loads(response.text)['result']['response']['value'], 'dGVzdF92YWx1ZQ==')
+        for chain in dock.chain_manager.select_chain(lambda single: True):
+            dock.chain_manager.delete_chain(chain.chain_id)
 
 
 if __name__ == '__main__':

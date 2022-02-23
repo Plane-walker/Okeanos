@@ -7,6 +7,10 @@ import shutil
 import subprocess
 import signal
 import yaml
+import hashlib
+import base64
+import socket
+import datetime
 from log import log
 
 
@@ -45,48 +49,87 @@ class ChainManager:
     def init_chain(self, chain_name):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
-                     f"sleep 3;" \
+        init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name};" \
                      f"sed -i " \
                      f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
-                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['rpc_port']}\"#g' " \
-                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['p2p_port']}\"#g' " \
-                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#create_empty_blocks = true#create_empty_blocks = false#g' " \
-                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
-                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;"
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;"
         subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
 
-    def add_chain(self, chain_name):
+    def _start_chain_core(self, chain_name, join=False):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+        if not join:
+            start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
+                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+        else:
+            shutil.copy(f"{config['chain_manager']['base_path']}/{config['chain_manager']['chain'][chain_name]['genesis_path']}/genesis.json",
+                        f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
+            start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
+                          f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
+                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
                                      preexec_fn=os.setsid).pid
-        start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
+        return chain_pid
+
+    def _start_service(self, chain_name):
+        with open(self._config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
+            validator = yaml.load(file, Loader=yaml.Loader)
+        node_id = hashlib.sha256(base64.b64decode(validator['priv_key']['value'])).hexdigest()[0: 40]
+        start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py " \
+                        f"{config['chain_manager']['chain'][chain_name]['abci_port']} " \
+                        f"{node_id} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
                         f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
                                        preexec_fn=os.setsid).pid
+        return service_pid
+
+    def _wait_for_chain_start(self, chain_name):
+        with open(self._config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        location = ("localhost", int(config['chain_manager']['chain'][chain_name]['rpc_port']))
+        start_time = datetime.datetime.now()
+        timeout = 15
+        while True:
+            if a_socket.connect_ex(location) == 0:
+                break
+            if (datetime.datetime.now() - start_time).seconds > timeout:
+                break
+
+    def get_chain_id(self, chain_name):
+        with open(self._config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
         with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json") as file:
             genesis = yaml.load(file, Loader=yaml.Loader)
         chain_id = genesis['chain_id']
+        return chain_id
+
+    def add_chain(self, chain_name):
+        with open(self._config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        chain_pid = self._start_chain_core(chain_name)
+        service_pid = self._start_service(chain_name)
+        self._wait_for_chain_start(chain_name)
+        chain_id = self.get_chain_id(chain_name)
         log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
@@ -99,20 +142,10 @@ class ChainManager:
         chain_name = self._chains[chain_id].chain_name
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
-        chain_pid = subprocess.Popen(start_chain,
-                                     shell=True,
-                                     stdout=subprocess.PIPE,
-                                     preexec_fn=os.setsid).pid
-        start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
-                        f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
-        service_pid = subprocess.Popen(start_service,
-                                       shell=True,
-                                       stdout=subprocess.PIPE,
-                                       preexec_fn=os.setsid).pid
-        log.info(f'{chain_name.capitalize()} started')
+        chain_pid = self._start_chain_core(chain_name)
+        service_pid = self._start_service(chain_name)
+        self._wait_for_chain_start(chain_name)
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
                                            chain_pid,
@@ -123,25 +156,10 @@ class ChainManager:
     def join_chain(self, chain_name):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        shutil.copy(f"{config['chain_manager']['base_path']}/{config['chain_manager']['chain'][chain_name]['genesis_path']}/genesis.json",
-                    f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
-        start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                      f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
-                      f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
-        chain_pid = subprocess.Popen(start_chain,
-                                     shell=True,
-                                     stdout=subprocess.PIPE,
-                                     preexec_fn=os.setsid).pid
-        start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py {config['chain_manager']['chain'][chain_name]['abci_port']} " \
-                        f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
-        service_pid = subprocess.Popen(start_service,
-                                       shell=True,
-                                       stdout=subprocess.PIPE,
-                                       preexec_fn=os.setsid).pid
-        with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json") as file:
-            genesis = yaml.load(file, Loader=yaml.Loader)
-        chain_id = genesis['chain_id']
+        chain_pid = self._start_chain_core(chain_name, True)
+        service_pid = self._start_service(chain_name)
+        self._wait_for_chain_start(chain_name)
+        chain_id = self.get_chain_id(chain_name)
         log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
