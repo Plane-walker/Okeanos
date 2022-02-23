@@ -46,7 +46,15 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
-                     f"sleep 3;" \
+                     f"while (true)\n" \
+                     f"do\n" \
+                     f"    if [ -f \"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml\"  ]\n" \
+                     f"    then\n" \
+                     f"        break;\n" \
+                     f"    else \n" \
+                     f"        wait;\n" \
+                     f"    fi        \n" \
+                     f"done\n" \
                      f"sed -i " \
                      f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml &> /dev/null;" \
