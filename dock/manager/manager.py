@@ -48,7 +48,10 @@ class ChainManager:
         init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name} &> /dev/null;" \
                      f"while (true)\n" \
                      f"do\n" \
-                     f"    if [ -f \"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml\"  ]\n" \
+                     f"    if [ -f \"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml\" "\
+                     f"-a -f \"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json\" "\
+                     f"-a -f \"{config['chain_manager']['base_path']}/{chain_name}/config/node_key.json\" "\
+                     f"-a -f \"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json\" ]\n"\
                      f"    then\n" \
                      f"        break;\n" \
                      f"    else \n" \
