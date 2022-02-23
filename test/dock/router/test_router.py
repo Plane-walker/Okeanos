@@ -62,6 +62,8 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
         router = self.dock.dock_server.router
         self.assertIn('FarAwaySource', router.route)
+        for chain in self.dock.chain_manager.select_chain(lambda single: True):
+            self.dock.chain_manager.delete_chain(chain.chain_id)
 
 
 if __name__ == '__main__':
