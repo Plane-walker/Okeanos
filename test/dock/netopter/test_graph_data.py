@@ -10,8 +10,8 @@ from interface.dci import dci_pb2_grpc
 import unittest
 
 
-class TestCCCP(unittest.TestCase):
-    def test_island_deliver_tx(self):
+class TestGraphData(unittest.TestCase):
+    def test_graph_data(self):
         current_path = os.path.dirname(__file__)
         dock_config_path = os.path.join(current_path, 'config/dock.yaml')
         dock = Dock(dock_config_path)

@@ -78,7 +78,7 @@ class ChainManager:
                         f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
                           f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
-                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
@@ -90,12 +90,11 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
             validator = yaml.load(file, Loader=yaml.Loader)
-        node_id = hashlib.sha256(base64.b64decode(validator['priv_key']['value'])).hexdigest()[0: 40]
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py " \
                         f"{config['chain_manager']['chain'][chain_name]['abci_port']} " \
-                        f"{node_id} " \
+                        f"{config['app']['app_id']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service_log.txt;"
+                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
