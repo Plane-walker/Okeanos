@@ -4,6 +4,7 @@ import requests
 import json
 from concurrent import futures
 import grpc
+import base64
 import yaml
 from interface.dci import dci_pb2_grpc
 import unittest
