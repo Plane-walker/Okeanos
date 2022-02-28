@@ -3,13 +3,8 @@ package dci;
 
 option go_package = "github.com/tendermint/tendermint/abci/types";
 
-import "gogoproto/gogo.proto";
 import "common/id.proto";
 
-enum CheckTxType {
-    NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
-    RECHECK = 1 [(gogoproto.enumvalue_customname) = "Recheck"];
-}
 message RequestDeliverTx {
     bytes tx = 1;
     common.Chain source = 2;
@@ -29,38 +24,23 @@ message RequestRouterTransmit {
 }
 
 message RequestRouterPathCallback {
-    common.Chain           source      = 1;
-    common.Chain           target      = 2;
-    repeated common.Chain  paths       = 3;
+    common.Chain source = 1;
+    common.Chain target = 2;
+    repeated common.Chain paths = 3;
 }
 
-message RequestSwitchCommunity {
+message RequestSwitchIsland {
     string target_community = 1;
 }
 
-message RequestCommunityInfo {
-    int32 info_level = 1;
+message RequestUpdateGraphData {
+    string app_id = 1;
+    string chain_id = 2;
+    string increase_weight = 3;
 }
 
-message RequestCommunityConfig {
-    bool auto_switch = 1;
-    int32 max_peer_number = 2;
-    string algorithm = 3;
-}
-
-message Event {
-    string                  type       = 1;
-    repeated EventAttribute attributes = 2 [
-        (gogoproto.nullable) = false,
-        (gogoproto.jsontag)  = "attributes,omitempty"
-    ];
-}
-
-// EventAttribute is a single key-value pair, associated with an event.
-message EventAttribute {
-    bytes key   = 1;
-    bytes value = 2;
-    bool  index = 3;  // nondeterministic
+message RequestGetGraphData {
+    string app_id = 1;
 }
 
 message ResponseDeliverTx {
@@ -68,34 +48,35 @@ message ResponseDeliverTx {
 }
 
 message ResponseRouterInfo {
-    uint32         code       = 1;
-    bytes          data       = 2;
-    string         info       = 3;  // nondeterministic
+    uint32 code = 1;
+    bytes data = 2;
+    string info = 3;
 }
 
 message ResponseRouterTransmit {
-	uint32 			code 		= 1;
-	string 			info 		= 2;
+	uint32 code = 1;
+	string info = 2;
 }
 
 message ResponseRouterPathCallback {
-    uint32          code        = 1;
-    string          info        = 2;
-}
-
-message ResponseSwitchCommunity {
-    uint32         code       = 1;
-    bytes          info       = 2;
-}
-
-message ResponseCommunityInfo {
-    string community_id = 1;
-    string node_id = 2;
-}
-
-message ResponseCommunityConfig {
     uint32 code = 1;
     string info = 2;
+}
+
+message ResponseSwitchIsland {
+    uint32 code = 1;
+    string info = 2;
+}
+
+message ResponseUpdateGraphData {
+    uint32 code = 1;
+    string info = 2;
+}
+
+message ResponseGetGraphData {
+    repeated string app_id = 1;
+    repeated uint32 weight = 2;
+    repeated string chain_id = 3;
 }
 
 service Dock {
@@ -105,7 +86,7 @@ service Dock {
     rpc RouterTransmit(RequestRouterTransmit) returns (stream ResponseRouterTransmit);
     rpc RouterPathCallback(RequestRouterPathCallback) returns (stream ResponseRouterPathCallback);
 
-    rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
-    rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
-    rpc CommunityConfig(RequestCommunityConfig) returns (ResponseCommunityConfig);
+    rpc SwitchIsland(RequestSwitchIsland) returns (ResponseSwitchIsland);
+    rpc UpdateGraphData(RequestUpdateGraphData) returns (ResponseUpdateGraphData);
+    rpc GetGraphData(RequestGetGraphData) returns (ResponseGetGraphData);
 }

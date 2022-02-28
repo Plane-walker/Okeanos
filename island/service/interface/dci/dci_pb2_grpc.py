@@ -34,20 +34,20 @@ class DockStub(object):
                 request_serializer=dci_dot_dci__pb2.RequestRouterPathCallback.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseRouterPathCallback.FromString,
                 )
-        self.SwitchCommunity = channel.unary_unary(
-                '/dci.Dock/SwitchCommunity',
-                request_serializer=dci_dot_dci__pb2.RequestSwitchCommunity.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseSwitchCommunity.FromString,
+        self.SwitchIsland = channel.unary_unary(
+                '/dci.Dock/SwitchIsland',
+                request_serializer=dci_dot_dci__pb2.RequestSwitchIsland.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseSwitchIsland.FromString,
                 )
-        self.CommunityInfo = channel.unary_unary(
-                '/dci.Dock/CommunityInfo',
-                request_serializer=dci_dot_dci__pb2.RequestCommunityInfo.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseCommunityInfo.FromString,
+        self.UpdateGraphData = channel.unary_unary(
+                '/dci.Dock/UpdateGraphData',
+                request_serializer=dci_dot_dci__pb2.RequestUpdateGraphData.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseUpdateGraphData.FromString,
                 )
-        self.CommunityConfig = channel.unary_unary(
-                '/dci.Dock/CommunityConfig',
-                request_serializer=dci_dot_dci__pb2.RequestCommunityConfig.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseCommunityConfig.FromString,
+        self.GetGraphData = channel.unary_unary(
+                '/dci.Dock/GetGraphData',
+                request_serializer=dci_dot_dci__pb2.RequestGetGraphData.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseGetGraphData.FromString,
                 )
 
 
@@ -78,19 +78,19 @@ class DockServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SwitchCommunity(self, request, context):
+    def SwitchIsland(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CommunityInfo(self, request, context):
+    def UpdateGraphData(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CommunityConfig(self, request, context):
+    def GetGraphData(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -119,20 +119,20 @@ def add_DockServicer_to_server(servicer, server):
                     request_deserializer=dci_dot_dci__pb2.RequestRouterPathCallback.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseRouterPathCallback.SerializeToString,
             ),
-            'SwitchCommunity': grpc.unary_unary_rpc_method_handler(
-                    servicer.SwitchCommunity,
-                    request_deserializer=dci_dot_dci__pb2.RequestSwitchCommunity.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseSwitchCommunity.SerializeToString,
+            'SwitchIsland': grpc.unary_unary_rpc_method_handler(
+                    servicer.SwitchIsland,
+                    request_deserializer=dci_dot_dci__pb2.RequestSwitchIsland.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseSwitchIsland.SerializeToString,
             ),
-            'CommunityInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.CommunityInfo,
-                    request_deserializer=dci_dot_dci__pb2.RequestCommunityInfo.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseCommunityInfo.SerializeToString,
+            'UpdateGraphData': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateGraphData,
+                    request_deserializer=dci_dot_dci__pb2.RequestUpdateGraphData.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseUpdateGraphData.SerializeToString,
             ),
-            'CommunityConfig': grpc.unary_unary_rpc_method_handler(
-                    servicer.CommunityConfig,
-                    request_deserializer=dci_dot_dci__pb2.RequestCommunityConfig.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseCommunityConfig.SerializeToString,
+            'GetGraphData': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetGraphData,
+                    request_deserializer=dci_dot_dci__pb2.RequestGetGraphData.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseGetGraphData.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -213,7 +213,7 @@ class Dock(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SwitchCommunity(request,
+    def SwitchIsland(request,
             target,
             options=(),
             channel_credentials=None,
@@ -223,14 +223,14 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/SwitchCommunity',
-            dci_dot_dci__pb2.RequestSwitchCommunity.SerializeToString,
-            dci_dot_dci__pb2.ResponseSwitchCommunity.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/SwitchIsland',
+            dci_dot_dci__pb2.RequestSwitchIsland.SerializeToString,
+            dci_dot_dci__pb2.ResponseSwitchIsland.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def CommunityInfo(request,
+    def UpdateGraphData(request,
             target,
             options=(),
             channel_credentials=None,
@@ -240,14 +240,14 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/CommunityInfo',
-            dci_dot_dci__pb2.RequestCommunityInfo.SerializeToString,
-            dci_dot_dci__pb2.ResponseCommunityInfo.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/UpdateGraphData',
+            dci_dot_dci__pb2.RequestUpdateGraphData.SerializeToString,
+            dci_dot_dci__pb2.ResponseUpdateGraphData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def CommunityConfig(request,
+    def GetGraphData(request,
             target,
             options=(),
             channel_credentials=None,
@@ -257,8 +257,8 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/CommunityConfig',
-            dci_dot_dci__pb2.RequestCommunityConfig.SerializeToString,
-            dci_dot_dci__pb2.ResponseCommunityConfig.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/GetGraphData',
+            dci_dot_dci__pb2.RequestGetGraphData.SerializeToString,
+            dci_dot_dci__pb2.ResponseGetGraphData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

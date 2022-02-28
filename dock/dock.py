@@ -38,6 +38,18 @@ class DockServer(dci_pb2_grpc.DockServicer):
         log.info('Received request for RouterPathCallback')
         return self.router.callback(request)
 
+    def GetGraphData(self, request, context):
+        log.info('Received request for GetGraphDate')
+        return self.network_optimizer.graph_data.get_graph_data(request)
+
+    def UpdateGraphData(self, request, context):
+        log.info('Received request for UpdateGraphDate')
+        return self.network_optimizer.graph_data.update_graph_data(request)
+
+    def SwitchIsland(self, request, context):
+        log.info('Received request for SwitchIsland')
+        return self.network_optimizer.switch_island(request)
+
 
 class Dock:
     def __init__(self, config_path):
