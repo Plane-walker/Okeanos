@@ -36,7 +36,7 @@ message RequestSwitchIsland {
 message RequestUpdateGraphData {
     string app_id = 1;
     string chain_id = 2;
-    string increase_weight = 3;
+    uint32 increase_weight = 3;
 }
 
 message RequestGetGraphData {
