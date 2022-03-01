@@ -141,7 +141,7 @@ class IslandService(BaseApplication):
                     log.info('Call dock grpc: UpdateGraphDta')
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.GetGraphData(dci_pb2.RequestGetGraphData(app_id=req_json['app_id']))
-                    graph_data = {'app_id': response.app_id, 'weight': response.weight, 'chain_id': response.chain_id}
+                    graph_data = {'app_id': list(response.app_id), 'weight': list(response.weight), 'chain_id': list(response.chain_id)}
                     return types_pb2.ResponseQuery(
                         code=OkCode, value=json.dumps(graph_data).encode('utf-8'), height=self.last_block_height
                     )
@@ -159,7 +159,7 @@ class IslandService(BaseApplication):
                     request_update_graph_data = dci_pb2.RequestUpdateGraphData(
                         app_id=keeper['app_id'],
                         chain_id=keeper['chain_id'],
-                        add_weight=1
+                        increase_weight=1
                     )
                     with grpc.insecure_channel('localhost:1453') as channel:
                         log.info('Call dock grpc: UpdateGraphDta')

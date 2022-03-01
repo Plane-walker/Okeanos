@@ -26,8 +26,8 @@ class GraphData:
         return response
 
     def update_graph_data(self, request):
-        self._connection_weight[request.app_id] = request.chain_id
-        self._app_chain_id[request.app_id] = self._app_chain_id.get(request.app_id, 0) + request.increase_weight
+        self._app_chain_id[request.app_id] = request.chain_id
+        self._connection_weight[request.app_id] = self._connection_weight.get(request.app_id, 0) + request.increase_weight
         return dci_pb2.ResponseUpdateGraphData(code=0, info='OK')
 
     # def get_data_from_neighbors(self):

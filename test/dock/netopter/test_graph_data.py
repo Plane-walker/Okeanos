@@ -30,14 +30,18 @@ class TestGraphData(unittest.TestCase):
         server.add_insecure_port(f'{host}:{port}')
         server.start()
         params = (
-            ('tx', '0x' + '{"key": "test_key", "value": "test_value", "auth": {"app_id": "0"}}'.encode('utf-8').hex()),
+            ('tx', '0x' + '{"key": "test_key", "value": "test_value", "auth": {"app_id": "1"}}'.encode('utf-8').hex()),
         )
         requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
         params = (
             ('data', '0x' + '{"key": "test_key", "auth": {"app_id": "0"}}'.encode('utf-8').hex()),
         )
+        requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+        params = (
+            ('data', '0x' + '{"graph_data": "", "app_id": "0"}'.encode('utf-8').hex()),
+        )
         response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('{"app_id": ["1"], "weight": [1], "chain_id": ["test-chain-RPmDcd"]}'.encode('utf-8')).decode('utf-8'))
         for chain in dock.chain_manager.select_chain(lambda single: True):
             dock.chain_manager.delete_chain(chain.chain_id)
 
