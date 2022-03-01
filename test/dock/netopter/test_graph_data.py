@@ -41,7 +41,9 @@ class TestGraphData(unittest.TestCase):
             ('data', '0x' + '{"graph_data": "", "app_id": "0"}'.encode('utf-8').hex()),
         )
         response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('{"app_id": ["1"], "weight": [1], "chain_id": ["test-chain-RPmDcd"]}'.encode('utf-8')).decode('utf-8'))
+        result = json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
+        self.assertEqual(result['app_id'], ["1"])
+        self.assertEqual(result['weight'], [1])
         for chain in dock.chain_manager.select_chain(lambda single: True):
             dock.chain_manager.delete_chain(chain.chain_id)
 
