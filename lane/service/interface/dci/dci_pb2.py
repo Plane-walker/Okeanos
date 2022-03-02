@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x0f\x63ommon/id.proto\"j\n\x10RequestDeliverTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x03 \x01(\x0b\x32\r.common.Chain\x12\x0c\n\x04\x66lag\x18\x04 \x01(\t\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x80\x01\n\x15RequestRouterTransmit\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x1c\n\x05paths\x18\x04 \x03(\x0b\x32\r.common.Chain\"w\n\x19RequestRouterPathCallback\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1c\n\x05paths\x18\x03 \x03(\x0b\x32\r.common.Chain\"/\n\x13RequestSwitchIsland\x12\x18\n\x10target_community\x18\x01 \x01(\t\"S\n\x16RequestUpdateGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x01(\t\x12\x10\n\x08\x63hain_id\x18\x02 \x01(\t\x12\x17\n\x0fincrease_weight\x18\x03 \x01(\r\"%\n\x13RequestGetGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x01(\t\"!\n\x11ResponseDeliverTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"2\n\x14ResponseSwitchIsland\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseUpdateGraphData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"H\n\x14ResponseGetGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x03(\t\x12\x0e\n\x06weight\x18\x02 \x03(\r\x12\x10\n\x08\x63hain_id\x18\x03 \x03(\t2\x83\x04\n\x04\x44ock\x12<\n\tDeliverTx\x12\x15.dci.RequestDeliverTx\x1a\x16.dci.ResponseDeliverTx0\x01\x12?\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo0\x01\x12K\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit0\x01\x12W\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback0\x01\x12\x43\n\x0cSwitchIsland\x12\x18.dci.RequestSwitchIsland\x1a\x19.dci.ResponseSwitchIsland\x12L\n\x0fUpdateGraphData\x12\x1b.dci.RequestUpdateGraphData\x1a\x1c.dci.ResponseUpdateGraphData\x12\x43\n\x0cGetGraphData\x12\x18.dci.RequestGetGraphData\x1a\x19.dci.ResponseGetGraphDataB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x0f\x63ommon/id.proto\"j\n\x10RequestDeliverTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x03 \x01(\x0b\x32\r.common.Chain\x12\x0c\n\x04\x66lag\x18\x04 \x01(\t\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x80\x01\n\x15RequestRouterTransmit\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x1c\n\x05paths\x18\x04 \x03(\x0b\x32\r.common.Chain\"w\n\x19RequestRouterPathCallback\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1c\n\x05paths\x18\x03 \x03(\x0b\x32\r.common.Chain\"/\n\x13RequestSwitchIsland\x12\x18\n\x10target_community\x18\x01 \x01(\t\"\xba\x01\n\x0eNodeConnection\x12\x15\n\rsource_app_id\x18\x01 \x01(\t\x12\x17\n\x0fsource_app_info\x18\x02 \x01(\t\x12\x1b\n\x13source_app_chain_id\x18\x03 \x01(\t\x12\x15\n\rtarget_app_id\x18\x04 \x01(\t\x12\x17\n\x0ftarget_app_info\x18\x05 \x01(\t\x12\x1b\n\x13target_app_chain_id\x18\x06 \x01(\t\x12\x0e\n\x06weight\x18\x07 \x01(\r\"G\n\x16RequestUpdateGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection\"%\n\x13RequestGetGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x03(\t\"!\n\x11ResponseDeliverTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"2\n\x14ResponseSwitchIsland\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseUpdateGraphData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"E\n\x14ResponseGetGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection2\x83\x04\n\x04\x44ock\x12<\n\tDeliverTx\x12\x15.dci.RequestDeliverTx\x1a\x16.dci.ResponseDeliverTx0\x01\x12?\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo0\x01\x12K\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit0\x01\x12W\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback0\x01\x12\x43\n\x0cSwitchIsland\x12\x18.dci.RequestSwitchIsland\x1a\x19.dci.ResponseSwitchIsland\x12L\n\x0fUpdateGraphData\x12\x1b.dci.RequestUpdateGraphData\x1a\x1c.dci.ResponseUpdateGraphData\x12\x43\n\x0cGetGraphData\x12\x18.dci.RequestGetGraphData\x1a\x19.dci.ResponseGetGraphDataB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
   ,
   dependencies=[common_dot_id__pb2.DESCRIPTOR,])
 
@@ -243,31 +243,59 @@ _REQUESTSWITCHISLAND = _descriptor.Descriptor(
 )
 
 
-_REQUESTUPDATEGRAPHDATA = _descriptor.Descriptor(
-  name='RequestUpdateGraphData',
-  full_name='dci.RequestUpdateGraphData',
+_NODECONNECTION = _descriptor.Descriptor(
+  name='NodeConnection',
+  full_name='dci.NodeConnection',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='app_id', full_name='dci.RequestUpdateGraphData.app_id', index=0,
+      name='source_app_id', full_name='dci.NodeConnection.source_app_id', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='chain_id', full_name='dci.RequestUpdateGraphData.chain_id', index=1,
+      name='source_app_info', full_name='dci.NodeConnection.source_app_info', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='increase_weight', full_name='dci.RequestUpdateGraphData.increase_weight', index=2,
-      number=3, type=13, cpp_type=3, label=1,
+      name='source_app_chain_id', full_name='dci.NodeConnection.source_app_chain_id', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='target_app_id', full_name='dci.NodeConnection.target_app_id', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='target_app_info', full_name='dci.NodeConnection.target_app_info', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='target_app_chain_id', full_name='dci.NodeConnection.target_app_chain_id', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='weight', full_name='dci.NodeConnection.weight', index=6,
+      number=7, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -284,23 +312,23 @@ _REQUESTUPDATEGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=481,
-  serialized_end=564,
+  serialized_start=482,
+  serialized_end=668,
 )
 
 
-_REQUESTGETGRAPHDATA = _descriptor.Descriptor(
-  name='RequestGetGraphData',
-  full_name='dci.RequestGetGraphData',
+_REQUESTUPDATEGRAPHDATA = _descriptor.Descriptor(
+  name='RequestUpdateGraphData',
+  full_name='dci.RequestUpdateGraphData',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='app_id', full_name='dci.RequestGetGraphData.app_id', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='node_connections', full_name='dci.RequestUpdateGraphData.node_connections', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -316,8 +344,40 @@ _REQUESTGETGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=566,
-  serialized_end=603,
+  serialized_start=670,
+  serialized_end=741,
+)
+
+
+_REQUESTGETGRAPHDATA = _descriptor.Descriptor(
+  name='RequestGetGraphData',
+  full_name='dci.RequestGetGraphData',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='app_id', full_name='dci.RequestGetGraphData.app_id', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=743,
+  serialized_end=780,
 )
 
 
@@ -348,8 +408,8 @@ _RESPONSEDELIVERTX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=605,
-  serialized_end=638,
+  serialized_start=782,
+  serialized_end=815,
 )
 
 
@@ -394,8 +454,8 @@ _RESPONSEROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=640,
-  serialized_end=702,
+  serialized_start=817,
+  serialized_end=879,
 )
 
 
@@ -433,8 +493,8 @@ _RESPONSEROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=704,
-  serialized_end=756,
+  serialized_start=881,
+  serialized_end=933,
 )
 
 
@@ -472,8 +532,8 @@ _RESPONSEROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=758,
-  serialized_end=814,
+  serialized_start=935,
+  serialized_end=991,
 )
 
 
@@ -511,8 +571,8 @@ _RESPONSESWITCHISLAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=816,
-  serialized_end=866,
+  serialized_start=993,
+  serialized_end=1043,
 )
 
 
@@ -550,8 +610,8 @@ _RESPONSEUPDATEGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=868,
-  serialized_end=921,
+  serialized_start=1045,
+  serialized_end=1098,
 )
 
 
@@ -564,22 +624,8 @@ _RESPONSEGETGRAPHDATA = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='app_id', full_name='dci.ResponseGetGraphData.app_id', index=0,
-      number=1, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='weight', full_name='dci.ResponseGetGraphData.weight', index=1,
-      number=2, type=13, cpp_type=3, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='chain_id', full_name='dci.ResponseGetGraphData.chain_id', index=2,
-      number=3, type=9, cpp_type=9, label=3,
+      name='node_connections', full_name='dci.ResponseGetGraphData.node_connections', index=0,
+      number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -596,8 +642,8 @@ _RESPONSEGETGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=923,
-  serialized_end=995,
+  serialized_start=1100,
+  serialized_end=1169,
 )
 
 _REQUESTDELIVERTX.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
@@ -608,11 +654,14 @@ _REQUESTROUTERTRANSMIT.fields_by_name['paths'].message_type = common_dot_id__pb2
 _REQUESTROUTERPATHCALLBACK.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTROUTERPATHCALLBACK.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTROUTERPATHCALLBACK.fields_by_name['paths'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTUPDATEGRAPHDATA.fields_by_name['node_connections'].message_type = _NODECONNECTION
+_RESPONSEGETGRAPHDATA.fields_by_name['node_connections'].message_type = _NODECONNECTION
 DESCRIPTOR.message_types_by_name['RequestDeliverTx'] = _REQUESTDELIVERTX
 DESCRIPTOR.message_types_by_name['RequestRouterInfo'] = _REQUESTROUTERINFO
 DESCRIPTOR.message_types_by_name['RequestRouterTransmit'] = _REQUESTROUTERTRANSMIT
 DESCRIPTOR.message_types_by_name['RequestRouterPathCallback'] = _REQUESTROUTERPATHCALLBACK
 DESCRIPTOR.message_types_by_name['RequestSwitchIsland'] = _REQUESTSWITCHISLAND
+DESCRIPTOR.message_types_by_name['NodeConnection'] = _NODECONNECTION
 DESCRIPTOR.message_types_by_name['RequestUpdateGraphData'] = _REQUESTUPDATEGRAPHDATA
 DESCRIPTOR.message_types_by_name['RequestGetGraphData'] = _REQUESTGETGRAPHDATA
 DESCRIPTOR.message_types_by_name['ResponseDeliverTx'] = _RESPONSEDELIVERTX
@@ -658,6 +707,13 @@ RequestSwitchIsland = _reflection.GeneratedProtocolMessageType('RequestSwitchIsl
   # @@protoc_insertion_point(class_scope:dci.RequestSwitchIsland)
   })
 _sym_db.RegisterMessage(RequestSwitchIsland)
+
+NodeConnection = _reflection.GeneratedProtocolMessageType('NodeConnection', (_message.Message,), {
+  'DESCRIPTOR' : _NODECONNECTION,
+  '__module__' : 'dci.dci_pb2'
+  # @@protoc_insertion_point(class_scope:dci.NodeConnection)
+  })
+_sym_db.RegisterMessage(NodeConnection)
 
 RequestUpdateGraphData = _reflection.GeneratedProtocolMessageType('RequestUpdateGraphData', (_message.Message,), {
   'DESCRIPTOR' : _REQUESTUPDATEGRAPHDATA,
@@ -732,8 +788,8 @@ _DOCK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=998,
-  serialized_end=1513,
+  serialized_start=1172,
+  serialized_end=1687,
   methods=[
   _descriptor.MethodDescriptor(
     name='DeliverTx',

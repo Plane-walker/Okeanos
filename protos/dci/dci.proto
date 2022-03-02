@@ -33,14 +33,22 @@ message RequestSwitchIsland {
     string target_community = 1;
 }
 
+message NodeConnection {
+    string source_app_id = 1;
+    string source_app_info = 2;
+    string source_app_chain_id = 3;
+    string target_app_id = 4;
+    string target_app_info = 5;
+    string target_app_chain_id = 6;
+    uint32 weight = 7;
+}
+
 message RequestUpdateGraphData {
-    string app_id = 1;
-    string chain_id = 2;
-    uint32 increase_weight = 3;
+    repeated NodeConnection node_connections = 1;
 }
 
 message RequestGetGraphData {
-    string app_id = 1;
+    repeated string app_id = 1;
 }
 
 message ResponseDeliverTx {
@@ -74,10 +82,9 @@ message ResponseUpdateGraphData {
 }
 
 message ResponseGetGraphData {
-    repeated string app_id = 1;
-    repeated uint32 weight = 2;
-    repeated string chain_id = 3;
+    repeated NodeConnection node_connections = 1;
 }
+
 
 service Dock {
     rpc DeliverTx(RequestDeliverTx) returns (stream ResponseDeliverTx);
