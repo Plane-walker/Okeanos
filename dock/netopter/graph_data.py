@@ -2,9 +2,7 @@ __all__ = [
     'GraphData'
 ]
 
-import json
 import os
-import grpc
 import pandas as pd
 import networkx as nx
 import numpy as np
@@ -49,19 +47,17 @@ class GraphData:
         adjacency_matrix = np.array([[self._edges.get((source_id, target_id), 0) for target_id in id_map] for source_id in id_map])
         labels = np.array([self._labels[vertex_id] for vertex_id in id_map])
         return id_map, features, adjacency_matrix, labels
-    #
-    # def import_data_from_file(self, file_path):
-    #     cites = pd.read_csv(os.path.join(file_path, 'cora.cites'), sep='\t', header=None).values
-    #     content = pd.read_csv(os.path.join(file_path, 'cora.content'), sep='\t', header=None).values
-    #     id_map = content[:, 0]
-    #     feature = content[:, 1: -1]
-    #     label = content[:, -1]
-    #     label = LabelBinarizer().fit_transform(label)
-    #     graph = nx.Graph()
-    #     graph.add_edges_from(cites)
-    #     adjacency_matrix = np.array(nx.convert_matrix.to_numpy_matrix(graph, nodelist=id_map))
-    #     feature = np.array(feature, dtype=np.float32)
-    #     self.adjacency_matrix = adjacency_matrix
-    #     self.feature = feature
-    #     self.label = label
-    #     self.id_map = id_map
+
+    @staticmethod
+    def import_data_from_file(file_path):
+        cites = pd.read_csv(os.path.join(file_path, 'cora.cites'), sep='\t', header=None).values
+        content = pd.read_csv(os.path.join(file_path, 'cora.content'), sep='\t', header=None).values
+        id_map = content[:, 0]
+        feature = content[:, 1: -1]
+        label = content[:, -1]
+        labels = LabelBinarizer().fit_transform(label)
+        graph = nx.Graph()
+        graph.add_edges_from(cites)
+        adjacency_matrix = np.array(nx.convert_matrix.to_numpy_matrix(graph, nodelist=id_map))
+        features = np.array(feature, dtype=np.float32)
+        return id_map, features, adjacency_matrix, labels
