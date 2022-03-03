@@ -140,8 +140,16 @@ class IslandService(BaseApplication):
                 with grpc.insecure_channel('localhost:1453') as channel:
                     log.info('Call dock grpc: UpdateGraphDta')
                     client = dci_pb2_grpc.DockStub(channel)
-                    response = client.GetGraphData(dci_pb2.RequestGetGraphData(app_id=req_json['app_id']))
-                    graph_data = {'app_id': list(response.app_id), 'weight': list(response.weight), 'chain_id': list(response.chain_id)}
+                    request = dci_pb2.RequestGetGraphData()
+                    request.app_id.append(req_json['app_id'])
+                    response = client.GetGraphData(request)
+                    graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
+                                   'source_app_info': response.node_connections[index].source_app_info,
+                                   'source_app_chain_id': response.node_connections[index].source_app_chain_id,
+                                   'target_app_id': response.node_connections[index].target_app_id,
+                                   'target_app_info': response.node_connections[index].target_app_info,
+                                   'target_app_chain_id': response.node_connections[index].target_app_chain_id,
+                                   'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(
                         code=OkCode, value=json.dumps(graph_data).encode('utf-8'), height=self.last_block_height
                     )
@@ -156,11 +164,17 @@ class IslandService(BaseApplication):
                 data_json = json.loads(bytes(value).decode('utf-8'))
                 keeper = data_json['keeper']
                 if req_json['auth']['app_id'] == self.app_id and req_json['auth']['app_id'] != keeper['app_id']:
-                    request_update_graph_data = dci_pb2.RequestUpdateGraphData(
-                        app_id=keeper['app_id'],
-                        chain_id=keeper['chain_id'],
-                        increase_weight=1
-                    )
+                    request_update_graph_data = dci_pb2.RequestUpdateGraphData()
+                    with open(f"{self.db_path}/config/genesis.json") as file:
+                        genesis = yaml.load(file, Loader=yaml.Loader)
+                    chain_id = genesis['chain_id']
+                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id=self.app_id,
+                                                                                             source_app_info='',
+                                                                                             source_app_chain_id=chain_id,
+                                                                                             target_app_id=keeper['app_id'],
+                                                                                             target_app_info='',
+                                                                                             target_app_chain_id=keeper['chain_id'],
+                                                                                             weight=1))
                     with grpc.insecure_channel('localhost:1453') as channel:
                         log.info('Call dock grpc: UpdateGraphDta')
                         client = dci_pb2_grpc.DockStub(channel)
