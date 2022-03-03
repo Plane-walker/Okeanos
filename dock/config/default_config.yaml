@@ -14,6 +14,8 @@ router:
   route_path: 'route.yaml'
 
 GNN:
+  base_path: '/root'
+  model_path: 'model/graph_sage.tf'
   algorithm: 'graphSAGE'
   auto_switch: True
   max_peer_number: 100
