@@ -88,82 +88,71 @@ class IslandService(BaseApplication):
             tx_json = json.loads(tx.decode('utf-8'))
             log.info(f'Check for tx {tx_json}({self.app_id})')
         except Exception as exception:
-            log.error(repr(exception))
+            log.error(repr(exception), data=repr(exception).encode('utf-8'))
         return types_pb2.ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
-        tx_json = json.loads(tx.decode('utf-8'))
-        log.info(f'Deliver tx {tx_json}({self.app_id})')
-        if tx_json.get('validator') is not None:
-            validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['validator']['public_key'])),
-                                                         power=tx_json['validator']['power'])
-            self.update_validator(validator_update)
-        elif tx_json.get('target') is not None:
-            request_tx_package = dci_pb2.RequestDeliverTx(
-                tx=tx,
-                target=id_pb2.Chain(identifier=tx_json['target']),
-                source=id_pb2.Chain(identifier=tx_json['source']),
-                flag=tx_json['flag']
-            )
-            with grpc.insecure_channel('localhost:1453') as channel:
-                log.info('Call dock grpc: DeliverTx')
-                client = dci_pb2_grpc.DockStub(channel)
-                response = next(client.DeliverTx(request_tx_package))
-                log.info(f'Dock return with status code: {response.code}')
-        else:
-            try:
-                value = self.db.Get(tx_json['key'].encode('utf-8'))
-            except Exception as exception:
+        try:
+            tx_json = json.loads(tx.decode('utf-8'))
+            log.info(f'Received tx {tx_json}({self.app_id})')
+            message_type = tx_json['header']['type']
+            if message_type == 'normal':
+                key = tx_json['body']['key'].encode('utf-8')
                 try:
+                    value = self.db.Get(key)
+                except Exception as exception:
+                    log.info(repr(exception))
                     with open(f"{self.db_path}/config/genesis.json") as file:
                         genesis = yaml.load(file, Loader=yaml.Loader)
                     chain_id = genesis['chain_id']
-                    value = json.dumps({'value': tx_json['value'], 'keeper': {'app_id': tx_json['auth']['app_id'], 'chain_id': chain_id}})
-                    self.db.Put(tx_json['key'].encode('utf-8'), value.encode('utf-8'))
-                except Exception as exception:
-                    log.error(repr(exception))
-                    return types_pb2.ResponseDeliverTx(code=ErrorCode)
-            try:
-                value_json = json.loads(value)
-                value_json['value'] = tx_json['value']
+                    value = json.dumps({
+                        'value': tx_json['body']['value'],
+                        'keeper': {
+                            'app_id': tx_json['header']['auth']['app_id'],
+                            'chain_id': chain_id
+                        }
+                    })
+                    self.db.Put(key, value.encode('utf-8'))
+                    return types_pb2.ResponseDeliverTx(code=OkCode)
+                value_json = json.loads(value.decode('utf-8'))
+                value_json['value'] = tx_json['body']['value']
                 value = json.dumps(value_json)
-                self.db.Put(tx_json['key'].encode('utf-8'), value.encode('utf-8'))
-            except Exception as exception:
-                log.error(repr(exception))
-                return types_pb2.ResponseDeliverTx(code=ErrorCode)
-        return types_pb2.ResponseDeliverTx(code=OkCode)
+                self.db.Put(key, value.encode('utf-8'))
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'cross':
+                request_tx_package = dci_pb2.RequestDeliverTx(
+                    tx=tx,
+                    target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
+                    source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
+                    flag=''
+                    )
+                with grpc.insecure_channel('localhost:1453') as channel:
+                    log.info('Call dock grpc: DeliverTx')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = next(client.DeliverTx(request_tx_package))
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'validate':
+                validator_update = types_pb2.ValidatorUpdate(
+                    pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
+                    power=tx_json['body']['power'])
+                self.update_validator(validator_update)
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            else:
+                raise Exception('Type error')
+        except Exception as exception:
+            log.error(repr(exception))
+            return types_pb2.ResponseDeliverTx(code=ErrorCode, data=repr(exception).encode('utf-8'))
 
     def query(self, req) -> types_pb2.ResponseQuery:
-        req_json = json.loads(req.data.decode('utf-8'))
-        if req_json.get('graph_data') is not None:
-            try:
-                with grpc.insecure_channel('localhost:1453') as channel:
-                    log.info('Call dock grpc: UpdateGraphDta')
-                    client = dci_pb2_grpc.DockStub(channel)
-                    request = dci_pb2.RequestGetGraphData()
-                    request.app_id.append(req_json['app_id'])
-                    response = client.GetGraphData(request)
-                    graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
-                                   'source_app_info': response.node_connections[index].source_app_info,
-                                   'source_app_chain_id': response.node_connections[index].source_app_chain_id,
-                                   'target_app_id': response.node_connections[index].target_app_id,
-                                   'target_app_info': response.node_connections[index].target_app_info,
-                                   'target_app_chain_id': response.node_connections[index].target_app_chain_id,
-                                   'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
-                    return types_pb2.ResponseQuery(
-                        code=OkCode, value=json.dumps(graph_data).encode('utf-8'), height=self.last_block_height
-                    )
-            except Exception as exception:
-                log.error(repr(exception))
-                return types_pb2.ResponseQuery(
-                    code=ErrorCode, value=repr(exception).encode('utf-8'), height=self.last_block_height
-                )
-        else:
-            try:
-                value = self.db.Get(req_json['key'].encode('utf-8'))
-                data_json = json.loads(bytes(value).decode('utf-8'))
+        try:
+            tx_json = json.loads(req.data.decode('utf-8'))
+            message_type = tx_json['header']['type']
+            if message_type == 'normal':
+                value = self.db.Get(tx_json['body']['query'].encode('utf-8'))
+                data_json = json.loads(value.decode('utf-8'))
                 keeper = data_json['keeper']
-                if req_json['auth']['app_id'] == self.app_id and req_json['auth']['app_id'] != keeper['app_id']:
+                if tx_json['header']['auth']['app_id'] == self.app_id and tx_json['header']['auth']['app_id'] != keeper['app_id']:
                     request_update_graph_data = dci_pb2.RequestUpdateGraphData()
                     with open(f"{self.db_path}/config/genesis.json") as file:
                         genesis = yaml.load(file, Loader=yaml.Loader)
@@ -180,14 +169,27 @@ class IslandService(BaseApplication):
                         client = dci_pb2_grpc.DockStub(channel)
                         response = client.UpdateGraphData(request_update_graph_data)
                         log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseQuery(
-                    code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'), height=self.last_block_height
-                )
-            except Exception as exception:
-                log.error(repr(exception))
-                return types_pb2.ResponseQuery(
-                    code=ErrorCode, value=repr(exception).encode('utf-8'), height=self.last_block_height
-                )
+                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'))
+            elif message_type == 'graph':
+                with grpc.insecure_channel('localhost:1453') as channel:
+                    log.info('Call dock grpc: UpdateGraphDta')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    request = dci_pb2.RequestGetGraphData()
+                    request.app_id.append(tx_json['body']['query'])
+                    response = client.GetGraphData(request)
+                    graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
+                                   'source_app_info': response.node_connections[index].source_app_info,
+                                   'source_app_chain_id': response.node_connections[index].source_app_chain_id,
+                                   'target_app_id': response.node_connections[index].target_app_id,
+                                   'target_app_info': response.node_connections[index].target_app_info,
+                                   'target_app_chain_id': response.node_connections[index].target_app_chain_id,
+                                   'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
+                    return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
+            else:
+                raise Exception('Type error')
+        except Exception as exception:
+            log.error(repr(exception))
+            return types_pb2.ResponseQuery(code=ErrorCode, value=repr(exception).encode('utf-8'))
 
     def commit(self) -> types_pb2.ResponseCommit:
         """Return the current encode state value to tendermint"""
