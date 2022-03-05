@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z+github.com/tendermint/tendermint/abci/types',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x0f\x63ommon/id.proto\"j\n\x10RequestDeliverTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x03 \x01(\x0b\x32\r.common.Chain\x12\x0c\n\x04\x66lag\x18\x04 \x01(\t\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x80\x01\n\x15RequestRouterTransmit\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x1c\n\x05paths\x18\x04 \x03(\x0b\x32\r.common.Chain\"w\n\x19RequestRouterPathCallback\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1c\n\x05paths\x18\x03 \x03(\x0b\x32\r.common.Chain\"/\n\x13RequestSwitchIsland\x12\x18\n\x10target_community\x18\x01 \x01(\t\"\xba\x01\n\x0eNodeConnection\x12\x15\n\rsource_app_id\x18\x01 \x01(\t\x12\x17\n\x0fsource_app_info\x18\x02 \x01(\t\x12\x1b\n\x13source_app_chain_id\x18\x03 \x01(\t\x12\x15\n\rtarget_app_id\x18\x04 \x01(\t\x12\x17\n\x0ftarget_app_info\x18\x05 \x01(\t\x12\x1b\n\x13target_app_chain_id\x18\x06 \x01(\t\x12\x0e\n\x06weight\x18\x07 \x01(\r\"G\n\x16RequestUpdateGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection\"%\n\x13RequestGetGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x03(\t\"!\n\x11ResponseDeliverTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"2\n\x14ResponseSwitchIsland\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseUpdateGraphData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"E\n\x14ResponseGetGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection2\x83\x04\n\x04\x44ock\x12<\n\tDeliverTx\x12\x15.dci.RequestDeliverTx\x1a\x16.dci.ResponseDeliverTx0\x01\x12?\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo0\x01\x12K\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit0\x01\x12W\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback0\x01\x12\x43\n\x0cSwitchIsland\x12\x18.dci.RequestSwitchIsland\x1a\x19.dci.ResponseSwitchIsland\x12L\n\x0fUpdateGraphData\x12\x1b.dci.RequestUpdateGraphData\x1a\x1c.dci.ResponseUpdateGraphData\x12\x43\n\x0cGetGraphData\x12\x18.dci.RequestGetGraphData\x1a\x19.dci.ResponseGetGraphDataB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
+  serialized_pb=b'\n\rdci/dci.proto\x12\x03\x64\x63i\x1a\x0f\x63ommon/id.proto\"\x95\x01\n\x10RequestDeliverTx\x12\n\n\x02tx\x18\x01 \x01(\x0c\x12\x1d\n\x06source\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x03 \x01(\x0b\x32\r.common.Chain\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x0b\n\x03ttl\x18\x05 \x01(\x05\x12\x1c\n\x05paths\x18\x06 \x03(\x0b\x32\r.common.Chain\"\x1f\n\x11RequestRouterInfo\x12\n\n\x02tx\x18\x01 \x01(\r\"\x80\x01\n\x15RequestRouterTransmit\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x0b\n\x03ttl\x18\x03 \x01(\r\x12\x1c\n\x05paths\x18\x04 \x03(\x0b\x32\r.common.Chain\"w\n\x19RequestRouterPathCallback\x12\x1d\n\x06source\x18\x01 \x01(\x0b\x32\r.common.Chain\x12\x1d\n\x06target\x18\x02 \x01(\x0b\x32\r.common.Chain\x12\x1c\n\x05paths\x18\x03 \x03(\x0b\x32\r.common.Chain\"/\n\x13RequestSwitchIsland\x12\x18\n\x10target_community\x18\x01 \x01(\t\"\xba\x01\n\x0eNodeConnection\x12\x15\n\rsource_app_id\x18\x01 \x01(\t\x12\x17\n\x0fsource_app_info\x18\x02 \x01(\t\x12\x1b\n\x13source_app_chain_id\x18\x03 \x01(\t\x12\x15\n\rtarget_app_id\x18\x04 \x01(\t\x12\x17\n\x0ftarget_app_info\x18\x05 \x01(\t\x12\x1b\n\x13target_app_chain_id\x18\x06 \x01(\t\x12\x0e\n\x06weight\x18\x07 \x01(\r\"G\n\x16RequestUpdateGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection\"%\n\x13RequestGetGraphData\x12\x0e\n\x06\x61pp_id\x18\x01 \x03(\t\"!\n\x11ResponseDeliverTx\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\">\n\x12ResponseRouterInfo\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x12\x0c\n\x04info\x18\x03 \x01(\t\"4\n\x16ResponseRouterTransmit\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"8\n\x1aResponseRouterPathCallback\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"2\n\x14ResponseSwitchIsland\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"5\n\x17ResponseUpdateGraphData\x12\x0c\n\x04\x63ode\x18\x01 \x01(\r\x12\x0c\n\x04info\x18\x02 \x01(\t\"E\n\x14ResponseGetGraphData\x12-\n\x10node_connections\x18\x01 \x03(\x0b\x32\x13.dci.NodeConnection2\x83\x04\n\x04\x44ock\x12<\n\tDeliverTx\x12\x15.dci.RequestDeliverTx\x1a\x16.dci.ResponseDeliverTx0\x01\x12?\n\nRouterInfo\x12\x16.dci.RequestRouterInfo\x1a\x17.dci.ResponseRouterInfo0\x01\x12K\n\x0eRouterTransmit\x12\x1a.dci.RequestRouterTransmit\x1a\x1b.dci.ResponseRouterTransmit0\x01\x12W\n\x12RouterPathCallback\x12\x1e.dci.RequestRouterPathCallback\x1a\x1f.dci.ResponseRouterPathCallback0\x01\x12\x43\n\x0cSwitchIsland\x12\x18.dci.RequestSwitchIsland\x1a\x19.dci.ResponseSwitchIsland\x12L\n\x0fUpdateGraphData\x12\x1b.dci.RequestUpdateGraphData\x1a\x1c.dci.ResponseUpdateGraphData\x12\x43\n\x0cGetGraphData\x12\x18.dci.RequestGetGraphData\x1a\x19.dci.ResponseGetGraphDataB-Z+github.com/tendermint/tendermint/abci/typesb\x06proto3'
   ,
   dependencies=[common_dot_id__pb2.DESCRIPTOR,])
 
@@ -57,9 +57,23 @@ _REQUESTDELIVERTX = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='flag', full_name='dci.RequestDeliverTx.flag', index=3,
+      name='type', full_name='dci.RequestDeliverTx.type', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ttl', full_name='dci.RequestDeliverTx.ttl', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='paths', full_name='dci.RequestDeliverTx.paths', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -75,8 +89,8 @@ _REQUESTDELIVERTX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=39,
-  serialized_end=145,
+  serialized_start=40,
+  serialized_end=189,
 )
 
 
@@ -107,8 +121,8 @@ _REQUESTROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=147,
-  serialized_end=178,
+  serialized_start=191,
+  serialized_end=222,
 )
 
 
@@ -160,8 +174,8 @@ _REQUESTROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=181,
-  serialized_end=309,
+  serialized_start=225,
+  serialized_end=353,
 )
 
 
@@ -206,8 +220,8 @@ _REQUESTROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=311,
-  serialized_end=430,
+  serialized_start=355,
+  serialized_end=474,
 )
 
 
@@ -238,8 +252,8 @@ _REQUESTSWITCHISLAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=432,
-  serialized_end=479,
+  serialized_start=476,
+  serialized_end=523,
 )
 
 
@@ -312,8 +326,8 @@ _NODECONNECTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=482,
-  serialized_end=668,
+  serialized_start=526,
+  serialized_end=712,
 )
 
 
@@ -344,8 +358,8 @@ _REQUESTUPDATEGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=670,
-  serialized_end=741,
+  serialized_start=714,
+  serialized_end=785,
 )
 
 
@@ -376,8 +390,8 @@ _REQUESTGETGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=743,
-  serialized_end=780,
+  serialized_start=787,
+  serialized_end=824,
 )
 
 
@@ -408,8 +422,8 @@ _RESPONSEDELIVERTX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=782,
-  serialized_end=815,
+  serialized_start=826,
+  serialized_end=859,
 )
 
 
@@ -454,8 +468,8 @@ _RESPONSEROUTERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=817,
-  serialized_end=879,
+  serialized_start=861,
+  serialized_end=923,
 )
 
 
@@ -493,8 +507,8 @@ _RESPONSEROUTERTRANSMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=881,
-  serialized_end=933,
+  serialized_start=925,
+  serialized_end=977,
 )
 
 
@@ -532,8 +546,8 @@ _RESPONSEROUTERPATHCALLBACK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=935,
-  serialized_end=991,
+  serialized_start=979,
+  serialized_end=1035,
 )
 
 
@@ -571,8 +585,8 @@ _RESPONSESWITCHISLAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=993,
-  serialized_end=1043,
+  serialized_start=1037,
+  serialized_end=1087,
 )
 
 
@@ -610,8 +624,8 @@ _RESPONSEUPDATEGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1045,
-  serialized_end=1098,
+  serialized_start=1089,
+  serialized_end=1142,
 )
 
 
@@ -642,12 +656,13 @@ _RESPONSEGETGRAPHDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1100,
-  serialized_end=1169,
+  serialized_start=1144,
+  serialized_end=1213,
 )
 
 _REQUESTDELIVERTX.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTDELIVERTX.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
+_REQUESTDELIVERTX.fields_by_name['paths'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTROUTERTRANSMIT.fields_by_name['source'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTROUTERTRANSMIT.fields_by_name['target'].message_type = common_dot_id__pb2._CHAIN
 _REQUESTROUTERTRANSMIT.fields_by_name['paths'].message_type = common_dot_id__pb2._CHAIN
@@ -788,8 +803,8 @@ _DOCK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1172,
-  serialized_end=1687,
+  serialized_start=1216,
+  serialized_end=1731,
   methods=[
   _descriptor.MethodDescriptor(
     name='DeliverTx',

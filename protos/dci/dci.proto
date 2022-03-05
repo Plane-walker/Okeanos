@@ -9,7 +9,9 @@ message RequestDeliverTx {
     bytes tx = 1;
     common.Chain source = 2;
     common.Chain target = 3;
-    string  flag = 4;
+    string type = 4;
+    int32 ttl = 5;
+    repeated common.Chain paths = 6;
 }
 
 message RequestRouterInfo {

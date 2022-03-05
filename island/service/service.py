@@ -124,7 +124,6 @@ class IslandService(BaseApplication):
                     tx=tx,
                     target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
                     source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
-                    flag=''
                     )
                 with grpc.insecure_channel('localhost:1453') as channel:
                     log.info('Call dock grpc: DeliverTx')

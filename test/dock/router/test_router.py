@@ -29,41 +29,41 @@ class TestRouter(unittest.TestCase):
         server.add_insecure_port(f'{host}:{port}')
         server.start()
 
-        params = (
-            ('tx', '0x' + json.dumps({'info': ''}).encode('utf-8').hex()),
-        )
-        response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
-        self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
+        # params = (
+        #     ('tx', '0x' + json.dumps({'info': ''}).encode('utf-8').hex()),
+        # )
+        # response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
+        # self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
 
-        lanes = self.dock.chain_manager.get_lane()
-        param = {
-            'source': 'FarawaySource',
-            'target': 'FarAwayTarget',
-            'paths': [lanes[0].chain_id],
-            'ttl': 2
-        }
-        params = (
-            ('tx', '0x' + json.dumps(param).encode('utf-8').hex()),
-        )
-        response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
-        self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
+        # lanes = self.dock.chain_manager.get_lane()
+        # param = {
+        #     'source': 'FarawaySource',
+        #     'target': 'FarAwayTarget',
+        #     'paths': [lanes[0].chain_id],
+        #     'ttl': 2
+        # }
+        # params = (
+        #     ('tx', '0x' + json.dumps(param).encode('utf-8').hex()),
+        # )
+        # response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
+        # self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
 
-        lanes = self.dock.chain_manager.get_lane()
-        island = self.dock.chain_manager.get_island()[0]
-        param = {
-            'source': 'FarAwaySource',
-            'target': island.chain_id,
-            'paths': [lanes[0].chain_id]
-        }
-        params = (
-            ('tx', '0x' + json.dumps(param).encode('utf-8').hex()),
-        )
-        response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
-        self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
-        router = self.dock.dock_server.router
-        self.assertIn('FarAwaySource', router.route)
-        for chain in self.dock.chain_manager.select_chain(lambda single: True):
-            self.dock.chain_manager.delete_chain(chain.chain_id)
+        # lanes = self.dock.chain_manager.get_lane()
+        # island = self.dock.chain_manager.get_island()[0]
+        # param = {
+        #     'source': 'FarAwaySource',
+        #     'target': island.chain_id,
+        #     'paths': [lanes[0].chain_id]
+        # }
+        # params = (
+        #     ('tx', '0x' + json.dumps(param).encode('utf-8').hex()),
+        # )
+        # response = requests.get(f"http://localhost:{self.config['chain_manager']['chain']['lane_0']['rpc_port']}/broadcast_tx_commit", params=params)
+        # self.assertEqual(json.loads(response.text)['result']['deliver_tx']['code'], 0)
+        # router = self.dock.dock_server.router
+        # self.assertIn('FarAwaySource', router.route)
+        # for chain in self.dock.chain_manager.select_chain(lambda single: True):
+        #     self.dock.chain_manager.delete_chain(chain.chain_id)
 
 
 if __name__ == '__main__':

@@ -3,31 +3,16 @@ __all__ = [
 ]
 
 
-# from interface.bci.bci_pb2_grpc import LaneStub
-import os
 import random
-import time
-import yaml
-import uuid
-import json
 import requests
-from threading import Thread
-from interface.common.id_pb2 import Chain
-from google.protobuf.json_format import MessageToJson
-from interface.dci.dci_pb2 import (
-    RequestRouterInfo,
-    ResponseRouterInfo,
-    RequestRouterPathCallback,
-    ResponseRouterPathCallback,
-    RequestRouterTransmit,
-    ResponseRouterTransmit,
-)
-from interface.bci.bci_pb2 import (
-    RequestGossipQueryPath,
-    RequestGossipCallBack,
-)
+import yaml
+import os
+import uuid
+import time
 from enum import Enum, unique
+from interface.sci.types.types_pb2 import Data
 from log import log
+from .package import DataPackage
 
 
 @unique
@@ -38,25 +23,23 @@ class DciResCode(Enum):
 
 class Router:
 
-    def __init__(self, config_path, chain_manager) -> None:
+    def __init__(self, config_path, chain_manager):
+        self.island_id = None
+        self.lane_ids = set()
+
+        self.router = {}
+
         self.chain_manager = chain_manager
         self.config = None
-
-        self.lane_ids = set()
-        self.island_id = None
-
-        # Route table is a dict
-        # whose key is target chain_id of island in str type and
-        # whose value is chain_id of lane in str type.
-        self.route = {}
 
         with open(config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         self.config = config['router']
-        route_path = os.path.join(os.path.dirname(config_path), self.config['route_path'])
+        route_path = os.path.join(os.path.dirname(config_path),
+                                  self.config['route_path'])
         if os.path.exists(route_path):
             with open(route_path) as file:
-                self.route = yaml.load(file, Loader=yaml.Loader)
+                self.router = yaml.load(file, Loader=yaml.Loader)
         # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def import_chain_id(self):
@@ -66,126 +49,141 @@ class Router:
         self.island_id = self.chain_manager.get_island()[0].chain_id
 
     def periodical_gossip(self):
-        self.import_chain_id()
         while True:
-            log.info('Periodical Gossip . . .')
-            identifier = uuid.uuid4().hex
-            target = Chain(identifier=identifier)
-            self.gossip(Chain(identifier=self.island_id), target, self.config['ttl'], [])
-            time.sleep(self.config['periodical_gossip_interval'])
+            try:
+                log.info('Periodical Gossip . . .')
+                target = uuid.uuid4().hex
+                package = DataPackage.from_data(
+                    self.island_id, target, self.config['ttl']
+                )
+                package.init_paths()
+                self.gossip(package)
+                time.sleep(self.config['periodical_gossip_interval'])
+            except Exception as exception:
+                log.error(f'Periodical Gossip Error: {repr(exception)}')
 
-    def next_jump(self, target: Chain):
+    def next_jump(self, tx):
         self.import_chain_id()
-        if target.identifier not in self.route.keys():
+        try:
+            package = DataPackage.from_tx(tx)
             ttl = self.config['ttl']
             while True:
-                paths = []
-                code = self.gossip(Chain(identifier=self.island_id), target, ttl, paths)
+                if package.target_id() in self.router:
+                    return self.router[package.target_id()]
+                log.info(f'Searching with {package.get_json()}')
+                if ttl > self.config['max_ttl']:
+                    return None
+                package.set_ttl(ttl)
+                if package.get_paths_copy() is None:
+                    package.init_paths()
+                code = self.gossip(package)
                 if code is None:
                     return None
                 ttl += self.config['ttl']
-        return self.route[target.identifier]
-
-    def gossip(self, source: Chain, target: Chain, ttl, paths: list):
-        self.import_chain_id()
-        num_of_neighbours = len(self.lane_ids)
-        if num_of_neighbours < self.config['min_router_chain']:
+        except Exception as exception:
+            log.error(f'Next Jump Error: {repr(exception)}')
             return None
+
+    def gossip(self, package: DataPackage):
+        num_of_neighbours = len(self.lane_ids)
         selecteds = None
         if num_of_neighbours < self.config['min_search']:
-            selecteds = self.lane_ids
+            selecteds = list(self.lane_ids)
         else:
-            selecteds = random.sample(list(self.lane_ids), self.config['min_search'])
-        log.info(selecteds)
-        self.transmit_to_others(selecteds, source, target, ttl, paths=paths.copy())
+            selecteds = random.sample(
+                list(self.lane_ids), self.config['min_search']
+            )
+        log.debug(f'Select {selecteds}')
+        for selected_id in selecteds:
+            reached = False
+            paths = package.get_paths_copy()
+            if paths is not None:
+                for path in paths:
+                    if path == selected_id:
+                        reached = True
+                        break
+                if reached:
+                    continue
+            package.append_path(selected_id)
+            self.sender(selected_id, package)
+            package.pop_path()
         return DciResCode.OK.value
 
-    def transmit_to_others(self, lane_ids, source: Chain, target: Chain, ttl, paths: list):
-        """Transmit gossip message to each route chain
+    def sender(self, lane_id, package: DataPackage):
+        package.set_type('route')
+        log.info(
+            f'Connect to http://localhost:'
+            f'{self.chain_manager.get_lane(lane_id).rpc_port} '
+            f'with {package.get_json()}'
+        )
+        params = (
+            ('tx', package.get_hex()),
+        )
+        response = requests.get(
+            f'http://localhost:'
+            f'{self.chain_manager.get_lane(lane_id).rpc_port}'
+            f'/broadcast_tx_commit',
+            params=params
+        )
+        log.info(f'Get response code: {response}')
 
-        Args:
-            lane_ids (str): Route chains selected to gossip
-            source (Chain): The source data chain who sent gossip
-            target (Chain): The target data chain who will been found
-            ttl (int): ttl
-            paths (list): The list of route path consists of route chain id
-        """
+    def receiver(self, tx):
         self.import_chain_id()
-        for lane_id in lane_ids:
-            if len(paths) > 0 and lane_id == paths[-1]:
-                continue
-            paths.append(lane_id)
-            # req = RequestGossipQueryPath(
-            #     target=target, source=source, ttl=ttl)
-            # req.route_chains.extend([path for path in paths])
-            tx_json = {"target":target.identifier, "source":source.identifier, "ttl":ttl, "paths":paths}
-            log.info(tx_json)
-            params = (
-                ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-            )
-            log.info(f'Connect to http://localhost:{self.chain_manager.get_lane(lane_id).rpc_port}')
-            response = requests.get(f'http://localhost:{self.chain_manager.get_lane(lane_id).rpc_port}/broadcast_tx_commit', params=params)
-            log.info(response)
-
-    def callback_to_finder(self, source: Chain, target: Chain, paths: list):
-        """
-        :source is data chain who has been found
-        :target is data chain who sent gossip first
-        """
-        self.import_chain_id()
-        for lane_id in self.lane_ids:
-            if len(paths) > 0 and lane_id == paths[-1]:
-                # The source in RequestGossipCallBack is who has been found and
-                # then sends callback. And the target in RequestGossipCallBack
-                # is who sent gossip first and waiting now.
-                # req = RequestGossipCallBack(
-                #     target=target, source=source)
-                # req.route_chains.extend([path for path in paths])
-                # with grpc.insecure_channel('localhost:'+str(lane.port)) as channel:
-                #     log.info('Connect to ', channel)
-                #     stub = LaneStub(channel)
-                #     res = stub.GossipCallBack(req)
-                #     log.info(res)
-                tx_json = {'target': target, 'source': source, 'paths': paths[:-1]}
-                params = (
-                    ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-                )
-                log.info('0x' + json.dumps(tx_json).encode('utf-8').hex())
-                log.info(f'Connect to http://localhost:{self.chain_manager.get_lane(lane_id).rpc_port}')
-                response = requests.get(f'http://localhost:{self.chain_manager.get_lane(lane_id).rpc_port}/broadcast_tx_commit', params=params)
-                log.info(response)
-
-    def info(self, req: RequestRouterInfo):
-        self.import_chain_id()
-        res = ResponseRouterInfo(code=DciResCode.OK.value,
-                                 data=(
-                                     'Route Table:\n'+str(self.route)
-                                 ).encode('utf-8'),
-                                 info='Return route table info!')
-        yield res
-
-    def transmit(self, req: RequestRouterTransmit):
-        yield ResponseRouterTransmit(code=DciResCode.OK.value, info='')
-        self.import_chain_id()
-        paths = [path.identifier for path in req.paths]
-        for lane_id in self.lane_ids:
-            if lane_id == paths[-1]:
-                self.route[req.source.identifier] = paths[-1]
-        if req.ttl > 0:
-            if req.target.identifier == self.island_id:
-                self.callback_to_finder(req.target, req.source, paths)
-            elif req.target.identifier in self.route.keys():
-                self.callback_to_finder(req.target, req.source, paths)
+        try:
+            # package = DataPackage.from_req(req)
+            package = DataPackage.from_tx(tx)
+            log.info(f'Receive {package.get_json()}')
+            if package.source_id() == self.island_id:
+                return
+            if package.is_transmit():
+                self.transmit(package)
+            elif package.is_callback():
+                self.callback(package)
             else:
-                self.gossip(req.source, req.target, ttl=req.ttl-1, paths=paths)
+                log.info('Ignore when ttl == 0')
+        except Exception as exception:
+            log.error(f'Receiver Error: {repr(exception)}')
 
-    def callback(self, req: RequestRouterPathCallback):
-        yield ResponseRouterPathCallback(code=DciResCode.OK.value, info='')
-        self.import_chain_id()
-        paths = [path.identifier for path in req.paths]
-        for lane_id in self.lane_ids:
-            if lane_id == paths[-1]:
-                self.route[req.source.identifier] = paths[-1]
-        if req.target.identifier != self.island_id:
-            self.callback_to_finder(req.source, req.target, paths[:-1])
-        log.debug(self.route)
+    def transmit(self, package):
+        log.debug('Transmit . . .')
+        if package.last_path() in self.lane_ids:
+            self.router[package.source_id()] = package.last_path()
+        if package.get_ttl() == 0:
+            return
+        if package.target_id() == self.island_id or \
+           package.target_id() in self.router.keys():
+            package.to_callback()
+            for lane_id in self.lane_ids:
+                if lane_id == package.last_path():
+                    self.sender(lane_id, package)
+        else:
+            package.reduce_ttl()
+            self.gossip(package)
+
+    def callback(self, package):
+        log.debug('Callback . . .')
+        index = package.get_ttl()
+        if package.target_id() == self.island_id:
+            self.router[package.source_id()] = package.get_path(index)
+            return
+
+        if package.get_path(index) not in self.lane_ids:
+            return
+
+        if index == -1:
+            self.router[package.source_id()] = package.last_path()
+        else:
+            last = index
+            while index < 0:
+                index += 1
+                if package.get_path(index) in self.lane_ids:
+                    last = index
+            if last == package.get_ttl() and \
+               package.get_path(last) in self.lane_ids:
+                self.router[package.source_id()] = package.get_path(last)
+
+        package.reduce_ttl()
+        if package.get_path(package.get_ttl()) is None or \
+           package.get_path(package.get_ttl()) not in self.lane_ids:
+            return
+        self.sender(package.get_path(package.get_ttl()), package)
