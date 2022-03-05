@@ -8,7 +8,6 @@ import grpc
 import yaml
 from log import log
 from interface.dci import dci_pb2_grpc
-from dock.router import Router
 from dock.netopter import NetworkOptimizer
 from dock.cccp import CrossChainCommunicationProtocol
 from dock.manager import ChainManager
@@ -16,27 +15,14 @@ from dock.manager import ChainManager
 
 class DockServer(dci_pb2_grpc.DockServicer):
 
-    def __init__(self, router, cross_chain_community_protocol, network_optimizer):
+    def __init__(self, cross_chain_community_protocol, network_optimizer):
         log.info('Init DockServer')
-        self.router = router
         self.cross_chain_community_protocol = cross_chain_community_protocol
         self.network_optimizer = network_optimizer
 
     def DeliverTx(self, request, context):
         log.info('Received request for DeliverTx')
         return self.cross_chain_community_protocol.deliver_tx(request)
-
-    def RouterInfo(self, request, context):
-        log.info('Received request for RouterInfo')
-        return self.router.info(request)
-
-    def RouterTransmit(self, request, context):
-        log.info('Received request for RouterTransmit')
-        return self.router.transmit(request)
-
-    def RouterPathCallback(self, request, context):
-        log.info('Received request for RouterPathCallback')
-        return self.router.callback(request)
 
     def GetGraphData(self, request, context):
         log.info('Received request for GetGraphDate')
@@ -55,10 +41,9 @@ class Dock:
     def __init__(self, config_path):
         self.config_path = config_path
         self.chain_manager = ChainManager(config_path=config_path)
-        router = Router(config_path, self.chain_manager)
-        cross_chain_community_protocol = CrossChainCommunicationProtocol(router, self.chain_manager)
+        cross_chain_community_protocol = CrossChainCommunicationProtocol(config_path, self.chain_manager)
         network_optimizer = NetworkOptimizer(0, 0, config_path=config_path)
-        self.dock_server = DockServer(router, cross_chain_community_protocol, network_optimizer)
+        self.dock_server = DockServer(cross_chain_community_protocol, network_optimizer)
 
     def run(self):
         with open(self.config_path) as file:
