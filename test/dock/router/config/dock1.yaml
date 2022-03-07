@@ -1,0 +1,68 @@
+app:
+  app_id: '0'
+dock:
+  address:
+    host: localhost
+    port: '1454'
+router:
+  min_router_chain: 3
+  min_search: 3
+  ttl: 10
+  periodical_gossip_interval: 60
+  route_path: route.yaml
+  max_ttl: 40
+GNN:
+  base_path: /root
+  model_path: model/graph_sage.tf
+  algorithm: graphSAGE
+  auto_switch: true
+  max_peer_number: 100
+  graphSAGE:
+    hidden_dims:
+    - 128
+    - 7
+    sample_size:
+    - 10
+    - 10
+    input_dim: 1433
+    batch_size: 32
+    epochs: 20
+chain_manager:
+  base_path: /home/runner/dock1
+  chain:
+    island_0:
+      type: island
+      abci_port: '2765'
+      rpc_port: '2763'
+      p2p_port: '2764'
+      join: false
+      genesis_path: genesis/island_0
+      persistent_peers:
+      - ''
+    lane_0:
+      type: lane
+      abci_port: '2768'
+      rpc_port: '2766'
+      p2p_port: '2767'
+      join: true
+      genesis_path: genesis/lane_0
+      persistent_peers:
+      - ac5a079e5a7fc1b6d86e5a8e8d4a03bec83e906a@localhost:2667
+    lane_1:
+      type: lane
+      abci_port: '2771'
+      rpc_port: '2769'
+      p2p_port: '2770'
+      join: false
+      genesis_path: genesis/lane_1
+      persistent_peers:
+      - ''
+    lane_2:
+      type: lane
+      abci_port: '2774'
+      rpc_port: '2772'
+      p2p_port: '2773'
+      join: false
+      genesis_path: genesis/lane_2
+      persistent_peers:
+      - ''
