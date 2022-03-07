@@ -12,6 +12,7 @@ router:
   ttl: 10
   periodical_gossip_interval: 60
   route_path: 'route.yaml'
+  max_ttl: 40
 
 GNN:
   base_path: '/root'
