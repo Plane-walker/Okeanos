@@ -53,8 +53,9 @@ def decode_number(raw):
 
 
 class LaneService(BaseApplication):
-    def __init__(self, node_id, db_path):
+    def __init__(self, node_id, db_path, dock_port):
         self.node_id = node_id
+        self.dock_port = dock_port
         self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
         self.last_block_height = None
         self.validator_updates = []
@@ -129,7 +130,7 @@ class LaneService(BaseApplication):
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'route':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
-                with grpc.insecure_channel('localhost:1453') as channel:
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
                     log.warning(f'client {repr(client)}')
@@ -142,7 +143,7 @@ class LaneService(BaseApplication):
                     target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
                     source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
                     )
-                with grpc.insecure_channel('localhost:1453') as channel:
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
                     log.warning(f'client {repr(client)}')
@@ -177,7 +178,7 @@ class LaneService(BaseApplication):
         #             request_tx_package.ttl = tx_json['ttl']
         #         if tx_json.get('paths') is not None:
         #             request_tx_package.paths.extend([id_pb2.Chain(identifier=path) for path in tx_json['paths']])
-        #         with grpc.insecure_channel('localhost:1453') as channel:
+        #         with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
         #             log.info('Call dock grpc: DeliverTx')
         #             client = dci_pb2_grpc.DockStub(channel)
         #             response = next(client.DeliverTx(request_tx_package))
@@ -220,7 +221,7 @@ class LaneService(BaseApplication):
 
 def main(args):
     init_log()
-    app = ABCIServer(app=LaneService(args[2], args[3]), port=args[1])
+    app = ABCIServer(app=LaneService(args[2], args[3], args[4]), port=args[1])
     app.run()
 
 

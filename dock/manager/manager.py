@@ -94,6 +94,7 @@ class ChainManager:
                         f"{config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['app']['app_id']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
+                        f"{config['dock']['address']['port']} " \
                         f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
