@@ -33,7 +33,6 @@ import yaml
 
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
-from interface.common import id_pb2
 from interface.sci.abci import types_pb2
 from interface.sci.crypto import keys_pb2
 
@@ -97,7 +96,7 @@ class LaneService(BaseApplication):
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
         try:
             tx_json = json.loads(tx.decode('utf-8'))
-            log.info(f'Received tx {tx_json}')
+            log.info(f'Deliver tx {tx_json}')
             message_type = tx_json['header']['type']
             if message_type == 'normal':
                 key = tx_json['body']['key'].encode('utf-8')
@@ -133,16 +132,11 @@ class LaneService(BaseApplication):
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
-                    log.warning(f'client {repr(client)}')
                     response = next(client.DeliverTx(request_tx_package))
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross':
-                request_tx_package = dci_pb2.RequestDeliverTx(
-                    tx=tx,
-                    target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
-                    source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
-                    )
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
@@ -160,39 +154,6 @@ class LaneService(BaseApplication):
             return types_pb2.ResponseDeliverTx(
                 code=ErrorCode, data=repr(exception).encode('utf-8')
             )
-        # tx_json = json.loads(tx.decode('utf-8'))
-        # log.warning('tx_json: %s', tx_json)
-        # if tx_json.get('validator') is not None:
-        #     validator_update = types_pb2.ValidatorUpdate(pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['validator']['public_key'])),
-        #                                                  power=tx_json['validator']['power'])
-        #     self.update_validator(validator_update)
-        # elif tx_json.get('target') is not None:
-        #     try:
-        #         request_tx_package = dci_pb2.RequestDeliverTx(
-        #             tx=tx,
-        #             target=id_pb2.Chain(identifier=tx_json['target']),
-        #             source=id_pb2.Chain(identifier=tx_json['source']),
-        #             type=tx_json.get('type')
-        #         )
-        #         if tx_json.get('ttl') is not None:
-        #             request_tx_package.ttl = tx_json['ttl']
-        #         if tx_json.get('paths') is not None:
-        #             request_tx_package.paths.extend([id_pb2.Chain(identifier=path) for path in tx_json['paths']])
-        #         with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-        #             log.info('Call dock grpc: DeliverTx')
-        #             client = dci_pb2_grpc.DockStub(channel)
-        #             response = next(client.DeliverTx(request_tx_package))
-        #             log.info(f'Dock return with status code: {response.code}')
-        #     except Exception as exception:
-        #         log.error(repr(exception))
-        #         return types_pb2.ResponseDeliverTx(code=ErrorCode)
-        # else:
-        #     try:
-        #         self.db.Put(tx_json['key'].encode('utf-8'), tx_json['value'].encode('utf-8'))
-        #     except Exception as exception:
-        #         log.error(repr(exception))
-        #         return types_pb2.ResponseDeliverTx(code=ErrorCode)
-        # return types_pb2.ResponseDeliverTx(code=OkCode)
 
     def query(self, req) -> types_pb2.ResponseQuery:
         try:

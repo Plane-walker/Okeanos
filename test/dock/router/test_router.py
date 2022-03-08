@@ -46,11 +46,10 @@ class TestRouter(unittest.TestCase):
                     f"fi; \n"
         subprocess.run(mkdir_dir, shell=True, stdout=subprocess.PIPE)
 
-        #copy genesis and modify correct dock.yaml
+        # copy genesis and modify correct dock.yaml
         dock_manager_path = config['chain_manager']['base_path']
         dock_lane_genesis_file = os.path.join(dock_manager_path, 'lane_0/config/genesis.json')
         output = subprocess.getstatusoutput(f"tendermint show-node-id --home {config['chain_manager']['base_path']}/lane_0")
-        print('output:', output)
         node_id = output[1]
         dock_1_config_path = os.path.join(current_path, 'config/dock1.yaml')
         with open(dock_1_config_path) as file:
@@ -61,7 +60,7 @@ class TestRouter(unittest.TestCase):
         with open(dock_1_config_path, 'w') as file:
             yaml.dump(config_1, file, default_flow_style=False, sort_keys=False)
 
-        #Start second Dock
+        # Start second Dock
         self.dock_1 = Dock(dock_1_config_path)
         for chain_name in config_1['chain_manager']['chain'].keys():
             self.dock_1.chain_manager.init_chain(chain_name)
@@ -69,7 +68,7 @@ class TestRouter(unittest.TestCase):
                 self.dock_1.chain_manager.add_chain(chain_name)
             else:
                 self.dock_1.chain_manager.join_chain(chain_name)
-        server_1 = grpc.server(futures.ThreadPoolExecutor(max_workers=10))#This line has problem
+        server_1 = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         dci_pb2_grpc.add_DockServicer_to_server(self.dock_1.dock_server, server_1)
         host_1 = config_1['dock']['address']['host']
         port_1 = config_1['dock']['address']['port']
@@ -89,6 +88,7 @@ class TestRouter(unittest.TestCase):
             "header": {
                 "type": "cross",
                 "ttl": -1,
+                "index": -1,
                 "paths": [],
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
@@ -114,6 +114,7 @@ class TestRouter(unittest.TestCase):
             "header": {
                 "type": "normal",
                 "ttl": -1,
+                "index": -1,
                 "paths": [],
                 "source_chain_id": "",
                 "target_chain_id": "",
