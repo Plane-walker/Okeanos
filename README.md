@@ -28,7 +28,8 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
   'header':
   {
     'type': (string/'normal', 'cross', 'route', 'validate', 'graph'),
-    'ttl': (int),
+    'ttl': (int/-1),
+    'index': (int/-1),
     'paths': (array(string)/),
     'source_chain_id': (string),
     'target_chain_id': (string),
