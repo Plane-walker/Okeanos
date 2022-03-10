@@ -7,8 +7,6 @@ import shutil
 import subprocess
 import signal
 import yaml
-import hashlib
-import base64
 import socket
 import datetime
 from log import log
@@ -72,7 +70,7 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         if not join:
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain_log.txt;"
+                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         else:
             shutil.copy(f"{config['chain_manager']['base_path']}/{config['chain_manager']['chain'][chain_name]['genesis_path']}/genesis.json",
                         f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")

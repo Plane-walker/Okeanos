@@ -89,7 +89,8 @@ class IslandService(BaseApplication):
             tx_json = json.loads(tx.decode('utf-8'))
             log.info(f'Check for tx {tx_json}({self.app_id})')
         except Exception as exception:
-            log.error(repr(exception), data=repr(exception).encode('utf-8'))
+            log.error(repr(exception))
+            return types_pb2.ResponseDeliverTx(code=ErrorCode, data=repr(exception).encode('utf-8'))
         return types_pb2.ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:

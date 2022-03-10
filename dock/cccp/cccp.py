@@ -59,11 +59,3 @@ class CrossChainCommunicationProtocol:
                         self.send(lane, msg)
                     else:
                         log.error(f'No chain to transfer tx: {msg.get_json()}')
-            elif msg.get_type() == 'normal':
-                log.warning('normal message')
-            elif msg.get_type() == 'graph':
-                log.warning('graph message')
-            elif msg.get_type() == 'validate':
-                log.warning('validate message')
-            else:
-                log.warning('unknown message')
