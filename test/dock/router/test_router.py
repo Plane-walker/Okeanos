@@ -107,7 +107,7 @@ class TestRouter(unittest.TestCase):
         )
         requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
 
-        time.sleep(5)
+        time.sleep(10)
 
         # query_txs
         message = {

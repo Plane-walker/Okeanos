@@ -8,6 +8,8 @@ import yaml
 import os
 import uuid
 import time
+import sys
+import hashlib
 from enum import Enum, unique
 from log import log
 from .package import RouteMessage
@@ -100,6 +102,8 @@ class Router:
 
     def sender(self, lane_id, package: RouteMessage):
         package.set_type('route')
+        if not self.judge_validator(package):
+            return
         log.info(f'Connect to http://localhost:'
                  f'{self.chain_manager.get_lane(lane_id).rpc_port} '
                  f'with {package.get_json()}')
@@ -110,6 +114,51 @@ class Router:
             f'/broadcast_tx_commit',
             params=params)
         log.info(f'Get response code: {response}')
+
+    # Judge the minimum editing distance validator
+    def judge_validator(self, package) -> bool:
+        # obtain the island_id
+        island = self.chain_manager.get_island()[0]
+        
+        # sha256 the tx
+        tx = hashlib.sha256(package.get_hex().encode('utf-8')).hexdigest()[:20]
+        
+        response = requests.get(
+            f'http://localhost:{island.rpc_port}/validators').json()
+        min_dis = sys.maxsize
+        target = response['result']['validators'][0]['address']
+        for validator in response['result']['validators']:
+            distance = self.min_distance(validator['address'], tx)
+            if distance < min_dis:
+                target = validator['address']
+                min_dis = distance
+        # obtain the address
+        response = requests.get(
+            f'http://localhost:{island.rpc_port}/status').json()
+        self_address = response['result']['validator_info']['address']
+        return self_address == target
+
+    def min_distance(self, validator: str, tx: str) -> int:
+        validator = validator.upper()
+        tx = tx.upper()
+        n = len(validator)
+        m = len(tx)
+        if n * m == 0:
+            return n + m
+        D = [[0] * (m + 1) for _ in range(n + 1)]
+        for i in range(n + 1):
+            D[i][0] = i
+        for j in range(m + 1):
+            D[0][j] = j
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                left = D[i - 1][j] + 1
+                down = D[i][j - 1] + 1
+                left_down = D[i - 1][j - 1]
+                if validator[i - 1] != tx[j - 1]:
+                    left_down += 1
+                D[i][j] = min(left, down, left_down)
+        return D[n][m]
 
     def receiver(self, tx):
         self.import_chain_id()

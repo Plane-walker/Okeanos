@@ -1,6 +1,7 @@
 __all__ = ['CrossChainCommunicationProtocol']
 
 from enum import Enum, unique
+import hashlib
 import requests
 from interface.dci.dci_pb2 import RequestDeliverTx, ResponseDeliverTx
 from log import log
@@ -22,6 +23,8 @@ class CrossChainCommunicationProtocol:
         self.chain_manager = chain_manager
 
     def send(self, chain, msg):
+        if not self.router.judge_validator(msg):
+            return
         params = (('tx', msg.get_hex()), )
         log.info(f'Send to {chain.chain_type}: '
                  f'{chain.chain_name}({chain.chain_id}) with {msg.get_json()}')
