@@ -133,6 +133,53 @@ class TestRouter(unittest.TestCase):
             f"http://localhost:{config_1['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
+        message = {
+            "header": {
+                "type": "query",
+                "ttl": -1,
+                "index": -1,
+                "paths": [],
+                "source_chain_id": self.source['chain_id'],
+                "target_chain_id": self.target['chain_id'],
+                "auth": {
+                    "app_id": "0"
+                }
+            },
+            "body": {
+                "query": "test_key",
+            }
+        }
+        params = (
+            ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        response = requests.get(
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+
+        time.sleep(10)
+
+        message = {
+            "header": {
+                "type": "normal",
+                "ttl": -1,
+                "index": -1,
+                "paths": [],
+                "source_chain_id": "",
+                "target_chain_id": "",
+                "auth": {
+                    "app_id": "0"
+                }
+            },
+            "body": {
+                "query": "response_for_query_test_key",
+            }
+        }
+        params = (
+            ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        response = requests.get(
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 
         # delete chains
         for chain in self.dock.chain_manager.select_chain(lambda single: True):

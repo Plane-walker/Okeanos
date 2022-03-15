@@ -186,6 +186,14 @@ class IslandService(BaseApplication):
                                    'target_app_chain_id': response.node_connections[index].target_app_chain_id,
                                    'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
+            elif message_type == 'query':
+                request_query = dci_pb2.RequestQuery(tx=req.data)
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: Query')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = next(client.Query(request_query))
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseQuery(code=OkCode)
             else:
                 raise Exception('Type error')
         except Exception as exception:
