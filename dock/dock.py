@@ -24,6 +24,10 @@ class DockServer(dci_pb2_grpc.DockServicer):
         log.info('Received request for DeliverTx')
         return self.cross_chain_community_protocol.deliver_tx(request)
 
+    def Query(self, request, context):
+        log.info('Received request for Query')
+        return self.cross_chain_community_protocol.query(request)
+
     def GetGraphData(self, request, context):
         log.info('Received request for GetGraphDate')
         return self.network_optimizer.graph_data.get_graph_data(request)

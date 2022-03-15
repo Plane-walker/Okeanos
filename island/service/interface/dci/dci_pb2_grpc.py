@@ -19,6 +19,11 @@ class DockStub(object):
                 request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
                 )
+        self.Query = channel.unary_stream(
+                '/dci.Dock/Query',
+                request_serializer=dci_dot_dci__pb2.RequestQuery.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseQuery.FromString,
+                )
         self.RouterInfo = channel.unary_stream(
                 '/dci.Dock/RouterInfo',
                 request_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
@@ -55,6 +60,12 @@ class DockServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def DeliverTx(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Query(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -103,6 +114,11 @@ def add_DockServicer_to_server(servicer, server):
                     servicer.DeliverTx,
                     request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
+            ),
+            'Query': grpc.unary_stream_rpc_method_handler(
+                    servicer.Query,
+                    request_deserializer=dci_dot_dci__pb2.RequestQuery.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseQuery.SerializeToString,
             ),
             'RouterInfo': grpc.unary_stream_rpc_method_handler(
                     servicer.RouterInfo,
@@ -158,6 +174,23 @@ class Dock(object):
         return grpc.experimental.unary_stream(request, target, '/dci.Dock/DeliverTx',
             dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
             dci_dot_dci__pb2.ResponseDeliverTx.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Query(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/dci.Dock/Query',
+            dci_dot_dci__pb2.RequestQuery.SerializeToString,
+            dci_dot_dci__pb2.ResponseQuery.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

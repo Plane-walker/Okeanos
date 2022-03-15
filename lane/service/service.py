@@ -144,6 +144,14 @@ class LaneService(BaseApplication):
                     response = next(client.DeliverTx(request_tx_package))
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'query':
+                request_query = dci_pb2.RequestQuery(tx=tx)
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: DeliverTx')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = next(client.Query(request_query))
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'graph':
                 log.warning(f'Received graph message: {tx_json}')
             else:
@@ -157,15 +165,16 @@ class LaneService(BaseApplication):
 
     def query(self, req) -> types_pb2.ResponseQuery:
         try:
-            value = self.db.Get(req.data)
+            request_query = dci_pb2.RequestQuery(tx=req.data)
+            with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                log.info('Call dock grpc: DeliverTx')
+                client = dci_pb2_grpc.DockStub(channel)
+                response = next(client.Query(request_query))
+                log.info(f'Dock return with status code: {response.code}')
+            return types_pb2.ResponseQuery(code=OkCode)
         except Exception as exception:
             log.error(repr(exception))
-            return types_pb2.ResponseQuery(
-                code=ErrorCode, value=repr(exception).encode('utf-8'), height=self.last_block_height
-            )
-        return types_pb2.ResponseQuery(
-            code=OkCode, value=bytes(value), height=self.last_block_height
-        )
+            return types_pb2.ResponseQuery(code=ErrorCode, value=repr(exception).encode('utf-8'))
 
     def commit(self) -> types_pb2.ResponseCommit:
         """Return the current encode state value to tendermint"""
