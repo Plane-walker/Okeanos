@@ -1,4 +1,6 @@
-__all__ = ['CrossChainCommunicationProtocol']
+__all__ = [
+    'CrossChainCommunicationProtocol'
+]
 
 from enum import Enum, unique
 import json
@@ -130,7 +132,10 @@ class CrossChainCommunicationProtocol:
             return
         island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
         if island is not None:
-            tx_json['header']['type'] = 'normal'
+            if tx_json['header']['type'] == 'cross_query':
+                tx_json['header']['type'] = 'normal'
+            elif tx_json['header']['type'] == 'cross_query':
+                tx_json['header']['type'] = 'graph'
             params = (
                 ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
             )
@@ -161,8 +166,7 @@ class CrossChainCommunicationProtocol:
             )
             log.info(
                 f'Send cross query response to {island.chain_type}: {island.chain_name}({island.chain_id})')
-            response = requests.get(
-                f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
+            response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
         else:
             lane = self.chain_manager.get_lane(
                 self.router.next_jump(request.tx))

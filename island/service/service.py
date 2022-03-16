@@ -164,8 +164,7 @@ class IslandService(BaseApplication):
                                                                                              source_app_chain_id=chain_id,
                                                                                              target_app_id=keeper['app_id'],
                                                                                              target_app_info='',
-                                                                                             target_app_chain_id=keeper[
-                                                                                                 'chain_id'],
+                                                                                             target_app_chain_id=keeper['chain_id'],
                                                                                              weight=1))
                     with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                         log.info('Call dock grpc: UpdateGraphDta')
@@ -188,7 +187,7 @@ class IslandService(BaseApplication):
                                    'target_app_chain_id': response.node_connections[index].target_app_chain_id,
                                    'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
-            elif message_type == 'cross_query':
+            elif message_type == 'cross_query' or message_type == 'cross_graph':
                 request_query = dci_pb2.RequestQuery(tx=req.data)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: Query')
