@@ -119,10 +119,8 @@ class Router:
     def judge_validator(self, package) -> bool:
         # obtain the island_id
         island = self.chain_manager.get_island()[0]
-        
         # sha256 the tx
         tx = hashlib.sha256(package.get_hex().encode('utf-8')).hexdigest()[:20]
-        
         response = requests.get(
             f'http://localhost:{island.rpc_port}/validators').json()
         min_dis = sys.maxsize
