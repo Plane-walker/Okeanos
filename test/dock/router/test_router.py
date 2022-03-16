@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 import shutil
 import unittest
 from concurrent import futures
@@ -11,6 +12,7 @@ import json
 import yaml
 import subprocess
 import time
+import datetime
 
 
 class TestRouter(unittest.TestCase):
@@ -54,7 +56,8 @@ class TestRouter(unittest.TestCase):
         dock_1_config_path = os.path.join(current_path, 'config/dock1.yaml')
         with open(dock_1_config_path) as file:
             config_1 = yaml.load(file, Loader=yaml.Loader)
-        shutil.copy(dock_lane_genesis_file, f"{config_1['chain_manager']['base_path']}/{config_1['chain_manager']['chain']['lane_0']['genesis_path']}/genesis.json")
+        shutil.copy(dock_lane_genesis_file,
+                    f"{config_1['chain_manager']['base_path']}/{config_1['chain_manager']['chain']['lane_0']['genesis_path']}/genesis.json")
         config_1['chain_manager']['chain']['lane_0']['join'] = True
         config_1['chain_manager']['chain']['lane_0']['persistent_peers'] = [f'{node_id}@localhost:2667']
         with open(dock_1_config_path, 'w') as file:
@@ -86,7 +89,7 @@ class TestRouter(unittest.TestCase):
         # deliver_tx
         message = {
             "header": {
-                "type": "cross",
+                "type": "cross_write",
                 "ttl": -1,
                 "index": -1,
                 "paths": [],
@@ -105,9 +108,8 @@ class TestRouter(unittest.TestCase):
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
-
-        time.sleep(10)
+        requests.get(
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
 
         # query_txs
         message = {
@@ -129,13 +131,21 @@ class TestRouter(unittest.TestCase):
         params = (
             ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        response = requests.get(
-            f"http://localhost:{config_1['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+
+        start_time = datetime.datetime.now()
+        timeout = 15
+        while True:
+            response = requests.get(
+                f"http://localhost:{config_1['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+            if json.loads(response.text)['result']['response']['value'] == 'test_value':
+                break
+            if (datetime.datetime.now() - start_time).seconds > timeout:
+                break
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
         message = {
             "header": {
-                "type": "query",
+                "type": "cross_query",
                 "ttl": -1,
                 "index": -1,
                 "paths": [],
@@ -154,8 +164,6 @@ class TestRouter(unittest.TestCase):
         )
         response = requests.get(
             f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-
-        time.sleep(10)
 
         message = {
             "header": {
@@ -176,8 +184,15 @@ class TestRouter(unittest.TestCase):
         params = (
             ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        response = requests.get(
-            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+
+        start_time = datetime.datetime.now()
+        while True:
+            response = requests.get(
+                f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+            if json.loads(response.text)['result']['response']['value'] == 'test_value':
+                break
+            if (datetime.datetime.now() - start_time).seconds > timeout:
+                break
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 

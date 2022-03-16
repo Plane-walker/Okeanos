@@ -135,16 +135,17 @@ class LaneService(BaseApplication):
                     response = next(client.DeliverTx(request_tx_package))
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'cross':
+            elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
+                    log.info(
+                        f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
                     log.warning(f'client {repr(client)}')
                     response = next(client.DeliverTx(request_tx_package))
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'query':
+            elif message_type == 'cross_query':
                 request_query = dci_pb2.RequestQuery(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')

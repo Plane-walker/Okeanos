@@ -71,7 +71,8 @@ class IslandService(BaseApplication):
         return r
 
     def update_validator(self, validator_update):
-        address = hashlib.sha256(validator_update.pub_key.ed25519).hexdigest()[0: 40]
+        address = hashlib.sha256(
+            validator_update.pub_key.ed25519).hexdigest()[0: 40]
         if validator_update.power == 0:
             self.address_to_public_key.pop(address)
         else:
@@ -121,12 +122,12 @@ class IslandService(BaseApplication):
                 value = json.dumps(value_json)
                 self.db.Put(key, value.encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'cross':
+            elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(
                     tx=tx,
                     target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
                     source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
-                    )
+                )
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
@@ -163,7 +164,8 @@ class IslandService(BaseApplication):
                                                                                              source_app_chain_id=chain_id,
                                                                                              target_app_id=keeper['app_id'],
                                                                                              target_app_info='',
-                                                                                             target_app_chain_id=keeper['chain_id'],
+                                                                                             target_app_chain_id=keeper[
+                                                                                                 'chain_id'],
                                                                                              weight=1))
                     with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                         log.info('Call dock grpc: UpdateGraphDta')
@@ -186,7 +188,7 @@ class IslandService(BaseApplication):
                                    'target_app_chain_id': response.node_connections[index].target_app_chain_id,
                                    'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
-            elif message_type == 'query':
+            elif message_type == 'cross_query':
                 request_query = dci_pb2.RequestQuery(tx=req.data)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: Query')
