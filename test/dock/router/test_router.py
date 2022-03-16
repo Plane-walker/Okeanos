@@ -50,10 +50,8 @@ class TestRouter(unittest.TestCase):
 
         # copy genesis and modify correct dock.yaml
         dock_manager_path = config['chain_manager']['base_path']
-        dock_lane_genesis_file = os.path.join(
-            dock_manager_path, 'lane_0/config/genesis.json')
-        output = subprocess.getstatusoutput(
-            f"tendermint show-node-id --home {config['chain_manager']['base_path']}/lane_0")
+        dock_lane_genesis_file = os.path.join(dock_manager_path, 'lane_0/config/genesis.json')
+        output = subprocess.getstatusoutput(f"tendermint show-node-id --home {config['chain_manager']['base_path']}/lane_0")
         node_id = output[1]
         dock_1_config_path = os.path.join(current_path, 'config/dock1.yaml')
         with open(dock_1_config_path) as file:
@@ -61,8 +59,7 @@ class TestRouter(unittest.TestCase):
         shutil.copy(dock_lane_genesis_file,
                     f"{config_1['chain_manager']['base_path']}/{config_1['chain_manager']['chain']['lane_0']['genesis_path']}/genesis.json")
         config_1['chain_manager']['chain']['lane_0']['join'] = True
-        config_1['chain_manager']['chain']['lane_0']['persistent_peers'] = [
-            f'{node_id}@localhost:2667']
+        config_1['chain_manager']['chain']['lane_0']['persistent_peers'] = [f'{node_id}@localhost:2667']
         with open(dock_1_config_path, 'w') as file:
             yaml.dump(config_1, file, default_flow_style=False, sort_keys=False)
 
@@ -75,20 +72,17 @@ class TestRouter(unittest.TestCase):
             else:
                 self.dock_1.chain_manager.join_chain(chain_name)
         server_1 = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        dci_pb2_grpc.add_DockServicer_to_server(
-            self.dock_1.dock_server, server_1)
+        dci_pb2_grpc.add_DockServicer_to_server(self.dock_1.dock_server, server_1)
         host_1 = config_1['dock']['address']['host']
         port_1 = config_1['dock']['address']['port']
         server_1.add_insecure_port(f'{host_1}:{port_1}')
         server_1.start()
         # accept the source and the target
-        dock_island_genesis_path = os.path.join(
-            dock_manager_path, 'island_0/config/genesis.json')
+        dock_island_genesis_path = os.path.join(dock_manager_path, 'island_0/config/genesis.json')
         with open(dock_island_genesis_path) as file:
             self.source = yaml.load(file, Loader=yaml.Loader)
         dock_1_manager_path = config_1['chain_manager']['base_path']
-        dock_1_island_genesis_path = os.path.join(
-            dock_1_manager_path, 'island_0/config/genesis.json')
+        dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_0/config/genesis.json')
         with open(dock_1_island_genesis_path) as file:
             self.target = yaml.load(file, Loader=yaml.Loader)
 
@@ -148,8 +142,7 @@ class TestRouter(unittest.TestCase):
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
 
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode(
-            '"test_value"'.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
         message = {
             "header": {
                 "type": "cross_query",
@@ -201,8 +194,7 @@ class TestRouter(unittest.TestCase):
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
 
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode(
-            '"test_value"'.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 
         # delete chains
         for chain in self.dock.chain_manager.select_chain(lambda single: True):

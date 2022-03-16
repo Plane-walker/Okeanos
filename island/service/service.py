@@ -125,10 +125,8 @@ class IslandService(BaseApplication):
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(
                     tx=tx,
-                    target=id_pb2.Chain(
-                        identifier=tx_json['header']['target_chain_id']),
-                    source=id_pb2.Chain(
-                        identifier=tx_json['header']['source_chain_id']),
+                    target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
+                    source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
                 )
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
@@ -138,8 +136,7 @@ class IslandService(BaseApplication):
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(
-                    pub_key=keys_pb2.PublicKey(
-                        ed25519=base64.b64decode(tx_json['body']['public_key'])),
+                    pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
@@ -173,10 +170,8 @@ class IslandService(BaseApplication):
                     with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                         log.info('Call dock grpc: UpdateGraphDta')
                         client = dci_pb2_grpc.DockStub(channel)
-                        response = client.UpdateGraphData(
-                            request_update_graph_data)
-                        log.info(
-                            f'Dock return with status code: {response.code}')
+                        response = client.UpdateGraphData(request_update_graph_data)
+                        log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'))
             elif message_type == 'graph':
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
@@ -222,8 +217,7 @@ class IslandService(BaseApplication):
 
 def main(args):
     init_log()
-    app = ABCIServer(app=IslandService(
-        args[2], args[3], args[4]), port=args[1])
+    app = ABCIServer(app=IslandService(args[2], args[3], args[4]), port=args[1])
     app.run()
 
 

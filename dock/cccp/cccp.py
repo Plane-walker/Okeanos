@@ -48,11 +48,9 @@ class CrossChainCommunicationProtocol:
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        log.info(f'Send to {chain.chain_type} '
-                 f'{chain.chain_name}:{chain.chain_id}')
+        log.info(f'Send to {chain.chain_type}{chain.chain_name}:{chain.chain_id}')
         response = requests.get(
-            f'http://localhost:{chain.rpc_port}/broadcast_tx_commit',
-            params=params)
+            f'http://localhost:{chain.rpc_port}/broadcast_tx_commit',params=params)
         log.info(f'{chain.chain_name} return: {response}')
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
@@ -77,8 +75,7 @@ class CrossChainCommunicationProtocol:
                     if lane is not None and not isinstance(lane, list):
                         self.send(lane, tx_json)
                     else:
-                        log.error(f"No chain to transfer tx: "
-                                  f"{str(json.dumps(tx_json).encode('utf-8'))}")
+                        log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
 
     # Judge the minimum editing distance validator
     def judge_validator(self, tx_json) -> bool:
@@ -90,8 +87,7 @@ class CrossChainCommunicationProtocol:
             ('0x' + json.dumps(tx_json).encode('utf-8').hex()).encode('utf-8')
         ).hexdigest()[:20]
 
-        response = requests.get(
-            f'http://localhost:{island.rpc_port}/validators').json()
+        response = requests.get(f'http://localhost:{island.rpc_port}/validators').json()
         min_dis = sys.maxsize
         target = response['result']['validators'][0]['address']
         for validator in response['result']['validators']:
@@ -132,17 +128,14 @@ class CrossChainCommunicationProtocol:
         tx_json = json.loads(request.tx.decode('utf-8'))
         if not self.judge_validator(tx_json):
             return
-        island = self.chain_manager.get_island(
-            tx_json['header']['target_chain_id'])
+        island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
         if island is not None:
             tx_json['header']['type'] = 'normal'
             params = (
                 ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
             )
-            log.info(
-                f'Send query message to {island.chain_type}: {island.chain_name}({island.chain_id})')
-            response = requests.get(
-                f'http://localhost:{island.rpc_port}/abci_query', params=params)
+            log.info(f'Send query message to {island.chain_type}: {island.chain_name}({island.chain_id})')
+            response = requests.get(f'http://localhost:{island.rpc_port}/abci_query', params=params)
             log.info(f'{island.chain_name} return: {response}')
             with open(self._config_path) as file:
                 config = yaml.load(file, Loader=yaml.Loader)
@@ -174,13 +167,11 @@ class CrossChainCommunicationProtocol:
             lane = self.chain_manager.get_lane(
                 self.router.next_jump(request.tx))
             if lane is not None and not isinstance(lane, list):
-                log.info(
-                    f'Send to {lane.chain_type}: {lane.chain_name}({lane.chain_id})')
+                log.info(f'Send to {lane.chain_type}: {lane.chain_name}({lane.chain_id})')
                 params = (
                     ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                 )
-                response = requests.get(
-                    f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
+                response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
                 log.info(f'{lane.chain_name} return: {response}')
             else:
                 log.error(f'No chain to transfer tx')

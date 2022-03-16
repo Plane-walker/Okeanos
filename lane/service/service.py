@@ -72,8 +72,7 @@ class LaneService(BaseApplication):
         return r
 
     def update_validator(self, validator_update):
-        address = hashlib.sha256(
-            validator_update.pub_key.ed25519).hexdigest()[0: 40]
+        address = hashlib.sha256(validator_update.pub_key.ed25519).hexdigest()[0: 40]
         if validator_update.power == 0:
             self.address_to_public_key.pop(address)
         else:
@@ -124,20 +123,17 @@ class LaneService(BaseApplication):
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(
-                    pub_key=keys_pb2.PublicKey(
-                        ed25519=base64.b64decode(tx_json['body']['public_key'])),
+                    pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'route':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info(
-                        f'Call dock DeliverTx with {message_type} type with {tx_json}.')
+                    log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
                     response = next(client.DeliverTx(request_tx_package))
-                    log.info(
-                        f'Dock return with status code: {response.code} for {tx_json}')
+                    log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
@@ -147,8 +143,7 @@ class LaneService(BaseApplication):
                     client = dci_pb2_grpc.DockStub(channel)
                     log.warning(f'client {repr(client)}')
                     response = next(client.DeliverTx(request_tx_package))
-                    log.info(
-                        f'Dock return with status code: {response.code} for {tx_json}')
+                    log.info(f'Dock return with status code: {response.code} for {tx_json}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_query':
                 request_query = dci_pb2.RequestQuery(tx=tx)
