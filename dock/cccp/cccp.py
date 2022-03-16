@@ -134,7 +134,7 @@ class CrossChainCommunicationProtocol:
         if island is not None:
             if tx_json['header']['type'] == 'cross_query':
                 tx_json['header']['type'] = 'normal'
-            elif tx_json['header']['type'] == 'cross_query':
+            elif tx_json['header']['type'] == 'cross_graph':
                 tx_json['header']['type'] = 'graph'
             params = (
                 ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
