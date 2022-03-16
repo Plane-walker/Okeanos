@@ -20,15 +20,19 @@ class NodeClassificationModel(ABC):
         pass
 
     @abstractmethod
+    def init_model(self):
+        pass
+
+    @abstractmethod
+    def load_model(self):
+        pass
+
+    @abstractmethod
+    def save_model(self):
+        pass
+
+    @abstractmethod
     def train(self, data):
-        pass
-
-    @abstractmethod
-    def load(self):
-        pass
-
-    @abstractmethod
-    def save(self):
         pass
 
     @abstractmethod
@@ -37,29 +41,47 @@ class NodeClassificationModel(ABC):
 
 
 class GraphSAGEModel(NodeClassificationModel):
-    def __init__(self, config_path, model_path=None):
+    def __init__(self, config_path):
         super().__init__()
         self.config_path = config_path
         self.model = None
-        if model_path is None:
-            with open(config_path) as file:
-                config = yaml.load(file, Loader=yaml.Loader)
-            graph_sage = GraphSAGE(layer_sizes=config['GNN']['graphSAGE']['hidden_dims'],
-                                   n_samples=config['GNN']['graphSAGE']['sample_size'],
-                                   input_dim=config['GNN']['graphSAGE']['input_dim'],
-                                   multiplicity=2)
-            self.x_inp, self.x_out = graph_sage.in_out_tensors()
-            prediction = link_classification(
-                output_dim=1, output_act="sigmoid", edge_embedding_method="ip"
-            )(self.x_out)
-            self.model = Model(inputs=self.x_inp, outputs=prediction)
-            self.model.compile(
-                optimizer=optimizers.Adam(lr=1e-3),
-                loss=losses.binary_crossentropy,
-                metrics=[metrics.binary_accuracy],
-            )
+        self.x_input = None
+        self.x_output = None
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        if not os.path.exists(os.path.join(config['GNN']['base_path'], config['GNN']['model_path'])):
+            self.model, self.x_input, self.x_output = self.init_model()
         else:
-            self.load()
+            self.model = self.load_model()
+
+    def init_model(self):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        graph_sage = GraphSAGE(layer_sizes=config['GNN']['graphSAGE']['hidden_dims'],
+                               n_samples=config['GNN']['graphSAGE']['sample_size'],
+                               input_dim=config['GNN']['graphSAGE']['input_dim'],
+                               multiplicity=2)
+        x_input, x_output = graph_sage.in_out_tensors()
+        prediction = link_classification(
+            output_dim=1, output_act="sigmoid", edge_embedding_method="ip"
+        )(x_output)
+        model = Model(inputs=x_input, outputs=prediction)
+        model.compile(
+            optimizer=optimizers.Adam(lr=1e-3),
+            loss=losses.binary_crossentropy,
+            metrics=[metrics.binary_accuracy],
+        )
+        return model, x_input, x_output
+
+    def load_model(self):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        return tf.keras.models.load_model(os.path.join(config['GNN']['base_path'], config['GNN']['model_path']))
+
+    def save_model(self):
+        with open(self.config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        self.model.save(os.path.join(config['GNN']['base_path'], config['GNN']['model_path']))
 
     def train(self, data):
         with open(self.config_path) as file:
@@ -78,19 +100,9 @@ class GraphSAGEModel(NodeClassificationModel):
             workers=4,
             shuffle=True,
         )
-        x_inp_src = self.x_inp[0::2]
-        x_out_src = self.x_out[0]
+        x_inp_src = self.x_input[0::2]
+        x_out_src = self.x_output[0]
         self.model = tf.keras.Model(inputs=x_inp_src, outputs=x_out_src)
-
-    def load(self):
-        with open(self.config_path) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-        self.model = tf.keras.models.load_model(os.path.join(config['GNN']['base_path'], config['GNN']['model_path']))
-
-    def save(self):
-        with open(self.config_path) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-        self.model.save(os.path.join(config['GNN']['base_path'], config['GNN']['model_path']))
 
     def predict(self, data):
         with open(self.config_path) as file:

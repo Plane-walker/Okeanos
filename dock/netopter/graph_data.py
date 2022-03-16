@@ -5,13 +5,19 @@ __all__ = [
 import os
 import pandas as pd
 import networkx as nx
+import yaml
+import json
+import requests
+import datetime
 import numpy as np
+import base64
 from sklearn.preprocessing import LabelBinarizer
 from interface.dci import dci_pb2
 
 
 class GraphData:
-    def __init__(self):
+    def __init__(self, config_path):
+        self._config_path = config_path
         self._vertices = {}
         self._edges = {}
         self._labels = {}
@@ -47,6 +53,73 @@ class GraphData:
         adjacency_matrix = np.array([[self._edges.get((source_id, target_id), 0) for target_id in id_map] for source_id in id_map])
         labels = np.array([self._labels[vertex_id] for vertex_id in id_map])
         return id_map, features, adjacency_matrix, labels
+
+    def update_neighbors_data(self):
+        with open(self._config_path) as file:
+            config = yaml.load(file, Loader=yaml.Loader)
+        neighbor_ids = []
+        for (source_id, target_id), weight in self._edges.items():
+            if source_id == config['app']['app_id']:
+                neighbor_ids.append(target_id)
+        for neighbor_id in neighbor_ids:
+            message = {
+                    "header": {
+                        "type": "cross_graph",
+                        "ttl": -1,
+                        "index": -1,
+                        "paths": [],
+                        "source_chain_id": self._labels[config['app']['app_id']],
+                        "target_chain_id": self._labels[neighbor_id],
+                        "auth": {
+                            "app_id": "0"
+                        }
+                    },
+                    "body": {
+                        "query": neighbor_id,
+                    }
+                }
+            params = (
+                ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+            )
+            requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+
+            message = {
+                "header": {
+                    "type": "normal",
+                    "ttl": -1,
+                    "index": -1,
+                    "paths": [],
+                    "source_chain_id": "",
+                    "target_chain_id": "",
+                    "auth": {
+                        "app_id": "0"
+                    }
+                },
+                "body": {
+                    "query": f"response_for_query_{neighbor_id}",
+                }
+            }
+            params = (
+                ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+            )
+
+            start_time = datetime.datetime.now()
+            timeout = 15
+            while True:
+                response = requests.get(
+                    f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+                if json.loads(response.text)['result']['response']['code'] == 0 or (datetime.datetime.now() - start_time).seconds > timeout:
+                    break
+            if json.loads(response.text)['result']['response']['code'] == 0:
+                result = json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
+                for node_connection in result:
+                    self._vertices[node_connection['source_app_id']] = node_connection['source_app_info']
+                    self._vertices[node_connection['target_app_id']] = node_connection['target_app_info']
+                    edge = (node_connection['source_app_id'], node_connection['target_app_id'])
+                    self._edges[edge] = self._edges.get(edge, 0) + node_connection['weight']
+                    self._edges[(node_connection['target_app_id'], node_connection['source_app_id'])] = self._edges[edge]
+                    self._labels[node_connection['source_app_id']] = node_connection['source_app_chain_id']
+                    self._labels[node_connection['target_app_id']] = node_connection['target_app_chain_id']
 
     @staticmethod
     def import_data_from_file(file_path):
