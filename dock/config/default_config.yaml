@@ -36,29 +36,33 @@ chain_manager:
       rpc_port: '2663'
       p2p_port: '2664'
       join: False
-      genesis_path: 'genesis/island_0'
-      persistent_peers: ['']
+      persistent_peers:
+        - host: 'localhost'
+          port: '2663'
     lane_0:
       type: 'lane'
       abci_port: '2668'
       rpc_port: '2666'
       p2p_port: '2667'
       join: False
-      genesis_path: 'genesis/lane_0'
-      persistent_peers: ['']
+      persistent_peers:
+        - host: 'localhost'
+          port: '2666'
     lane_1:
       type: 'lane'
       abci_port: '2671'
       rpc_port: '2669'
       p2p_port: '2670'
       join: False
-      genesis_path: 'genesis/lane_1'
-      persistent_peers: ['']
+      persistent_peers:
+        - host: 'localhost'
+          port: '2669'
     lane_2:
       type: 'lane'
       abci_port: '2674'
       rpc_port: '2672'
       p2p_port: '2673'
       join: False
-      genesis_path: 'genesis/lane_2'
-      persistent_peers: ['']
+      persistent_peers:
+        - host: 'localhost'
+          port: '2672'
