@@ -50,9 +50,8 @@ class CrossChainCommunicationProtocol:
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        log.info(f'Send to {chain.chain_type}{chain.chain_name}:{chain.chain_id}')
-        response = requests.get(
-            f'http://localhost:{chain.rpc_port}/broadcast_tx_commit',params=params)
+        log.info(f'Send to {chain.chain_name}:{chain.chain_id}')
+        response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
         log.info(f'{chain.chain_name} return: {response}')
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
@@ -64,18 +63,22 @@ class CrossChainCommunicationProtocol:
         else:
             yield dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
             if tx_json['header']['type'] == 'route':
+                log.debug(f'Route tx: {tx_json}')
                 self.router.receiver(request.tx)
             elif tx_json['header']['type'] == 'cross_write':
-                island = self.chain_manager.get_island(
-                    tx_json['header']['target_chain_id'])
+                log.debug(f'Cross write tx: {tx_json}')
+                island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
                 if island is not None:
                     tx_json['header']['type'] = 'normal'
                     self.send(island, tx_json)
                 else:
-                    lane = self.chain_manager.get_lane(
-                        self.router.next_jump(request.tx))
+                    lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
                     if lane is not None and not isinstance(lane, list):
-                        self.send(lane, tx_json)
+                        if lane.chain_id not in tx_json['header']['paths']:
+                            tx_json['header']['paths'] = [lane.chain_id]
+                            self.send(lane, tx_json)
+                        else:
+                            log.debug(f'Ignore the same message {tx_json}')
                     else:
                         log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
 
@@ -128,54 +131,57 @@ class CrossChainCommunicationProtocol:
     def query(self, request):
         yield dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
         tx_json = json.loads(request.tx.decode('utf-8'))
-        if not self.judge_validator(tx_json):
-            return
-        island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
-        if island is not None:
-            if tx_json['header']['type'] == 'cross_query':
-                tx_json['header']['type'] = 'normal'
-            elif tx_json['header']['type'] == 'cross_graph':
-                tx_json['header']['type'] = 'graph'
-            params = (
-                ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-            )
-            log.info(f'Send query message to {island.chain_type}: {island.chain_name}({island.chain_id})')
-            response = requests.get(f'http://localhost:{island.rpc_port}/abci_query', params=params)
-            log.info(f'{island.chain_name} return: {response}')
-            with open(self._config_path) as file:
-                config = yaml.load(file, Loader=yaml.Loader)
-            message = {
-                "header": {
-                    "type": "cross_write",
-                    "ttl": tx_json['header']['ttl'],
-                    "index": tx_json['header']['index'],
-                    "paths": [],
-                    "source_chain_id": tx_json['header']['target_chain_id'],
-                    "target_chain_id": tx_json['header']['source_chain_id'],
-                    "auth": {
-                        "app_id": config['app']['app_id']
-                    }
-                },
-                "body": {
-                    "key": f"response_for_query_{tx_json['body']['query']}",
-                    "value": json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
-                }
-            }
-            params = (
-                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-            )
-            log.info(
-                f'Send cross query response to {island.chain_type}: {island.chain_name}({island.chain_id})')
-            response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
-        else:
-            lane = self.chain_manager.get_lane(
-                self.router.next_jump(request.tx))
-            if lane is not None and not isinstance(lane, list):
-                log.info(f'Send to {lane.chain_type}: {lane.chain_name}({lane.chain_id})')
+        if self.judge_validator(tx_json):
+            island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
+            if island is not None:
+                if tx_json['header']['type'] == 'cross_query':
+                    tx_json['header']['type'] = 'normal'
+                elif tx_json['header']['type'] == 'cross_graph':
+                    tx_json['header']['type'] = 'graph'
                 params = (
-                    ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                    ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                 )
-                response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
-                log.info(f'{lane.chain_name} return: {response}')
+                log.info(f'Send query message to {island.chain_name}({island.chain_id})')
+                response = requests.get(f'http://localhost:{island.rpc_port}/abci_query', params=params)
+                log.info(f'{island.chain_name} return: {response}')
+                with open(self._config_path) as file:
+                    config = yaml.load(file, Loader=yaml.Loader)
+                message = {
+                    "header": {
+                        "type": "cross_write",
+                        "ttl": tx_json['header']['ttl'],
+                        "index": tx_json['header']['index'],
+                        "paths": [],
+                        "source_chain_id": tx_json['header']['target_chain_id'],
+                        "target_chain_id": tx_json['header']['source_chain_id'],
+                        "auth": {
+                            "app_id": config['app']['app_id']
+                        }
+                    },
+                    "body": {
+                        "key": f"response_for_query_{tx_json['body']['query']}",
+                        "value": json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
+                    }
+                }
+                params = (
+                    ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+                )
+                log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
+                response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
             else:
-                log.error(f'No chain to transfer tx')
+                lane = self.chain_manager.get_lane(
+                    self.router.next_jump(request.tx))
+                if lane is not None and not isinstance(lane, list):
+                    if lane.chain_id not in tx_json['header']['paths']:
+                        log.info(f'Send to {lane.chain_name}({lane.chain_id})')
+                        tx_json['header']['paths'] = [lane.chain_id]
+                        params = (
+                            ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                        )
+                        log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
+                        response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
+                        log.info(f'{lane.chain_name} return: {response}')
+                    else:
+                        log.debug(f'Ignore the same message {tx_json}')
+                else:
+                    log.error(f'No chain to transfer tx')
