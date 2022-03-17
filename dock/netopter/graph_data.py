@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import networkx as nx
 import yaml
+import time
 import json
 import requests
 import datetime
@@ -110,6 +111,7 @@ class GraphData:
                     f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
                 if json.loads(response.text)['result']['response']['code'] == 0 or (datetime.datetime.now() - start_time).seconds > timeout:
                     break
+                time.sleep(1)
             if json.loads(response.text)['result']['response']['code'] == 0:
                 result = json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
                 for node_connection in result:

@@ -116,6 +116,7 @@ class TestRouter(unittest.TestCase):
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
+            time.sleep(1)
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
         message = {
@@ -167,6 +168,7 @@ class TestRouter(unittest.TestCase):
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
+            time.sleep(1)
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 
