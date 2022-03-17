@@ -3,9 +3,10 @@ __all__ = [
 ]
 
 import os
-import shutil
 import subprocess
 import signal
+import json
+import requests
 import yaml
 import socket
 import datetime
@@ -72,10 +73,19 @@ class ChainManager:
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
                           f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         else:
-            shutil.copy(f"{config['chain_manager']['base_path']}/{config['chain_manager']['chain'][chain_name]['genesis_path']}/genesis.json",
-                        f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json")
+            genesis_address = f"http://{config['chain_manager']['chain'][chain_name]['persistent_peers'][0]['host']}:" \
+                                     f"{config['chain_manager']['chain'][chain_name]['persistent_peers'][0]['port']}"
+            genesis = requests.get(f"{genesis_address}/genesis").json()['result']['genesis']
+            with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/genesis.json", 'w') as f:
+                f.write(json.dumps(genesis))
+            persistent_peers = []
+            for persistent_peer in config['chain_manager']['chain'][chain_name]['persistent_peers']:
+                response = requests.get(f"http://{persistent_peer['host']}:{persistent_peer['port']}/status").json()
+                persistent_peers_id = response['result']['node_info']['id']
+                persistent_peers_p2p_port = response['result']['node_info']['listen_addr'].split(':')[-1]
+                persistent_peers.append(f"{persistent_peers_id}@{persistent_peer['host']}:{persistent_peers_p2p_port}")
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                          f"--p2p.persistent_peers=\"{', '.join(config['chain_manager']['chain'][chain_name]['persistent_peers'])}\" " \
+                          f"--p2p.persistent_peers=\"{', '.join(persistent_peers)}\" " \
                           f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
@@ -86,8 +96,6 @@ class ChainManager:
     def _start_service(self, chain_name):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
-            validator = yaml.load(file, Loader=yaml.Loader)
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py " \
                         f"{config['chain_manager']['chain'][chain_name]['abci_port']} " \
                         f"{config['app']['app_id']} " \
@@ -128,13 +136,13 @@ class ChainManager:
         service_pid = self._start_service(chain_name)
         self._wait_for_chain_start(chain_name)
         chain_id = self.get_chain_id(chain_name)
-        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
                                            chain_pid,
                                            service_pid,
                                            chain_name,
                                            config['chain_manager']['chain'][chain_name]['rpc_port'])
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def start_chain(self, chain_id):
         chain_name = self._chains[chain_id].chain_name
@@ -143,13 +151,13 @@ class ChainManager:
         chain_pid = self._start_chain_core(chain_name)
         service_pid = self._start_service(chain_name)
         self._wait_for_chain_start(chain_name)
-        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
                                            chain_pid,
                                            service_pid,
                                            chain_name,
                                            config['chain_manager']['chain'][chain_name]['rpc_port'])
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def join_chain(self, chain_name):
         with open(self._config_path) as file:
@@ -158,13 +166,36 @@ class ChainManager:
         service_pid = self._start_service(chain_name)
         self._wait_for_chain_start(chain_name)
         chain_id = self.get_chain_id(chain_name)
-        log.info(f'{chain_name.capitalize()}({chain_id}) started')
         self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
                                            chain_id,
                                            chain_pid,
                                            service_pid,
                                            chain_name,
                                            config['chain_manager']['chain'][chain_name]['rpc_port'])
+        with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
+            validator = yaml.load(file, Loader=yaml.Loader)
+            message = {
+                "header": {
+                    "type": "validate",
+                    "ttl": -1,
+                    "index": -1,
+                    "paths": [],
+                    "source_chain_id": '',
+                    "target_chain_id": '',
+                    "auth": {
+                        "app_id": config['app']['app_id']
+                    }
+                },
+                "body": {
+                    "public_key": validator['pub_key']['value'],
+                    "power": 10
+                }
+            }
+        params = (
+            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+        log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def stop_chain(self, chain_id):
         chain_pid = self._chains[chain_id].chain_pid

@@ -22,6 +22,7 @@ class TestRouter(unittest.TestCase):
         self.dock = Dock(dock_config_path)
         with open(self.dock.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
+        dock_manager_path = config['chain_manager']['base_path']
         for chain_name in config['chain_manager']['chain'].keys():
             self.dock.chain_manager.init_chain(chain_name)
             if not config['chain_manager']['chain'][chain_name]['join']:
@@ -35,35 +36,9 @@ class TestRouter(unittest.TestCase):
         server.add_insecure_port(f'{host}:{port}')
         server.start()
 
-        # create the needed direction: genesis and dock1
-        mkdir_dir = f"if [ ! -d {config['chain_manager']['base_path']}/dock1 ]; then \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1 \n" \
-                    f"fi; \n" \
-                    f"if [ ! -d {config['chain_manager']['base_path']}/dock1/genesis ]; then \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1/genesis \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1/genesis/island_0 \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1/genesis/lane_0 \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1/genesis/lane_1 \n" \
-                    f"    mkdir {config['chain_manager']['base_path']}/dock1/genesis/lane_2 \n" \
-                    f"fi; \n"
-        subprocess.run(mkdir_dir, shell=True, stdout=subprocess.PIPE)
-
-        # copy genesis and modify correct dock.yaml
-        dock_manager_path = config['chain_manager']['base_path']
-        dock_lane_genesis_file = os.path.join(dock_manager_path, 'lane_0/config/genesis.json')
-        output = subprocess.getstatusoutput(f"tendermint show-node-id --home {config['chain_manager']['base_path']}/lane_0")
-        node_id = output[1]
         dock_1_config_path = os.path.join(current_path, 'config/dock1.yaml')
         with open(dock_1_config_path) as file:
             config_1 = yaml.load(file, Loader=yaml.Loader)
-        shutil.copy(dock_lane_genesis_file,
-                    f"{config_1['chain_manager']['base_path']}/{config_1['chain_manager']['chain']['lane_0']['genesis_path']}/genesis.json")
-        config_1['chain_manager']['chain']['lane_0']['join'] = True
-        config_1['chain_manager']['chain']['lane_0']['persistent_peers'] = [f'{node_id}@localhost:2667']
-        with open(dock_1_config_path, 'w') as file:
-            yaml.dump(config_1, file, default_flow_style=False, sort_keys=False)
-
-        # Start second Dock
         self.dock_1 = Dock(dock_1_config_path)
         for chain_name in config_1['chain_manager']['chain'].keys():
             self.dock_1.chain_manager.init_chain(chain_name)
@@ -82,7 +57,7 @@ class TestRouter(unittest.TestCase):
         with open(dock_island_genesis_path) as file:
             self.source = yaml.load(file, Loader=yaml.Loader)
         dock_1_manager_path = config_1['chain_manager']['base_path']
-        dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_0/config/genesis.json')
+        dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_1/config/genesis.json')
         with open(dock_1_island_genesis_path) as file:
             self.target = yaml.load(file, Loader=yaml.Loader)
 
@@ -133,14 +108,15 @@ class TestRouter(unittest.TestCase):
         )
 
         start_time = datetime.datetime.now()
-        timeout = 15
+        timeout = 30
         while True:
             response = requests.get(
-                f"http://localhost:{config_1['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+                f"http://localhost:{config_1['chain_manager']['chain']['island_1']['rpc_port']}/abci_query", params=params)
             if json.loads(response.text)['result']['response']['value'] == 'test_value':
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
+            time.sleep(1)
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
         message = {
@@ -192,6 +168,7 @@ class TestRouter(unittest.TestCase):
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
+            time.sleep(1)
 
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 
