@@ -63,12 +63,11 @@ class Router:
                 log.error(f'Periodical Gossip Error: {repr(exception)}')
 
     def next_jump(self, tx):
-        self.import_chain_id()
         try:
+            self.import_chain_id()
             package = RouteMessage.from_tx(tx)
             ttl = self.config['ttl']
             while True:
-                # Time check
                 if package.target_id() in self.router:
                     return self.router[package.target_id()]
                 log.info(f'Searching with {package.get_json()}')
@@ -188,10 +187,17 @@ class Router:
 
     def transmit(self, package: RouteMessage):
         log.debug('Transmit . . .')
+
+        if self.island_id in package.get_paths_islands_copy():
+            log.debug(f'Ignore ring route {package.get_json()}')
+            return
+
         if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
             self.router[package.source_id()] = package.last_path_lane()
+
         if package.get_ttl() == 0:
             return
+
         if package.target_id() == self.island_id or package.target_id() in self.router.keys():
             package.to_callback()
             if package.last_path_lane() in self.lane_ids:
@@ -203,21 +209,27 @@ class Router:
     def callback(self, package: RouteMessage):
         log.debug('Callback . . .')
 
-        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
-            log.debug(f'Update router {package.source_id()}: {package.last_path_lane()}')
-            self.router[package.source_id()] = package.last_path_lane()
+        index = package.get_island_index(self.island_id)
+        if index == -1:
+            log.error(f'Not found {self.island_id} in {package.get_json()}')
+            return
+
+        lane_id, _ = package.get_path(index)[0], package.get_path(index)[1]
+        if package.source_id() not in self.router:
+            log.debug(f'Update router {package.source_id()}: {lane_id}')
+            self.router[package.source_id()] = lane_id
+        else:
+            log.debug(f'Ignore ring in callback')
+            return
 
         if package.target_id() == self.island_id:
             log.debug(f'Finish callback {package.get_json()}')
             return
 
-        if package.last_path_lane() not in self.lane_ids:
-            log.debug(f'Ignore callback {package.get_json()}')
+        index -= 1
+        path = package.get_path(index)
+        if path is None:
+            log.error(f'Not found the {index} path {package.get_json()}')
             return
-
-        lane_id = package.last_path_lane()
-        package.pop_path()
-        if not package.empty_path() and self.island_id == package.get_paths_islands_copy()[-1]:
-            log.debug(f'Ignore duplicate island {package.get_json()}')
-            return
+        lane_id, _ = path[0], path[1]
         self.sender(lane_id, package)

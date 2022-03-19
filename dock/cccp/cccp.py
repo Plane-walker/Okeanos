@@ -38,10 +38,9 @@ class CrossChainCommunicationProtocol:
                 "header": {
                     "type": tx_json['header']['type'],
                     "ttl": tx_json['header']['ttl'],
-                    "index": tx_json['header']['index'],
-                    "paths": [],
-                    "source_chain_id": tx_json['header']['target_chain_id'],
-                    "target_chain_id": tx_json['header']['source_chain_id'],
+                    "paths": tx_json['header']['paths'],
+                    "source_chain_id": tx_json['header']['source_chain_id'],
+                    "target_chain_id": tx_json['header']['target_chain_id'],
                     "auth": {
                         "app_id": config['app']['app_id']
                     }
@@ -69,21 +68,24 @@ class CrossChainCommunicationProtocol:
                 log.debug(f'Route tx: {tx_json}')
                 self.router.receiver(request.tx)
             elif tx_json['header']['type'] == 'cross_write':
-                log.debug(f'Cross write tx: {tx_json}')
-                island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
-                if island is not None:
-                    tx_json['header']['type'] = 'normal'
-                    self.send(island, tx_json)
-                else:
-                    lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
-                    if lane is not None and not isinstance(lane, list):
-                        if len(tx_json['header']['paths']) == 0 or lane.chain_id != tx_json['header']['paths'][0]:
-                            tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
-                            self.send(lane, tx_json)
-                        else:
-                            log.debug(f'Ignore the same message {tx_json}')
+                try:
+                    log.debug(f'Cross write tx: {tx_json}')
+                    island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
+                    if island is not None:
+                        tx_json['header']['type'] = 'normal'
+                        self.send(island, tx_json)
                     else:
-                        log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+                        lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
+                        if lane is not None and not isinstance(lane, list):
+                            if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
+                                tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
+                                self.send(lane, tx_json)
+                            else:
+                                log.debug(f'Ignore the same message {tx_json}')
+                        else:
+                            log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+                except Exception as exception:
+                    log.error(f'{repr(exception)}')
 
     # Judge the minimum editing distance validator
     def judge_validator(self, tx_json) -> bool:
@@ -153,7 +155,6 @@ class CrossChainCommunicationProtocol:
                     "header": {
                         "type": "cross_write",
                         "ttl": tx_json['header']['ttl'],
-                        "index": tx_json['header']['index'],
                         "paths": [],
                         "source_chain_id": tx_json['header']['target_chain_id'],
                         "target_chain_id": tx_json['header']['source_chain_id'],
@@ -172,12 +173,11 @@ class CrossChainCommunicationProtocol:
                 log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
                 response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
             else:
-                lane = self.chain_manager.get_lane(
-                    self.router.next_jump(request.tx))
+                lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
                 if lane is not None and not isinstance(lane, list):
-                    if lane.chain_id not in tx_json['header']['paths']:
+                    if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
                         log.info(f'Send to {lane.chain_name}({lane.chain_id})')
-                        tx_json['header']['paths'] = [lane.chain_id]
+                        tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
                         params = (
                             ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                         )

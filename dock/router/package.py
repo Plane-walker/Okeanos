@@ -97,6 +97,18 @@ class RouteMessage:
                 index < len(self.header['paths']) else None
         return None
 
+    def get_island_index(self, island_id):
+        for index, path in enumerate(self.header['paths']):
+            if path[1] == island_id:
+                return index
+        return -1
+
+    def get_path(self, index):
+        if index >= 0:
+            return self.header['paths'][index] if 'paths' in self.header and \
+                index < len(self.header['paths']) else None
+        return None
+
     def get_ttl(self) -> int:
         return self.header['ttl'] if 'ttl' in self.header else None
 
