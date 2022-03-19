@@ -29,30 +29,33 @@ class CrossChainCommunicationProtocol:
         self._config_path = config_path
 
     def send(self, chain, tx_json):
-        if not self.judge_validator(tx_json):
-            return
-        with open(self._config_path) as file:
-            config = yaml.load(file, Loader=yaml.Loader)
-        message = {
-            "header": {
-                "type": tx_json['header']['type'],
-                "ttl": tx_json['header']['ttl'],
-                "index": tx_json['header']['index'],
-                "paths": [],
-                "source_chain_id": tx_json['header']['target_chain_id'],
-                "target_chain_id": tx_json['header']['source_chain_id'],
-                "auth": {
-                    "app_id": config['app']['app_id']
-                }
-            },
-            "body": tx_json['body']
-        }
-        params = (
-            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-        )
-        log.info(f'Send to {chain.chain_name}:{chain.chain_id}')
-        response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
-        log.info(f'{chain.chain_name} return: {response}')
+        try:
+            if not self.judge_validator(tx_json):
+                return
+            with open(self._config_path) as file:
+                config = yaml.load(file, Loader=yaml.Loader)
+            message = {
+                "header": {
+                    "type": tx_json['header']['type'],
+                    "ttl": tx_json['header']['ttl'],
+                    "index": tx_json['header']['index'],
+                    "paths": [],
+                    "source_chain_id": tx_json['header']['target_chain_id'],
+                    "target_chain_id": tx_json['header']['source_chain_id'],
+                    "auth": {
+                        "app_id": config['app']['app_id']
+                    }
+                },
+                "body": tx_json['body']
+            }
+            params = (
+                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+            )
+            log.info(f'Send to {chain.chain_name}: {chain.chain_id}')
+            response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
+            log.info(f'{chain.chain_name} return: {response}')
+        except Exception as exception:
+            log.error(f'{repr(exception)}')
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
         try:
@@ -74,8 +77,8 @@ class CrossChainCommunicationProtocol:
                 else:
                     lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
                     if lane is not None and not isinstance(lane, list):
-                        if lane.chain_id not in tx_json['header']['paths']:
-                            tx_json['header']['paths'] = [lane.chain_id]
+                        if len(tx_json['header']['paths']) == 0 or lane.chain_id != tx_json['header']['paths'][0]:
+                            tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
                             self.send(lane, tx_json)
                         else:
                             log.debug(f'Ignore the same message {tx_json}')

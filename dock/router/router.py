@@ -10,6 +10,7 @@ import uuid
 import time
 import sys
 import hashlib
+import datetime
 from enum import Enum, unique
 from log import log
 from .package import RouteMessage
@@ -22,6 +23,7 @@ class DciResCode(Enum):
 
 
 class Router:
+
     def __init__(self, config_path, chain_manager):
         self.island_id = None
         self.lane_ids = set()
@@ -66,6 +68,7 @@ class Router:
             package = RouteMessage.from_tx(tx)
             ttl = self.config['ttl']
             while True:
+                # Time check
                 if package.target_id() in self.router:
                     return self.router[package.target_id()]
                 log.info(f'Searching with {package.get_json()}')
@@ -74,9 +77,15 @@ class Router:
                 package.set_ttl(ttl)
                 if package.get_paths_copy() is None:
                     package.init_paths()
-                code = self.gossip(package)
-                if code is None:
-                    return None
+                self.gossip(package)
+                start_time = datetime.datetime.now()
+                timeout = ttl * 2
+                while True:
+                    if package.target_id() in self.router:
+                        return self.router[package.target_id()]
+                    if (datetime.datetime.now() - start_time).seconds > timeout:
+                        break
+                    time.sleep(1)
                 ttl += self.config['ttl']
         except Exception as exception:
             log.error(f'Next Jump Error: {repr(exception)}')
@@ -92,10 +101,10 @@ class Router:
                                       self.config['min_search'])
         log.debug(f'Select {selecteds}')
         for selected_id in selecteds:
-            paths = package.get_paths_copy()
+            paths = package.get_paths_lanes_copy()
             if paths is not None and selected_id in paths:
                 continue
-            package.append_path(selected_id)
+            package.append_path(selected_id, self.island_id)
             self.sender(selected_id, package)
             package.pop_path()
         return DciResCode.OK.value
@@ -162,12 +171,15 @@ class Router:
         self.import_chain_id()
         try:
             package = RouteMessage.from_tx(tx)
-            log.info(f'Receive {package.get_json()}')
             if package.source_id() == self.island_id:
+                log.debug(f'Ignore from self {package.get_json()}')
                 return
+            log.info(f'Receive {package.get_json()}')
             if package.is_transmit():
+                log.debug(f'Transmit {package.get_json()}')
                 self.transmit(package)
             elif package.is_callback():
+                log.debug(f'Callback {package.get_json()}')
                 self.callback(package)
             else:
                 log.info('Ignore when ttl == 0')
@@ -176,44 +188,36 @@ class Router:
 
     def transmit(self, package: RouteMessage):
         log.debug('Transmit . . .')
-        if package.last_path() in self.lane_ids:
-            self.router[package.source_id()] = package.last_path()
+        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
+            self.router[package.source_id()] = package.last_path_lane()
         if package.get_ttl() == 0:
             return
-        if package.target_id() == self.island_id or \
-           package.target_id() in self.router.keys():
+        if package.target_id() == self.island_id or package.target_id() in self.router.keys():
             package.to_callback()
-            for lane_id in self.lane_ids:
-                if lane_id == package.last_path():
-                    self.sender(lane_id, package)
+            if package.last_path_lane() in self.lane_ids:
+                self.sender(package.last_path_lane(), package)
         else:
             package.reduce_ttl()
             self.gossip(package)
 
     def callback(self, package: RouteMessage):
         log.debug('Callback . . .')
-        index = package.get_index()
+
+        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
+            log.debug(f'Update router {package.source_id()}: {package.last_path_lane()}')
+            self.router[package.source_id()] = package.last_path_lane()
+
         if package.target_id() == self.island_id:
-            self.router[package.source_id()] = package.get_path(index)
+            log.debug(f'Finish callback {package.get_json()}')
             return
 
-        if package.get_path(index) not in self.lane_ids:
+        if package.last_path_lane() not in self.lane_ids:
+            log.debug(f'Ignore callback {package.get_json()}')
             return
 
-        if index == len(package.get_paths_copy()) - 1:
-            self.router[package.source_id()] = package.last_path()
-        else:
-            last = index
-            while index < 0:
-                index += 1
-                if package.get_path(index) in self.lane_ids:
-                    last = index
-            if last == package.get_index() and \
-               package.get_path(last) in self.lane_ids:
-                self.router[package.source_id()] = package.get_path(last)
-
-        package.reduce_index()
-        if package.get_path(package.get_index()) is None or \
-           package.get_path(package.get_index()) not in self.lane_ids:
+        lane_id = package.last_path_lane()
+        package.pop_path()
+        if not package.empty_path() and self.island_id == package.get_paths_islands_copy()[-1]:
+            log.debug(f'Ignore duplicate island {package.get_json()}')
             return
-        self.sender(package.get_path(package.get_index()), package)
+        self.sender(lane_id, package)
