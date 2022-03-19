@@ -63,6 +63,9 @@ class ChainManager:
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
+                     f"sed -i " \
+                     f"'s#cache_size = 10000#cache_size = 0#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;"
         subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
 
