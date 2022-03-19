@@ -35,11 +35,17 @@ def listener_configurer():
     info_file_handler.setFormatter(formatter)
     info_file_handler.setLevel(logging.INFO)
 
+    log_path = os.path.join(path, 'debug.log')
+    debug_file_handler = logging.FileHandler(log_path)
+    debug_file_handler.setFormatter(formatter)
+    debug_file_handler.setLevel(logging.DEBUG)
+
     log = logging.getLogger()
     log.setLevel(logging.DEBUG)
     log.addHandler(stream_handler)
     log.addHandler(error_file_handler)
     log.addHandler(info_file_handler)
+    log.addHandler(debug_file_handler)
 
 
 def listener_process(queue, configurer):
