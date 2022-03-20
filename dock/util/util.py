@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras.layers import Activation, Layer, Concatenate, Average, Reshape
 from typing import AnyStr, Optional
+import requests
 
 
 def sample_features(origin_nodes, sample_sizes, adjacency_matrix, features):

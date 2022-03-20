@@ -102,12 +102,12 @@ message ResponseGetGraphData {
 
 
 service Dock {
-    rpc DeliverTx(RequestDeliverTx) returns (stream ResponseDeliverTx);
-    rpc Query(RequestQuery) returns (stream ResponseQuery);
+    rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
+    rpc Query(RequestQuery) returns (ResponseQuery);
 
-    rpc RouterInfo(RequestRouterInfo) returns (stream ResponseRouterInfo);
-    rpc RouterTransmit(RequestRouterTransmit) returns (stream ResponseRouterTransmit);
-    rpc RouterPathCallback(RequestRouterPathCallback) returns (stream ResponseRouterPathCallback);
+    rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
+    rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
+    rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
     rpc SwitchIsland(RequestSwitchIsland) returns (ResponseSwitchIsland);
     rpc UpdateGraphData(RequestUpdateGraphData) returns (ResponseUpdateGraphData);

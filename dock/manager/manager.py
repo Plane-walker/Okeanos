@@ -216,3 +216,17 @@ class ChainManager:
         subprocess.run(remove_path,
                        shell=True,
                        stdout=subprocess.PIPE)
+
+if __name__ == '__main__':
+    from concurrent.futures import ThreadPoolExecutor
+    import time
+    def test(a, b):
+        pool = ThreadPoolExecutor()
+        def task():
+            time.sleep(3)
+            print(a, b)
+        pool.submit(task)
+        return 1
+    print(test(1, 2))
+    time.sleep(5)
+    print(11111111111)
