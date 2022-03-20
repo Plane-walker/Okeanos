@@ -24,13 +24,14 @@ class DciResCode(Enum):
 
 class Router:
 
-    def __init__(self, config_path, chain_manager):
+    def __init__(self, config_path, chain_manager, pool):
         self.island_id = None
         self.lane_ids = set()
 
         self.router = {}
 
         self.chain_manager = chain_manager
+        self.pool = pool
         self.config = None
 
         with open(config_path) as file:
@@ -116,12 +117,15 @@ class Router:
                  f'{self.chain_manager.get_lane(lane_id).rpc_port} '
                  f'with {package.get_json()}')
         params = (('tx', package.get_hex()), )
-        response = requests.get(
-            f'http://localhost:'
-            f'{self.chain_manager.get_lane(lane_id).rpc_port}'
-            f'/broadcast_tx_commit',
-            params=params)
-        log.info(f'Get response code: {response}')
+
+        def rpc_request():
+            response = requests.get(
+                f'http://localhost:'
+                f'{self.chain_manager.get_lane(lane_id).rpc_port}'
+                f'/broadcast_tx_commit',
+                params=params)
+            log.info(f'Get response code: {response}')
+        self.pool.submit(rpc_request)
 
     # Judge the minimum editing distance validator
     def judge_validator(self, package) -> bool:

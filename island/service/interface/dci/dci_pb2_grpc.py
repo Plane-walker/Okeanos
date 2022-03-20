@@ -14,27 +14,27 @@ class DockStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DeliverTx = channel.unary_stream(
+        self.DeliverTx = channel.unary_unary(
                 '/dci.Dock/DeliverTx',
                 request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
                 )
-        self.Query = channel.unary_stream(
+        self.Query = channel.unary_unary(
                 '/dci.Dock/Query',
                 request_serializer=dci_dot_dci__pb2.RequestQuery.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseQuery.FromString,
                 )
-        self.RouterInfo = channel.unary_stream(
+        self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
                 request_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseRouterInfo.FromString,
                 )
-        self.RouterTransmit = channel.unary_stream(
+        self.RouterTransmit = channel.unary_unary(
                 '/dci.Dock/RouterTransmit',
                 request_serializer=dci_dot_dci__pb2.RequestRouterTransmit.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseRouterTransmit.FromString,
                 )
-        self.RouterPathCallback = channel.unary_stream(
+        self.RouterPathCallback = channel.unary_unary(
                 '/dci.Dock/RouterPathCallback',
                 request_serializer=dci_dot_dci__pb2.RequestRouterPathCallback.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseRouterPathCallback.FromString,
@@ -110,27 +110,27 @@ class DockServicer(object):
 
 def add_DockServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DeliverTx': grpc.unary_stream_rpc_method_handler(
+            'DeliverTx': grpc.unary_unary_rpc_method_handler(
                     servicer.DeliverTx,
                     request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
             ),
-            'Query': grpc.unary_stream_rpc_method_handler(
+            'Query': grpc.unary_unary_rpc_method_handler(
                     servicer.Query,
                     request_deserializer=dci_dot_dci__pb2.RequestQuery.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseQuery.SerializeToString,
             ),
-            'RouterInfo': grpc.unary_stream_rpc_method_handler(
+            'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
                     request_deserializer=dci_dot_dci__pb2.RequestRouterInfo.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseRouterInfo.SerializeToString,
             ),
-            'RouterTransmit': grpc.unary_stream_rpc_method_handler(
+            'RouterTransmit': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterTransmit,
                     request_deserializer=dci_dot_dci__pb2.RequestRouterTransmit.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseRouterTransmit.SerializeToString,
             ),
-            'RouterPathCallback': grpc.unary_stream_rpc_method_handler(
+            'RouterPathCallback': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterPathCallback,
                     request_deserializer=dci_dot_dci__pb2.RequestRouterPathCallback.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseRouterPathCallback.SerializeToString,
@@ -171,7 +171,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/dci.Dock/DeliverTx',
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/DeliverTx',
             dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
             dci_dot_dci__pb2.ResponseDeliverTx.FromString,
             options, channel_credentials,
@@ -188,7 +188,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/dci.Dock/Query',
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/Query',
             dci_dot_dci__pb2.RequestQuery.SerializeToString,
             dci_dot_dci__pb2.ResponseQuery.FromString,
             options, channel_credentials,
@@ -205,7 +205,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/dci.Dock/RouterInfo',
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterInfo',
             dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
             dci_dot_dci__pb2.ResponseRouterInfo.FromString,
             options, channel_credentials,
@@ -222,7 +222,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/dci.Dock/RouterTransmit',
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterTransmit',
             dci_dot_dci__pb2.RequestRouterTransmit.SerializeToString,
             dci_dot_dci__pb2.ResponseRouterTransmit.FromString,
             options, channel_credentials,
@@ -239,7 +239,7 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/dci.Dock/RouterPathCallback',
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/RouterPathCallback',
             dci_dot_dci__pb2.RequestRouterPathCallback.SerializeToString,
             dci_dot_dci__pb2.ResponseRouterPathCallback.FromString,
             options, channel_credentials,

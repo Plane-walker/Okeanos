@@ -3,6 +3,7 @@ __all__ = [
 ]
 
 from enum import Enum, unique
+from concurrent import futures
 import json
 import yaml
 import requests
@@ -24,7 +25,8 @@ class CrossChainCommunicationProtocol:
 
     def __init__(self, config_path, chain_manager):
         self.lane = None
-        self.router = Router(config_path, chain_manager)
+        self.pool = futures.ThreadPoolExecutor(max_workers=10)
+        self.router = Router(config_path, chain_manager, self.pool)
         self.chain_manager = chain_manager
         self._config_path = config_path
 
@@ -51,41 +53,40 @@ class CrossChainCommunicationProtocol:
                 ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
             )
             log.info(f'Send to {chain.chain_name}: {chain.chain_id}')
-            response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
-            log.info(f'{chain.chain_name} return: {response}')
+
+            def rpc_request():
+                response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
+                log.info(f'{chain.chain_name} return: {response}')
+            self.pool.submit(rpc_request)
         except Exception as exception:
             log.error(f'{repr(exception)}')
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
         try:
             tx_json = json.loads(request.tx.decode('utf-8'))
-        except Exception as exception:
-            log.error(repr(exception))
-            yield dci_pb2.ResponseDeliverTx(code=TxDeliverCode.FAIL.value)
-        else:
-            yield dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
             if tx_json['header']['type'] == 'route':
                 log.debug(f'Route tx: {tx_json}')
                 self.router.receiver(request.tx)
             elif tx_json['header']['type'] == 'cross_write':
-                try:
-                    log.debug(f'Cross write tx: {tx_json}')
-                    island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
-                    if island is not None:
-                        tx_json['header']['type'] = 'normal'
-                        self.send(island, tx_json)
-                    else:
-                        lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
-                        if lane is not None and not isinstance(lane, list):
-                            if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
-                                tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
-                                self.send(lane, tx_json)
-                            else:
-                                log.debug(f'Ignore the same message {tx_json}')
+                log.debug(f'Cross write tx: {tx_json}')
+                island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
+                if island is not None:
+                    tx_json['header']['type'] = 'normal'
+                    self.send(island, tx_json)
+                else:
+                    lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
+                    if lane is not None and not isinstance(lane, list):
+                        if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
+                            tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
+                            self.send(lane, tx_json)
                         else:
-                            log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
-                except Exception as exception:
-                    log.error(f'{repr(exception)}')
+                            log.debug(f'Ignore the same message {tx_json}')
+                    else:
+                        log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+            return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
+        except Exception as exception:
+            log.error(repr(exception))
+            return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.FAIL.value)
 
     # Judge the minimum editing distance validator
     def judge_validator(self, tx_json) -> bool:
@@ -134,7 +135,6 @@ class CrossChainCommunicationProtocol:
         return D[n][m]
 
     def query(self, request):
-        yield dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
         tx_json = json.loads(request.tx.decode('utf-8'))
         if self.judge_validator(tx_json):
             island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
@@ -170,8 +170,12 @@ class CrossChainCommunicationProtocol:
                 params = (
                     ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
                 )
-                log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
-                response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
+
+                def rpc_request():
+                    log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
+                    rpc_response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
+                    log.info(f'{island.chain_name} return: {rpc_response}')
+                self.pool.submit(rpc_request)
             else:
                 lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
                 if lane is not None and not isinstance(lane, list):
@@ -181,10 +185,15 @@ class CrossChainCommunicationProtocol:
                         params = (
                             ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                         )
-                        log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
-                        response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
-                        log.info(f'{lane.chain_name} return: {response}')
+
+                        def rpc_request():
+                            log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
+                            rpc_response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
+                            log.info(f'{lane.chain_name} return: {rpc_response}')
+                        self.pool.submit(rpc_request)
                     else:
                         log.debug(f'Ignore the same message {tx_json}')
                 else:
                     log.error(f'No chain to transfer tx')
+                    return dci_pb2.ResponseQuery(code=TxDeliverCode.FAIL.value)
+        return dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
