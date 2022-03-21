@@ -3,6 +3,7 @@ __all__ = [
 ]
 
 import json
+import uuid
 
 
 class RouteMessage:
@@ -131,7 +132,8 @@ class RouteMessage:
             'source_chain_id': self.header['source'],
             'target_chain_id': self.header['target'],
             'paths': self.header['paths'],
-            'type': self.header['type']
+            'type': self.header['type'],
+            'uuid': str(uuid.uuid1()),
         }
         msg = {'header': header, 'body': {}}
         return json.dumps(msg).encode('utf-8')

@@ -4,6 +4,7 @@ __all__ = [
 
 from enum import Enum, unique
 from concurrent import futures
+import uuid
 import json
 import yaml
 import requests
@@ -43,6 +44,7 @@ class CrossChainCommunicationProtocol:
                     "paths": tx_json['header']['paths'],
                     "source_chain_id": tx_json['header']['source_chain_id'],
                     "target_chain_id": tx_json['header']['target_chain_id'],
+                    "uuid": str(uuid.uuid1()),
                     "auth": {
                         "app_id": config['app']['app_id']
                     }
@@ -160,6 +162,7 @@ class CrossChainCommunicationProtocol:
                         "paths": [],
                         "source_chain_id": tx_json['header']['target_chain_id'],
                         "target_chain_id": tx_json['header']['source_chain_id'],
+                        "uuid": str(uuid.uuid1()),
                         "auth": {
                             "app_id": config['app']['app_id']
                         }

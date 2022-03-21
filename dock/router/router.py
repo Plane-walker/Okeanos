@@ -81,7 +81,7 @@ class Router:
                 start_time = datetime.datetime.now()
                 timeout = ttl * 2
                 while True:
-                    if package.target_id() in self.router:
+                    if package.target_id() in self.router.keys():
                         return self.router[package.target_id()]
                     if (datetime.datetime.now() - start_time).seconds > timeout:
                         break
@@ -196,7 +196,7 @@ class Router:
             log.debug(f'Ignore ring route {package.get_json()}')
             return
 
-        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
+        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router.keys():
             self.router[package.source_id()] = package.last_path_lane()
 
         if package.get_ttl() == 0:
@@ -219,7 +219,7 @@ class Router:
             return
 
         lane_id, _ = package.get_path(index)[0], package.get_path(index)[1]
-        if package.source_id() not in self.router:
+        if package.source_id() not in self.router.keys():
             log.debug(f'Update router {package.source_id()}: {lane_id}')
             self.router[package.source_id()] = lane_id
         else:
