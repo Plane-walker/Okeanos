@@ -74,15 +74,17 @@ class CrossChainCommunicationProtocol:
                     tx_json['header']['type'] = 'normal'
                     self.send(island, tx_json)
                 else:
-                    lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
-                    if lane is not None and not isinstance(lane, list):
-                        if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
-                            tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
-                            self.send(lane, tx_json)
+                    def gossip():
+                        lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
+                        if lane is not None and not isinstance(lane, list):
+                            if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
+                                tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
+                                self.send(lane, tx_json)
+                            else:
+                                log.debug(f'Ignore the same message {tx_json}')
                         else:
-                            log.debug(f'Ignore the same message {tx_json}')
-                    else:
-                        log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+                            log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+                    self.pool.submit(gossip)
             return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
         except Exception as exception:
             log.error(repr(exception))

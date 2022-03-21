@@ -32,7 +32,8 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
     'paths': (array(string)/),
     'source_chain_id': (string),
     'target_chain_id': (string),
-    'auth': {'app_id': (string)}
+    'auth': {'app_id': (string)},
+    'timestamp': time.time(),
   }
   'body': {'key': (string), 'value': (string)/ 'public_key': (string), 'power': (int)/'query': (string)}
 }
