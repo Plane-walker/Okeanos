@@ -46,7 +46,7 @@ class Dock:
         self.config_path = config_path
         self.chain_manager = ChainManager(config_path=config_path)
         cross_chain_community_protocol = CrossChainCommunicationProtocol(config_path, self.chain_manager)
-        network_optimizer = NetworkOptimizer(config_path=config_path)
+        network_optimizer = NetworkOptimizer(config_path=config_path, chain_manager=self.chain_manager)
         self.dock_server = DockServer(cross_chain_community_protocol, network_optimizer)
 
     def run(self):

@@ -6,6 +6,7 @@ from concurrent import futures
 import grpc
 import base64
 import yaml
+import time
 from interface.dci import dci_pb2_grpc
 import unittest
 
@@ -31,14 +32,15 @@ class TestCCCP(unittest.TestCase):
         server.start()
         message = {
             "header": {
-                "type": "normal",
+                "type": "write",
                 "ttl": -1,
                 "paths": [],
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -51,17 +53,18 @@ class TestCCCP(unittest.TestCase):
         requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
         message = {
             "header": {
-                "type": "normal",
+                "type": "read",
                 "ttl": -1,
                 "paths": [],
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
-                "query": "test_key",
+                "key": "test_key"
             }
         }
         params = (

@@ -72,11 +72,12 @@ class GraphData:
                         "source_chain_id": self._labels[config['app']['app_id']],
                         "target_chain_id": self._labels[neighbor_id],
                         "auth": {
-                            "app_id": "0"
-                        }
+                            "app_id": config['app']['app_id']
+                        },
+                        "time": str(time.time())
                     },
                     "body": {
-                        "query": neighbor_id,
+                        "app_id": neighbor_id
                     }
                 }
             params = (
@@ -86,7 +87,7 @@ class GraphData:
 
             message = {
                 "header": {
-                    "type": "normal",
+                    "type": "read",
                     "ttl": -1,
                     "index": -1,
                     "paths": [],
@@ -94,10 +95,11 @@ class GraphData:
                     "target_chain_id": "",
                     "auth": {
                         "app_id": "0"
-                    }
+                    },
+                    "time": str(time.time())
                 },
                 "body": {
-                    "query": f"response_for_query_{neighbor_id}",
+                    "key": f"response_for_query_{neighbor_id}",
                 }
             }
             params = (
