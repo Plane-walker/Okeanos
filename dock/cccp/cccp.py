@@ -13,6 +13,7 @@ import base64
 from log import log
 import sys
 from dock.router import Router
+import socket
 
 
 @unique
@@ -30,36 +31,28 @@ class CrossChainCommunicationProtocol:
         self.chain_manager = chain_manager
         self._config_path = config_path
 
-    def send(self, chain, tx_json):
-        try:
-            if not self.judge_validator(tx_json):
-                return
-            with open(self._config_path) as file:
-                config = yaml.load(file, Loader=yaml.Loader)
-            message = {
-                "header": {
-                    "type": tx_json['header']['type'],
-                    "ttl": tx_json['header']['ttl'],
-                    "paths": tx_json['header']['paths'],
-                    "source_chain_id": tx_json['header']['source_chain_id'],
-                    "target_chain_id": tx_json['header']['target_chain_id'],
-                    "auth": {
-                        "app_id": config['app']['app_id']
-                    }
-                },
-                "body": tx_json['body']
-            }
-            params = (
-                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-            )
-            log.info(f'Send to {chain.chain_name}: {chain.chain_id}')
+    def rpc_request_async(self, url, params):
+        def rpc_request():
+            requests.get(url, params=params)
+        self.pool.submit(rpc_request)
 
-            def rpc_request():
-                response = requests.get(f'http://localhost:{chain.rpc_port}/broadcast_tx_commit', params=params)
-                log.info(f'{chain.chain_name} return: {response}')
-            self.pool.submit(rpc_request)
-        except Exception as exception:
-            log.error(f'{repr(exception)}')
+    def dispatch_async(self, request):
+        def dispatch():
+            tx_json = json.loads(request.tx.decode('utf-8'))
+            lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
+            if lane is not None and not isinstance(lane, list):
+                if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
+                    tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
+                    params = (
+                        ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                    )
+                    log.info(f'Send to {lane.chain_name}: {lane.chain_id}')
+                    self.rpc_request_async(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params)
+                else:
+                    log.debug(f'Ignore the same message {tx_json}')
+            else:
+                log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+        self.pool.submit(dispatch)
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
         try:
@@ -71,20 +64,14 @@ class CrossChainCommunicationProtocol:
                 log.debug(f'Cross write tx: {tx_json}')
                 island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
                 if island is not None:
-                    tx_json['header']['type'] = 'normal'
-                    self.send(island, tx_json)
+                    tx_json['header']['type'] = 'write'
+                    params = (
+                        ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                    )
+                    log.info(f'Send to {island.chain_name}: {island.chain_id}')
+                    self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 else:
-                    def gossip():
-                        lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
-                        if lane is not None and not isinstance(lane, list):
-                            if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
-                                tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
-                                self.send(lane, tx_json)
-                            else:
-                                log.debug(f'Ignore the same message {tx_json}')
-                        else:
-                            log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
-                    self.pool.submit(gossip)
+                    self.dispatch_async(request)
             return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
         except Exception as exception:
             log.error(repr(exception))
@@ -141,10 +128,36 @@ class CrossChainCommunicationProtocol:
         if self.judge_validator(tx_json):
             island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
             if island is not None:
-                if tx_json['header']['type'] == 'cross_query':
-                    tx_json['header']['type'] = 'normal'
+                if tx_json['header']['type'] == 'cross_read':
+                    tx_json['header']['type'] = 'read'
                 elif tx_json['header']['type'] == 'cross_graph':
                     tx_json['header']['type'] = 'graph'
+                elif tx_json['header']['type'] == 'join':
+                    with open(self._config_path) as file:
+                        config = yaml.load(file, Loader=yaml.Loader)
+                    hostname = socket.gethostname()
+                    ip = socket.gethostbyname(hostname)
+                    message = {
+                        "header": {
+                            "type": "cross_write",
+                            "ttl": tx_json['header']['ttl'],
+                            "paths": [],
+                            "source_chain_id": tx_json['header']['target_chain_id'],
+                            "target_chain_id": tx_json['header']['source_chain_id'],
+                            "auth": {
+                                "app_id": config['app']['app_id']
+                            }
+                        },
+                        "body": {
+                            "island": [f'{ip}:{island.rpc_port}' for island in self.chain_manager.get_island()],
+                            "lane": [f'{ip}:{lane.rpc_port}' for lane in self.chain_manager.get_lane()]
+                        }
+                    }
+                    params = (
+                        ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+                    )
+                    log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
+                    self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 params = (
                     ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                 )
@@ -165,19 +178,15 @@ class CrossChainCommunicationProtocol:
                         }
                     },
                     "body": {
-                        "key": f"response_for_query_{tx_json['body']['query']}",
+                        "key": f"response_for_query_{tx_json['body']['key']}",
                         "value": json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
                     }
                 }
                 params = (
                     ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
                 )
-
-                def rpc_request():
-                    log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
-                    rpc_response = requests.get(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params=params)
-                    log.info(f'{island.chain_name} return: {rpc_response}')
-                self.pool.submit(rpc_request)
+                log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
+                self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
             else:
                 lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
                 if lane is not None and not isinstance(lane, list):
@@ -187,12 +196,8 @@ class CrossChainCommunicationProtocol:
                         params = (
                             ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                         )
-
-                        def rpc_request():
-                            log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
-                            rpc_response = requests.get(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params=params)
-                            log.info(f'{lane.chain_name} return: {rpc_response}')
-                        self.pool.submit(rpc_request)
+                        log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
+                        self.rpc_request_async(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params)
                     else:
                         log.debug(f'Ignore the same message {tx_json}')
                 else:

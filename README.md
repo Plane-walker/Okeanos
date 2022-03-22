@@ -27,7 +27,7 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
 {
   'header':
   {
-    'type': (string/'normal', 'cross_write', 'cross_query', 'cross_graph', 'route', 'validate', 'graph'),
+    'type': (string/'write', 'cross_write', 'read', 'cross_read', 'graph', 'cross_graph', 'route', 'validate', 'join'),
     'ttl': (int/-1),
     'paths': (array(string)/),
     'source_chain_id': (string),
@@ -35,6 +35,6 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
     'auth': {'app_id': (string)},
     'timestamp': time.time(),
   }
-  'body': {'key': (string), 'value': (string)/ 'public_key': (string), 'power': (int)/'query': (string)}
+  'body': {'key': (string), 'value': (string)/ 'public_key': (string), 'power': (int)/'key': (string)}
 }
 ```

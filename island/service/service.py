@@ -91,7 +91,7 @@ class IslandService(BaseApplication):
             log.info(f'Check for tx {tx_json}({self.app_id})')
         except Exception as exception:
             log.error(repr(exception))
-            return types_pb2.ResponseDeliverTx(code=ErrorCode, data=repr(exception).encode('utf-8'))
+            return types_pb2.ResponseQuery(code=ErrorCode)
         return types_pb2.ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
@@ -99,7 +99,7 @@ class IslandService(BaseApplication):
             tx_json = json.loads(tx.decode('utf-8'))
             log.info(f'Received tx {tx_json}({self.app_id})')
             message_type = tx_json['header']['type']
-            if message_type == 'normal':
+            if message_type == 'write':
                 key = tx_json['body']['key'].encode('utf-8')
                 try:
                     value = self.db.Get(key)
@@ -150,8 +150,8 @@ class IslandService(BaseApplication):
         try:
             tx_json = json.loads(req.data.decode('utf-8'))
             message_type = tx_json['header']['type']
-            if message_type == 'normal':
-                value = self.db.Get(tx_json['body']['query'].encode('utf-8'))
+            if message_type == 'read':
+                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
                 data_json = json.loads(value.decode('utf-8'))
                 keeper = data_json['keeper']
                 if tx_json['header']['auth']['app_id'] == self.app_id and tx_json['header']['auth']['app_id'] != keeper['app_id']:
@@ -177,7 +177,7 @@ class IslandService(BaseApplication):
                     log.info('Call dock grpc: UpdateGraphDta')
                     client = dci_pb2_grpc.DockStub(channel)
                     request = dci_pb2.RequestGetGraphData()
-                    request.app_id.append(tx_json['body']['query'])
+                    request.app_id.append(tx_json['body']['app_id'])
                     response = client.GetGraphData(request)
                     graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
                                    'source_app_info': response.node_connections[index].source_app_info,
@@ -187,7 +187,7 @@ class IslandService(BaseApplication):
                                    'target_app_chain_id': response.node_connections[index].target_app_chain_id,
                                    'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
-            elif message_type == 'cross_query' or message_type == 'cross_graph':
+            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
                 request_query = dci_pb2.RequestQuery(tx=req.data)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: Query')

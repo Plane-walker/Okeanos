@@ -98,7 +98,7 @@ class LaneService(BaseApplication):
             tx_json = json.loads(tx.decode('utf-8'))
             log.info(f'Deliver tx {tx_json}')
             message_type = tx_json['header']['type']
-            if message_type == 'normal':
+            if message_type == 'write':
                 key = tx_json['body']['key'].encode('utf-8')
                 try:
                     value = self.db.Get(key)
@@ -120,13 +120,11 @@ class LaneService(BaseApplication):
                 value_json['value'] = tx_json['body']['value']
                 value = json.dumps(value_json)
                 self.db.Put(key, value.encode('utf-8'))
-                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(
                     pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
-                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'route':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
@@ -134,7 +132,6 @@ class LaneService(BaseApplication):
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
-                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
@@ -144,25 +141,19 @@ class LaneService(BaseApplication):
                     log.warning(f'client {repr(client)}')
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
-                return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'cross_query':
+            elif message_type == 'cross_read' or 'cross_graph' or 'join':
                 request_query = dci_pb2.RequestQuery(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.Query(request_query)
                     log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'graph':
-                log.warning(f'Received graph message: {tx_json}')
             else:
                 raise ValueError('type of message is not supported')
             return types_pb2.ResponseDeliverTx(code=OkCode)
         except Exception as exception:
             log.error(repr(exception))
-            return types_pb2.ResponseDeliverTx(
-                code=ErrorCode, data=repr(exception).encode('utf-8')
-            )
+            return types_pb2.ResponseDeliverTx(code=ErrorCode)
 
     def query(self, req) -> types_pb2.ResponseQuery:
         try:
@@ -175,7 +166,7 @@ class LaneService(BaseApplication):
             return types_pb2.ResponseQuery(code=OkCode)
         except Exception as exception:
             log.error(repr(exception))
-            return types_pb2.ResponseQuery(code=ErrorCode, value=repr(exception).encode('utf-8'))
+            return types_pb2.ResponseQuery(code=ErrorCode)
 
     def commit(self) -> types_pb2.ResponseCommit:
         """Return the current encode state value to tendermint"""

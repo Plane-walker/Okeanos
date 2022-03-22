@@ -66,13 +66,13 @@ class TestRouter(unittest.TestCase):
             "header": {
                 "type": "cross_write",
                 "ttl": -1,
-                "index": -1,
                 "paths": [],
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -89,18 +89,18 @@ class TestRouter(unittest.TestCase):
         # query_txs
         message = {
             "header": {
-                "type": "normal",
+                "type": "read",
                 "ttl": -1,
-                "index": -1,
                 "paths": [],
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
-                "query": "test_key",
+                "key": "test_key"
             }
         }
         params = (
@@ -121,18 +121,18 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
         message = {
             "header": {
-                "type": "cross_query",
+                "type": "cross_read",
                 "ttl": -1,
-                "index": -1,
                 "paths": [],
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
-                "query": "test_key",
+                "key": "test_key",
             }
         }
         params = (
@@ -142,18 +142,18 @@ class TestRouter(unittest.TestCase):
 
         message = {
             "header": {
-                "type": "normal",
+                "type": "read",
                 "ttl": -1,
-                "index": -1,
                 "paths": [],
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
                     "app_id": "0"
-                }
+                },
+                "time": str(time.time())
             },
             "body": {
-                "query": "response_for_query_test_key",
+                "key": "response_for_query_test_key",
             }
         }
         params = (
