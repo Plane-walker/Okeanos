@@ -63,6 +63,12 @@ class ChainManager:
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
+                     f"sed -i " \
+                     f"'s#max_subscription_clients = 100#max_subscription_clients = 8000#g' " \
+                     f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
+                     f"sed -i " \
+                     f"'s#max_subscriptions_per_client = 5#max_subscriptions_per_client = 400#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;"
         subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
 
