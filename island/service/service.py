@@ -91,7 +91,7 @@ class IslandService(BaseApplication):
             log.info(f'Check for tx {tx_json}({self.app_id})')
         except Exception as exception:
             log.error(repr(exception))
-            return types_pb2.ResponseQuery(code=ErrorCode)
+            return types_pb2.ResponseCheckTx(code=ErrorCode)
         return types_pb2.ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
