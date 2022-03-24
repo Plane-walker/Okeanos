@@ -69,19 +69,20 @@ class Router:
             package = RouteMessage.from_tx(tx)
             ttl = self.config['ttl']
             while True:
-                if package.target_id() in self.router:
+                if package.target_id() in self.router.keys():
                     return self.router[package.target_id()]
-                log.info(f'Searching with {package.get_json()}')
+                log.info(f'Searching {package.target_id()}')
                 if ttl > self.config['max_ttl']:
                     return None
                 package.set_ttl(ttl)
                 if package.get_paths_copy() is None:
                     package.init_paths()
+                log.debug(f'Gossip {package.get_json()}')
                 self.gossip(package)
                 start_time = datetime.datetime.now()
                 timeout = ttl * 2
                 while True:
-                    if package.target_id() in self.router:
+                    if package.target_id() in self.router.keys():
                         return self.router[package.target_id()]
                     if (datetime.datetime.now() - start_time).seconds > timeout:
                         break
@@ -113,7 +114,7 @@ class Router:
         package.set_type('route')
         if not self.judge_validator(package):
             return
-        log.info(f'Connect to http://localhost:'
+        log.debug(f'Connect to http://localhost:'
                  f'{self.chain_manager.get_lane(lane_id).rpc_port} '
                  f'with {package.get_json()}')
         params = (('tx', package.get_hex()), )
@@ -124,7 +125,7 @@ class Router:
                 f'{self.chain_manager.get_lane(lane_id).rpc_port}'
                 f'/broadcast_tx_commit',
                 params=params)
-            log.info(f'Get response code: {response}')
+            log.info(f'Get response from {lane_id}: {response}')
         self.pool.submit(rpc_request)
 
     # Judge the minimum editing distance validator
@@ -177,7 +178,7 @@ class Router:
             if package.source_id() == self.island_id:
                 log.debug(f'Ignore from self {package.get_json()}')
                 return
-            log.info(f'Receive {package.get_json()}')
+            log.info(f'Route from {package.source_id()} to {package.target_id()}')
             if package.is_transmit():
                 log.debug(f'Transmit {package.get_json()}')
                 self.transmit(package)
@@ -185,18 +186,17 @@ class Router:
                 log.debug(f'Callback {package.get_json()}')
                 self.callback(package)
             else:
-                log.info('Ignore when ttl == 0')
+                log.debug('Ignore when ttl == 0')
         except Exception as exception:
             log.error(f'Receiver Error: {repr(exception)}')
 
     def transmit(self, package: RouteMessage):
-        log.debug('Transmit . . .')
 
         if self.island_id in package.get_paths_islands_copy():
             log.debug(f'Ignore ring route {package.get_json()}')
             return
 
-        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router:
+        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router.keys():
             self.router[package.source_id()] = package.last_path_lane()
 
         if package.get_ttl() == 0:
@@ -211,15 +211,14 @@ class Router:
             self.gossip(package)
 
     def callback(self, package: RouteMessage):
-        log.debug('Callback . . .')
 
         index = package.get_island_index(self.island_id)
         if index == -1:
-            log.error(f'Not found {self.island_id} in {package.get_json()}')
+            log.debug(f'Not found {self.island_id} in {package.get_json()}')
             return
 
         lane_id, _ = package.get_path(index)[0], package.get_path(index)[1]
-        if package.source_id() not in self.router:
+        if package.source_id() not in self.router.keys():
             log.debug(f'Update router {package.source_id()}: {lane_id}')
             self.router[package.source_id()] = lane_id
         else:
@@ -233,7 +232,7 @@ class Router:
         index -= 1
         path = package.get_path(index)
         if path is None:
-            log.error(f'Not found the {index} path {package.get_json()}')
+            log.debug(f'Not found the {index} path {package.get_json()}')
             return
         lane_id, _ = path[0], path[1]
         self.sender(lane_id, package)
