@@ -26,7 +26,7 @@ class CrossChainCommunicationProtocol:
 
     def __init__(self, config_path, chain_manager):
         self.lane = None
-        self.pool = futures.ThreadPoolExecutor(max_workers=10)
+        self.pool = futures.ThreadPoolExecutor(max_workers=1000)
         self.router = Router(config_path, chain_manager, self.pool)
         self.chain_manager = chain_manager
         self._config_path = config_path
@@ -51,7 +51,7 @@ class CrossChainCommunicationProtocol:
                 else:
                     log.debug(f'Ignore the same message {tx_json}')
             else:
-                log.error(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
+                log.warning(f"No chain to transfer tx: {str(json.dumps(tx_json).encode('utf-8'))}")
         self.pool.submit(dispatch)
 
     def deliver_tx(self, request: dci_pb2.RequestDeliverTx):
@@ -65,6 +65,7 @@ class CrossChainCommunicationProtocol:
                 island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
                 if island is not None:
                     tx_json['header']['type'] = 'write'
+                    tx_json['header']['paths'] = []
                     params = (
                         ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                     )
@@ -202,7 +203,7 @@ class CrossChainCommunicationProtocol:
                         else:
                             log.debug(f'Ignore the same message {tx_json}')
                     else:
-                        log.error(f'No chain to transfer tx')
+                        log.warning(f'No chain to transfer tx')
                         return dci_pb2.ResponseQuery(code=TxDeliverCode.FAIL.value)
             return dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
         except Exception as exception:

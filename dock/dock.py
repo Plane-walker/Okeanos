@@ -61,7 +61,7 @@ class Dock:
                 self.chain_manager.join_chain(chain_name)
         log.info('All chains started')
         log.info('Begin to bring up dock service')
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1000))
         dci_pb2_grpc.add_DockServicer_to_server(self.dock_server, server)
         host = config['dock']['address']['host']
         port = config['dock']['address']['port']
