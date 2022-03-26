@@ -24,9 +24,9 @@ class TxDeliverCode(Enum):
 
 class CrossChainCommunicationProtocol:
 
-    def __init__(self, config_path, chain_manager):
+    def __init__(self, config_path, chain_manager, pool):
         self.lane = None
-        self.pool = futures.ThreadPoolExecutor(max_workers=1000)
+        self.pool = pool
         self.router = Router(config_path, chain_manager, self.pool)
         self.chain_manager = chain_manager
         self._config_path = config_path
@@ -160,6 +160,7 @@ class CrossChainCommunicationProtocol:
                         )
                         log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
                         self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
+                        return dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
                     params = (
                         ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                     )

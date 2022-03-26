@@ -40,7 +40,7 @@ class TestCCCP(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -61,7 +61,7 @@ class TestCCCP(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key"

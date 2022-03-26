@@ -40,7 +40,7 @@ class TestGraphData(unittest.TestCase):
                 "auth": {
                     "app_id": "1"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -61,7 +61,7 @@ class TestGraphData(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key"
@@ -81,10 +81,10 @@ class TestGraphData(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
-                "app_id": "0",
+                "key": "0",
             }
         }
         params = (
