@@ -37,6 +37,7 @@ class Router:
         with open(config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         self.config = config['router']
+        self.config['app'] = config['app']
         route_path = os.path.join(os.path.dirname(config_path),
                                   self.config['route_path'])
         if os.path.exists(route_path):
@@ -55,7 +56,7 @@ class Router:
             try:
                 log.info('Periodical Gossip . . .')
                 target = uuid.uuid4().hex
-                package = RouteMessage.from_data(self.island_id, target,
+                package = RouteMessage.from_data(self.island_id, target, self.config['app']['app_id'], 
                                                  'route', self.config['ttl'])
                 package.init_paths()
                 self.gossip(package)
