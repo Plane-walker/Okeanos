@@ -45,8 +45,9 @@ class Dock:
     def __init__(self, config_path):
         self.config_path = config_path
         self.chain_manager = ChainManager(config_path=config_path)
-        cross_chain_community_protocol = CrossChainCommunicationProtocol(config_path, self.chain_manager)
-        network_optimizer = NetworkOptimizer(config_path=config_path, chain_manager=self.chain_manager)
+        pool = futures.ThreadPoolExecutor(max_workers=1000)
+        cross_chain_community_protocol = CrossChainCommunicationProtocol(config_path, self.chain_manager, pool)
+        network_optimizer = NetworkOptimizer(config_path, self.chain_manager, pool)
         self.dock_server = DockServer(cross_chain_community_protocol, network_optimizer)
 
     def run(self):

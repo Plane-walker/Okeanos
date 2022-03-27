@@ -72,7 +72,7 @@ class TestRouter(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -97,7 +97,7 @@ class TestRouter(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key"
@@ -129,7 +129,7 @@ class TestRouter(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "test_key",
@@ -150,7 +150,7 @@ class TestRouter(unittest.TestCase):
                 "auth": {
                     "app_id": "0"
                 },
-                "time": str(time.time())
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": "response_for_query_test_key",

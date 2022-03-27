@@ -122,6 +122,9 @@ class IslandService(BaseApplication):
                 value = json.dumps(value_json)
                 self.db.Put(key, value.encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            if message_type == 'delete':
+                self.db.Delete(tx_json['body']['key'].encode('utf-8'))
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(
                     tx=tx,
@@ -177,7 +180,7 @@ class IslandService(BaseApplication):
                     log.info('Call dock grpc: UpdateGraphDta')
                     client = dci_pb2_grpc.DockStub(channel)
                     request = dci_pb2.RequestGetGraphData()
-                    request.app_id.append(tx_json['body']['app_id'])
+                    request.app_id.append(tx_json['body']['key'])
                     response = client.GetGraphData(request)
                     graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
                                    'source_app_info': response.node_connections[index].source_app_info,
