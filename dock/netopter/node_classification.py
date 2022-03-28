@@ -62,7 +62,7 @@ class GraphSAGEModel(NodeClassificationModel):
                                input_dim=config['GNN']['graphSAGE']['input_dim'],
                                multiplicity=1)
         x_input, x_output = graph_sage.in_out_tensors()
-        prediction = layers.Dense(units=labels.shape[1], activation="softmax")(x_output)
+        prediction = layers.Dense(units=config['GNN']['graphSAGE']['output_dim'], activation="softmax")(x_output)
         model = Model(inputs=x_input, outputs=prediction)
         model.compile(
             optimizer=optimizers.Adam(lr=0.005),
