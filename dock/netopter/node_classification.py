@@ -4,15 +4,15 @@ __all__ = [
 ]
 
 import tensorflow as tf
-from tensorflow.keras import optimizers, losses, metrics, Model
+from tensorflow.keras import optimizers, losses, Model, layers
 from abc import ABC, abstractmethod
 import yaml
 import os
 from log import log
 import numpy as np
-from .graph_sage import GraphSAGE
-from ..util import link_classification, sample_features, sample_features_unsupervised
-from .sequence import NodeSequence, OnDemandLinkSequence
+from dock.netopter.graph_sage import GraphSAGE
+from dock.util import sample_features
+from dock.netopter.sequence import NodeSequence
 
 
 class NodeClassificationModel(ABC):
@@ -60,16 +60,14 @@ class GraphSAGEModel(NodeClassificationModel):
         graph_sage = GraphSAGE(layer_sizes=config['GNN']['graphSAGE']['hidden_dims'],
                                n_samples=config['GNN']['graphSAGE']['sample_size'],
                                input_dim=config['GNN']['graphSAGE']['input_dim'],
-                               multiplicity=2)
+                               multiplicity=1)
         x_input, x_output = graph_sage.in_out_tensors()
-        prediction = link_classification(
-            output_dim=1, output_act="sigmoid", edge_embedding_method="ip"
-        )(x_output)
+        prediction = layers.Dense(units=labels.shape[1], activation="softmax")(x_output)
         model = Model(inputs=x_input, outputs=prediction)
         model.compile(
-            optimizer=optimizers.Adam(lr=1e-3),
-            loss=losses.binary_crossentropy,
-            metrics=[metrics.binary_accuracy],
+            optimizer=optimizers.Adam(lr=0.005),
+            loss=losses.categorical_crossentropy,
+            metrics=["acc"],
         )
         return model, x_input, x_output
 
@@ -87,22 +85,24 @@ class GraphSAGEModel(NodeClassificationModel):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         id_map, features, adjacency_matrix, labels = data.get_all_data()
-        train_seq = OnDemandLinkSequence(sample_features_unsupervised,
-                                         config['GNN']['graphSAGE']['batch_size'],
-                                         adjacency_matrix,
-                                         features,
-                                         config['GNN']['graphSAGE']['sample_size'])
+        train_cut = features.shape[0] // 10 * 8
+        train_seq = NodeSequence(sample_features,
+                                 config['GNN']['graphSAGE']['batch_size'],
+                                 list(range(0, train_cut)),
+                                 adjacency_matrix,
+                                 features,
+                                 config['GNN']['graphSAGE']['sample_size'],
+                                 targets=labels[list(range(0, train_cut))])
+        test_seq = NodeSequence(sample_features,
+                                config['GNN']['graphSAGE']['batch_size'],
+                                list(range(train_cut, features.shape[0])),
+                                adjacency_matrix,
+                                features,
+                                config['GNN']['graphSAGE']['sample_size'],
+                                targets=labels[list(range(train_cut, features.shape[0]))])
         self.model.fit(
-            train_seq,
-            epochs=config['GNN']['graphSAGE']['epochs'],
-            verbose=2,
-            use_multiprocessing=False,
-            workers=4,
-            shuffle=True,
+            train_seq, epochs=20, validation_data=test_seq, verbose=2, shuffle=False
         )
-        x_inp_src = self.x_input[0::2]
-        x_out_src = self.x_output[0]
-        self.model = tf.keras.Model(inputs=x_inp_src, outputs=x_out_src)
 
     def predict(self, data):
         with open(self.config_path) as file:
@@ -115,11 +115,13 @@ class GraphSAGEModel(NodeClassificationModel):
                             features,
                             config['GNN']['graphSAGE']['sample_size'])
         node_embeddings = self.model.predict(node, workers=4, verbose=1)
-        log.info(f'GraphSAGE predict node_embeddings is {node_embeddings}')
-        self_index = np.where(id_map == config['app']['app_id'])
-        node_embedding = node_embeddings[self_index]
-        group = np.where(node_embeddings == node_embedding)
-        for vertex_index in group:
+        self_index = np.argwhere(id_map == config['app']['app_id'])[0][0]
+        log.info(f'Node embedding is {node_embeddings[self_index]}')
+        node_classes = np.argmax(node_embeddings, axis=1)
+        self_index = config['app']['app_id']
+        node_class = node_classes[self_index]
+        group = np.where(node_class == node_classes)
+        for vertex_index in np.nditer(group):
             if vertex_index != self_index:
                 return labels[vertex_index]
         return labels[self_index]
