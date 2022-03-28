@@ -3,7 +3,7 @@ __all__ = [
 ]
 
 import json
-
+import time
 
 class RouteMessage:
 
@@ -19,36 +19,39 @@ class RouteMessage:
             body = tx_json.get('body')
             if header is None or body is None:
                 raise ValueError('tx must have header and body')
-            return cls(header['source_chain_id'], header['target_chain_id'],
-                       header['type'], header['paths'], header['ttl'], body)
+            return cls(header, body)
 
     @classmethod
     def from_data(cls,
                   source,
                   target,
+                  app_id,
                   typ=None,
                   ttl=None,
                   paths=None):
-        body = {}
-        return cls(source, target, typ, paths, ttl, body)
-
-    def __init__(self, source: str, target: str, typ, paths, ttl, body):
-        self.header = {
-            'source': source,
-            'target': target,
+        header = {
+            'type': typ,
+            'ttl': ttl,
+            'paths': [] if paths is None else paths,
+            'source_chain_id': source,
+            'target_chain_id': target,
+            'auth': {
+                'app_id': app_id
+            },
+            'timestamp': str(time.time()),
         }
+        body = {}
+        return cls(header, body)
+
+    def __init__(self, header, body):
+        self.header = header
         self.body = body if body is not None else {}
-        if typ is not None:
-            self.header['type'] = typ
-        if paths is not None:
-            self.header['paths'] = paths
-        self.header['ttl'] = ttl if ttl is not None else -1
 
     def target_id(self):
-        return self.header['target']
+        return self.header['target_chain_id']
 
     def source_id(self):
-        return self.header['source']
+        return self.header['source_chain_id']
 
     def get_type(self):
         return self.header['type'] if 'type' in self.header else None
@@ -126,22 +129,15 @@ class RouteMessage:
         return 'ttl' in self.header and self.header['ttl'] < 0
 
     def get_json(self):
-        header = {
-            'ttl': self.header['ttl'],
-            'source_chain_id': self.header['source'],
-            'target_chain_id': self.header['target'],
-            'paths': self.header['paths'],
-            'type': self.header['type']
-        }
-        msg = {'header': header, 'body': {}}
+        msg = {'header': self.header, 'body': self.body}
         return json.dumps(msg).encode('utf-8')
 
     def get_hex(self) -> str:
         return '0x' + self.get_json().hex()
 
     def to_callback(self):
-        source = self.header['source']
-        self.header['source'] = self.header['target']
-        self.header['target'] = source
+        source = self.header['source_chain_id']
+        self.header['source_chain_id'] = self.header['target_chain_id']
+        self.header['target_chain_id'] = source
         self.header['type'] = 'route'
         self.header['ttl'] = -1
