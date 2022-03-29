@@ -118,7 +118,7 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain'][chain_name]['rpc_port']))
+        location = ("localhost", int(config['chain_manager']['chain'][chain_name]['abci_port']))
         start_time = datetime.datetime.now()
         timeout = 15
         while True:
@@ -201,6 +201,12 @@ class ChainManager:
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
         requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+        self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
+                                           chain_id,
+                                           chain_pid,
+                                           service_pid,
+                                           chain_name,
+                                           config['chain_manager']['chain'][chain_name]['rpc_port'])
         log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def stop_chain(self, chain_id):
@@ -215,6 +221,7 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         chain_name = self._chains[chain_id].chain_name
         self.stop_chain(chain_id)
+        del self._chains[chain_id]
         remove_path = f"rm -rf {config['chain_manager']['base_path']}/{chain_name}"
         subprocess.run(remove_path,
                        shell=True,

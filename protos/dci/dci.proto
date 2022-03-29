@@ -41,7 +41,7 @@ message RequestRouterPathCallback {
 }
 
 message RequestSwitchIsland {
-    string target_community = 1;
+    string chain_id = 1;
 }
 
 message NodeConnection {

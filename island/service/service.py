@@ -107,7 +107,7 @@ class IslandService(BaseApplication):
                     log.info(repr(exception))
                     with open(f"{self.db_path}/config/genesis.json") as file:
                         genesis = yaml.load(file, Loader=yaml.Loader)
-                    chain_id = genesis['chain_id']
+                    chain_id = genesis['chain_id'] if tx_json['header']['source_chain_id'] == '' else tx_json['header']['source_chain_id']
                     value = json.dumps({
                         'value': tx_json['body']['value'],
                         'keeper': {
@@ -122,9 +122,18 @@ class IslandService(BaseApplication):
                 value = json.dumps(value_json)
                 self.db.Put(key, value.encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            if message_type == 'delete':
+            elif message_type == 'delete':
                 self.db.Delete(tx_json['body']['key'].encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'switch':
+                if tx_json['header']['auth']['app_id'] == self.app_id:
+                    request_switch_island = dci_pb2.RequestSwitchIsland(chain_id=tx_json['body']['chain_id'])
+                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                        log.info('Call dock grpc: SwitchIsland')
+                        client = dci_pb2_grpc.DockStub(channel)
+                        response = client.SwitchIsland(request_switch_island)
+                        log.info(f'Dock return with status code: {response.code}')
+                    return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(
                     tx=tx,

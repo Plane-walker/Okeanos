@@ -137,8 +137,15 @@ class CrossChainCommunicationProtocol:
                     elif tx_json['header']['type'] == 'join':
                         with open(self._config_path) as file:
                             config = yaml.load(file, Loader=yaml.Loader)
-                        hostname = socket.gethostname()
-                        ip = socket.gethostbyname(hostname)
+                        if config['app']['fixed_server_ip']:
+                            ip = config['app']['server_ip']
+                        else:
+                            hostname = socket.gethostname()
+                            ip = socket.gethostbyname(hostname)
+                        join_info = {
+                            "island": [f'{ip}:{island.rpc_port}' for island in self.chain_manager.get_island()],
+                            "lane": [f'{ip}:{lane.rpc_port}' for lane in self.chain_manager.get_lane()]
+                        }
                         message = {
                             "header": {
                                 "type": "cross_write",
@@ -151,8 +158,9 @@ class CrossChainCommunicationProtocol:
                                 }
                             },
                             "body": {
-                                "island": [f'{ip}:{island.rpc_port}' for island in self.chain_manager.get_island()],
-                                "lane": [f'{ip}:{lane.rpc_port}' for lane in self.chain_manager.get_lane()]
+                                "key": f"response_for_query_join_{tx_json['header']['target_chain_id']}",
+                                "value": join_info
+
                             }
                         }
                         params = (
