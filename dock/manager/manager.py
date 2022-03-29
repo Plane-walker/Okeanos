@@ -118,7 +118,7 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain'][chain_name]['abci_port']))
+        location = ("localhost", int(config['chain_manager']['chain'][chain_name]['rpc_port']))
         start_time = datetime.datetime.now()
         timeout = 15
         while True:
