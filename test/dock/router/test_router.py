@@ -19,18 +19,18 @@ class TestRouter(unittest.TestCase):
     def test_router(self):
         current_path = os.path.dirname(__file__)
         dock_config_path = os.path.join(current_path, 'config/dock.yaml')
-        self.dock = Dock(dock_config_path)
-        with open(self.dock.config_path) as file:
+        dock = Dock(dock_config_path)
+        with open(dock.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         dock_manager_path = config['chain_manager']['base_path']
         for chain_name in config['chain_manager']['chain'].keys():
-            self.dock.chain_manager.init_chain(chain_name)
+            dock.chain_manager.init_chain(chain_name)
             if not config['chain_manager']['chain'][chain_name]['join']:
-                self.dock.chain_manager.add_chain(chain_name)
+                dock.chain_manager.add_chain(chain_name)
             else:
-                self.dock.chain_manager.join_chain(chain_name)
+                dock.chain_manager.join_chain(chain_name)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        dci_pb2_grpc.add_DockServicer_to_server(self.dock.dock_server, server)
+        dci_pb2_grpc.add_DockServicer_to_server(dock.dock_server, server)
         host = config['dock']['address']['host']
         port = config['dock']['address']['port']
         server.add_insecure_port(f'{host}:{port}')
@@ -39,15 +39,15 @@ class TestRouter(unittest.TestCase):
         dock_1_config_path = os.path.join(current_path, 'config/dock1.yaml')
         with open(dock_1_config_path) as file:
             config_1 = yaml.load(file, Loader=yaml.Loader)
-        self.dock_1 = Dock(dock_1_config_path)
+        dock_1 = Dock(dock_1_config_path)
         for chain_name in config_1['chain_manager']['chain'].keys():
-            self.dock_1.chain_manager.init_chain(chain_name)
+            dock_1.chain_manager.init_chain(chain_name)
             if not config_1['chain_manager']['chain'][chain_name]['join']:
-                self.dock_1.chain_manager.add_chain(chain_name)
+                dock_1.chain_manager.add_chain(chain_name)
             else:
-                self.dock_1.chain_manager.join_chain(chain_name)
+                dock_1.chain_manager.join_chain(chain_name)
         server_1 = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        dci_pb2_grpc.add_DockServicer_to_server(self.dock_1.dock_server, server_1)
+        dci_pb2_grpc.add_DockServicer_to_server(dock_1.dock_server, server_1)
         host_1 = config_1['dock']['address']['host']
         port_1 = config_1['dock']['address']['port']
         server_1.add_insecure_port(f'{host_1}:{port_1}')
@@ -173,10 +173,10 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
 
         # delete chains
-        for chain in self.dock.chain_manager.select_chain(lambda single: True):
-            self.dock.chain_manager.delete_chain(chain.chain_id)
-        for chain in self.dock_1.chain_manager.select_chain(lambda single: True):
-            self.dock_1.chain_manager.delete_chain(chain.chain_id)
+        for chain in dock.chain_manager.select_chain(lambda single: True):
+            dock.chain_manager.delete_chain(chain.chain_id)
+        for chain in dock_1.chain_manager.select_chain(lambda single: True):
+            dock_1.chain_manager.delete_chain(chain.chain_id)
 
 
 if __name__ == '__main__':

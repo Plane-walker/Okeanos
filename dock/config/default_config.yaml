@@ -1,5 +1,7 @@
 app:
   app_id: '0'
+  fixed_server_ip: False
+  server_ip: 'localhost'
 
 dock:
   address:
