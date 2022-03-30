@@ -42,7 +42,8 @@ class NetworkOptimizer:
                         "source_chain_id": self.chain_manager.get_island()[0].chain_id,
                         "target_chain_id": new_chain_id,
                         "auth": {
-                            "app_id": config['app']['app_id']
+                            "app_id": config['app']['app_id'],
+                            "app_info": ""
                         },
                         "timestamp": str(time.time())
                     },
@@ -60,7 +61,8 @@ class NetworkOptimizer:
                         "source_chain_id": "",
                         "target_chain_id": "",
                         "auth": {
-                            "app_id": config['app']['app_id']
+                            "app_id": config['app']['app_id'],
+                            "app_info": ""
                         },
                         "timestamp": str(time.time())
                     },
@@ -88,7 +90,8 @@ class NetworkOptimizer:
                             "source_chain_id": "",
                             "target_chain_id": "",
                             "auth": {
-                                "app_id": config['app']['app_id']
+                                "app_id": config['app']['app_id'],
+                                "app_info": ""
                             },
                             "timestamp": str(time.time())
                         },

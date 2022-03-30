@@ -38,7 +38,8 @@ class TestCCCP(unittest.TestCase):
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },
@@ -59,7 +60,8 @@ class TestCCCP(unittest.TestCase):
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },

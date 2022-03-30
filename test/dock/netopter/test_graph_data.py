@@ -66,7 +66,8 @@ class TestGraphData(unittest.TestCase):
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
                 "auth": {
-                    "app_id": "1"
+                    "app_id": "1",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },
@@ -89,7 +90,8 @@ class TestGraphData(unittest.TestCase):
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },
@@ -109,7 +111,8 @@ class TestGraphData(unittest.TestCase):
                 "source_chain_id": self.source['chain_id'],
                 "target_chain_id": self.target['chain_id'],
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },
@@ -129,7 +132,8 @@ class TestGraphData(unittest.TestCase):
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },

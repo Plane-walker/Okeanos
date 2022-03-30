@@ -50,7 +50,7 @@ class GraphData:
 
     def get_all_data(self):
         id_map = np.array(list(self._vertices.keys()))
-        features = np.array([self._vertices[vertex_id] for vertex_id in id_map])
+        features = np.array([list(map(int, list(self._vertices[vertex_id]))) for vertex_id in id_map])
         adjacency_matrix = np.array([[self._edges.get((source_id, target_id), 0) for target_id in id_map] for source_id in id_map])
         labels = np.array([self._labels[vertex_id] for vertex_id in id_map])
         return id_map.reshape([id_map.shape[0], -1]), features.reshape([features.shape[0], -1]), adjacency_matrix, labels.reshape([labels.shape[0], -1])
@@ -71,7 +71,8 @@ class GraphData:
                         "source_chain_id": self._labels[config['app']['app_id']],
                         "target_chain_id": self._labels[neighbor_id],
                         "auth": {
-                            "app_id": config['app']['app_id']
+                            "app_id": config['app']['app_id'],
+                            "app_info": ""
                         },
                         "timestamp": str(time.time())
                     },
@@ -91,7 +92,8 @@ class GraphData:
                     "source_chain_id": "",
                     "target_chain_id": "",
                     "auth": {
-                        "app_id": "0"
+                        "app_id": "0",
+                        "app_info": ""
                     },
                     "timestamp": str(time.time())
                 },
@@ -128,7 +130,8 @@ class GraphData:
                     "source_chain_id": "",
                     "target_chain_id": "",
                     "auth": {
-                        "app_id": config['app']['app_id']
+                        "app_id": config['app']['app_id'],
+                        "app_info": ""
                     },
                     "timestamp": str(time.time())
                 },

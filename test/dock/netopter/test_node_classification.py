@@ -6,7 +6,6 @@ from interface.dci import dci_pb2_grpc
 import os
 from dock import Dock
 import requests
-import socket
 import json
 import yaml
 import time
@@ -66,7 +65,8 @@ class TestNodeClassification(unittest.TestCase):
                 "source_chain_id": "",
                 "target_chain_id": "",
                 "auth": {
-                    "app_id": "0"
+                    "app_id": "0",
+                    "app_info": ""
                 },
                 "timestamp": str(time.time())
             },
@@ -95,42 +95,15 @@ class TestNodeClassification(unittest.TestCase):
                 break
             time.sleep(1)
         self.assertEqual(self.chain_id, self.target['chain_id'])
-        a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain']['island_0']['abci_port']))
         start_time = datetime.datetime.now()
-        timeout = 15
+        timeout = 60
         while True:
-            if a_socket.connect_ex(location) == 0:
+            chains = dock.chain_manager.select_chain(lambda input_chain: True)
+            if len(chains) == 4:
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
-        a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain']['lane_0']['abci_port']))
-        start_time = datetime.datetime.now()
-        timeout = 15
-        while True:
-            if a_socket.connect_ex(location) == 0:
-                break
-            if (datetime.datetime.now() - start_time).seconds > timeout:
-                break
-        a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain']['lane_1']['abci_port']))
-        start_time = datetime.datetime.now()
-        timeout = 15
-        while True:
-            if a_socket.connect_ex(location) == 0:
-                break
-            if (datetime.datetime.now() - start_time).seconds > timeout:
-                break
-        a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        location = ("localhost", int(config['chain_manager']['chain']['lane_2']['abci_port']))
-        start_time = datetime.datetime.now()
-        timeout = 15
-        while True:
-            if a_socket.connect_ex(location) == 0:
-                break
-            if (datetime.datetime.now() - start_time).seconds > timeout:
-                break
+            time.sleep(1)
         for chain in dock.chain_manager.select_chain(lambda single: True):
             dock.chain_manager.delete_chain(chain.chain_id)
         for chain in dock_1.chain_manager.select_chain(lambda single: True):

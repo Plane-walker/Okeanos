@@ -154,7 +154,8 @@ class CrossChainCommunicationProtocol:
                                 "source_chain_id": tx_json['header']['target_chain_id'],
                                 "target_chain_id": tx_json['header']['source_chain_id'],
                                 "auth": {
-                                    "app_id": config['app']['app_id']
+                                    "app_id": config['app']['app_id'],
+                                    "app_info": ""
                                 }
                             },
                             "body": {
@@ -185,7 +186,8 @@ class CrossChainCommunicationProtocol:
                             "source_chain_id": tx_json['header']['target_chain_id'],
                             "target_chain_id": tx_json['header']['source_chain_id'],
                             "auth": {
-                                "app_id": config['app']['app_id']
+                                "app_id": config['app']['app_id'],
+                                "app_info": ""
                             }
                         },
                         "body": {
