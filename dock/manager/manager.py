@@ -189,7 +189,8 @@ class ChainManager:
                     "source_chain_id": '',
                     "target_chain_id": '',
                     "auth": {
-                        "app_id": config['app']['app_id']
+                        "app_id": config['app']['app_id'],
+                        "app_info": ""
                     }
                 },
                 "body": {
@@ -220,6 +221,30 @@ class ChainManager:
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
         chain_name = self._chains[chain_id].chain_name
+        with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
+            validator = yaml.load(file, Loader=yaml.Loader)
+            message = {
+                "header": {
+                    "type": "validate",
+                    "ttl": -1,
+                    "index": -1,
+                    "paths": [],
+                    "source_chain_id": '',
+                    "target_chain_id": '',
+                    "auth": {
+                        "app_id": config['app']['app_id'],
+                        "app_info": ""
+                    }
+                },
+                "body": {
+                    "public_key": validator['pub_key']['value'],
+                    "power": 0
+                }
+            }
+        params = (
+            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
         self.stop_chain(chain_id)
         del self._chains[chain_id]
         remove_path = f"rm -rf {config['chain_manager']['base_path']}/{chain_name}"
