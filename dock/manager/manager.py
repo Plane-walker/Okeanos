@@ -9,6 +9,7 @@ import json
 import requests
 import yaml
 import socket
+import time
 import datetime
 from log import log
 
@@ -227,14 +228,14 @@ class ChainManager:
                 "header": {
                     "type": "validate",
                     "ttl": -1,
-                    "index": -1,
                     "paths": [],
                     "source_chain_id": '',
                     "target_chain_id": '',
                     "auth": {
                         "app_id": config['app']['app_id'],
                         "app_info": ""
-                    }
+                    },
+                    "timestamp": str(time.time())
                 },
                 "body": {
                     "public_key": validator['pub_key']['value'],
@@ -245,6 +246,28 @@ class ChainManager:
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
         requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+        try:
+            message = {
+                "header": {
+                    "type": "empty",
+                    "ttl": -1,
+                    "paths": [],
+                    "source_chain_id": '',
+                    "target_chain_id": '',
+                    "auth": {
+                        "app_id": config['app']['app_id'],
+                        "app_info": ""
+                    },
+                    "timestamp": str(time.time())
+                },
+                "body": {}
+            }
+            params = (
+                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+            )
+            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+        except Exception as exception:
+            log.info(repr(exception))
         self.stop_chain(chain_id)
         del self._chains[chain_id]
         remove_path = f"rm -rf {config['chain_manager']['base_path']}/{chain_name}"
