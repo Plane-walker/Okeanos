@@ -80,7 +80,7 @@ class TestNodeClassification(unittest.TestCase):
         )
         requests.get(
             f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
-        timeout = 60
+        timeout = 120
         start_time = datetime.datetime.now()
         self.chain_id = ''
         while True:

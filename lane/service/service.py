@@ -99,29 +99,7 @@ class LaneService(BaseApplication):
             tx_json = json.loads(tx.decode('utf-8'))
             log.info(f'Deliver tx {tx_json}')
             message_type = tx_json['header']['type']
-            if message_type == 'write':
-                key = tx_json['body']['key'].encode('utf-8')
-                try:
-                    value = self.db.Get(key)
-                except Exception as exception:
-                    log.info(repr(exception))
-                    with open(f"{self.db_path}/config/genesis.json") as file:
-                        genesis = yaml.load(file, Loader=yaml.Loader)
-                    chain_id = genesis['chain_id']
-                    value = json.dumps({
-                        'value': tx_json['body']['value'],
-                        'keeper': {
-                            'app_id': tx_json['header']['auth']['app_id'],
-                            'chain_id': chain_id
-                        }
-                    })
-                    self.db.Put(key, value.encode('utf-8'))
-                    return types_pb2.ResponseDeliverTx(code=OkCode)
-                value_json = json.loads(value.decode('utf-8'))
-                value_json['value'] = tx_json['body']['value']
-                value = json.dumps(value_json)
-                self.db.Put(key, value.encode('utf-8'))
-            elif message_type == 'validate':
+            if message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(
                     pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
                     power=tx_json['body']['power'])
@@ -142,13 +120,15 @@ class LaneService(BaseApplication):
                     log.warning(f'client {repr(client)}')
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
-            elif message_type == 'cross_read' or 'cross_graph' or 'join':
+            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
                 request_query = dci_pb2.RequestQuery(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.Query(request_query)
                     log.info(f'Dock return with status code: {response.code}')
+            elif message_type == 'empty':
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             else:
                 raise ValueError('type of message is not supported')
             return types_pb2.ResponseDeliverTx(code=OkCode)

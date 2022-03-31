@@ -134,7 +134,7 @@ class IslandService(BaseApplication):
                         client = dci_pb2_grpc.DockStub(channel)
                         response = client.SwitchIsland(request_switch_island)
                         log.info(f'Dock return with status code: {response.code}')
-                    return types_pb2.ResponseDeliverTx(code=OkCode)
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(
                     tx=tx,
@@ -152,6 +152,8 @@ class IslandService(BaseApplication):
                     pub_key=keys_pb2.PublicKey(ed25519=base64.b64decode(tx_json['body']['public_key'])),
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'empty':
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             else:
                 raise Exception('Type error')
