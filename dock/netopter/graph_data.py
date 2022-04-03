@@ -81,9 +81,9 @@ class GraphData:
                     }
                 }
             params = (
-                ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
             )
-            requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+            requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
             message = {
                 "header": {
                     "type": "read",

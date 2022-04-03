@@ -153,6 +153,14 @@ class IslandService(BaseApplication):
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
+                request_query = dci_pb2.RequestQuery(tx=tx)
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: Query')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.Query(request_query)
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'empty':
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             else:
@@ -174,8 +182,8 @@ class IslandService(BaseApplication):
                     with open(f"{self.db_path}/config/genesis.json") as file:
                         genesis = yaml.load(file, Loader=yaml.Loader)
                     chain_id = genesis['chain_id']
-                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id= tx_json['header']['auth']['app_id'],
-                                                                                             source_app_info= tx_json['header']['auth']['app_info'],
+                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id=tx_json['header']['auth']['app_id'],
+                                                                                             source_app_info=tx_json['header']['auth']['app_info'],
                                                                                              source_app_chain_id=chain_id,
                                                                                              target_app_id=keeper['app_id'],
                                                                                              target_app_info=keeper['app_info'],
@@ -202,14 +210,6 @@ class IslandService(BaseApplication):
                                    'target_app_chain_id': response.node_connections[index].target_app_chain_id,
                                    'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
                     return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
-            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
-                request_query = dci_pb2.RequestQuery(tx=req.data)
-                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info('Call dock grpc: Query')
-                    client = dci_pb2_grpc.DockStub(channel)
-                    response = client.Query(request_query)
-                    log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseQuery(code=OkCode)
             else:
                 raise Exception('Type error')
         except Exception as exception:
