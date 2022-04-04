@@ -5,10 +5,12 @@ __all__ = [
 import random
 import requests
 import yaml
+import json
 import os
 import uuid
 import time
 import sys
+import base64
 import hashlib
 import datetime
 from enum import Enum, unique
@@ -28,8 +30,6 @@ class Router:
         self.island_id = None
         self.lane_ids = set()
 
-        self.router = {}
-
         self.chain_manager = chain_manager
         self.pool = pool
         self.config = None
@@ -40,9 +40,6 @@ class Router:
         self.config['app'] = config['app']
         route_path = os.path.join(os.path.dirname(config_path),
                                   self.config['route_path'])
-        if os.path.exists(route_path):
-            with open(route_path) as file:
-                self.router = yaml.load(file, Loader=yaml.Loader)
         # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def import_chain_id(self):
@@ -51,13 +48,79 @@ class Router:
             self.lane_ids.add(lane.chain_id)
         self.island_id = self.chain_manager.get_island()[0].chain_id
 
+    def search_island_router(self, key):
+        island = self.chain_manager.get_island()[0]
+        message = {
+            "header": {
+                "type": "read",
+                "ttl": -1,
+                "paths": [],
+                "source_chain_id": "",
+                "target_chain_id": "",
+                "auth": {
+                    "app_id": self.config['app']['app_id'],
+                    "app_info": ""
+                }
+            },
+            "body": {
+                "key": key
+            }
+        }
+        params = (('data', '0x' + json.dumps(message).encode('utf-8').hex()), )
+        log.debug(f'Search island to {key} through http://localhost:{island.rpc_port}')
+        url = f'http://localhost:{island.rpc_port}/abci_query'
+        response = requests.get(url, params=params)
+        log.debug(f'Get router response {response.json()}')
+        if 'code' in response.json()['result']['response'] and response.json()['result']['response']['code'] == 0:
+            return base64.b64decode(response.json()['result']['response']['value'].encode('utf-8')).decode('utf-8')[1:-1]
+        return None
+
+
+    def insert_island_router(self, key, value):
+        island = self.chain_manager.get_island()[0]
+        island_id = island.chain_id
+        message = {
+            "header": {
+                "type": "write",
+                "ttl": -1,
+                "paths": [],
+                "source_chain_id": "",
+                "target_chain_id": "",
+                "auth": {
+                    "app_id": self.config['app']['app_id'],
+                    "app_info": ""
+                }
+            },
+            "body": {
+                "key": key,
+                "value": value
+            }
+        }
+        params = (('tx', '0x' + json.dumps(message).encode('utf-8').hex()), )
+        log.debug(f'Insert island to {key} by http://localhost:{island.rpc_port} with {message}')
+        response = requests.get(
+            f'http://localhost:'
+            f'{self.chain_manager.get_lane(island_id).rpc_port}'
+            f'/broadcast_tx_commit',
+            params=params)
+        log.debug(f"Get router response {response.json()['result']}")
+        log.info(f'Update router {key}: {value}')
+        # def rpc_request():
+        #     response = requests.get(
+        #         f'http://localhost:'
+        #         f'{self.chain_manager.get_lane(island_id).rpc_port}'
+        #         f'/broadcast_tx_commit',
+        #         params=params)
+        #     log.info(f'Get router from {island}: {response}')
+        # self.pool.submit(rpc_request)
+
     def periodical_gossip(self):
         while True:
             try:
                 log.info('Periodical Gossip . . .')
                 target = uuid.uuid4().hex
-                package = RouteMessage.from_data(self.island_id, target, self.config['app']['app_id'], 
-                                                 'route', self.config['ttl'])
+                package = RouteMessage.from_data(self.island_id, target, self.config['app']['app_id'],
+                                                 '', 'route', self.config['ttl'])
                 package.init_paths()
                 self.gossip(package)
                 time.sleep(self.config['periodical_gossip_interval'])
@@ -70,8 +133,9 @@ class Router:
             package = RouteMessage.from_tx(tx)
             ttl = self.config['ttl']
             while True:
-                if package.target_id() in self.router.keys():
-                    return self.router[package.target_id()]
+                value = self.search_island_router(package.target_id())
+                if value is not None:
+                    return value
                 log.info(f'Searching {package.target_id()}')
                 if ttl > self.config['max_ttl']:
                     return None
@@ -83,8 +147,9 @@ class Router:
                 start_time = datetime.datetime.now()
                 timeout = ttl * 2
                 while True:
-                    if package.target_id() in self.router.keys():
-                        return self.router[package.target_id()]
+                    value = self.search_island_router(package.target_id())
+                    if value is not None:
+                        return value
                     if (datetime.datetime.now() - start_time).seconds > timeout:
                         break
                     time.sleep(1)
@@ -197,13 +262,15 @@ class Router:
             log.debug(f'Ignore ring route {package.get_json()}')
             return
 
-        if package.last_path_lane() in self.lane_ids and package.source_id() not in self.router.keys():
-            self.router[package.source_id()] = package.last_path_lane()
+        value = self.search_island_router(package.source_id())
+        if package.last_path_lane() in self.lane_ids and value is None:
+            self.insert_island_router(package.source_id(), package.last_path_lane())
 
         if package.get_ttl() == 0:
             return
 
-        if package.target_id() == self.island_id or package.target_id() in self.router.keys():
+        value = self.search_island_router(package.target_id())
+        if package.target_id() == self.island_id or value is not None:
             package.to_callback()
             if package.last_path_lane() in self.lane_ids:
                 self.sender(package.last_path_lane(), package)
@@ -219,9 +286,10 @@ class Router:
             return
 
         lane_id, _ = package.get_path(index)[0], package.get_path(index)[1]
-        if package.source_id() not in self.router.keys():
+        value = self.search_island_router(package.source_id())
+        if value is None:
             log.debug(f'Update router {package.source_id()}: {lane_id}')
-            self.router[package.source_id()] = lane_id
+            self.insert_island_router(package.source_id(), lane_id)
         else:
             log.debug(f'Ignore ring in callback')
             return
