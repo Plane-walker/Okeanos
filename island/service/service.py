@@ -195,6 +195,28 @@ class IslandService(BaseApplication):
                         response = client.UpdateGraphData(request_update_graph_data)
                         log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'))
+            elif message_type == 'read_full':
+                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
+                data_json = json.loads(value.decode('utf-8'))
+                keeper = data_json['keeper']
+                if tx_json['header']['auth']['app_id'] == self.app_id and tx_json['header']['auth']['app_id'] != keeper['app_id']:
+                    request_update_graph_data = dci_pb2.RequestUpdateGraphData()
+                    with open(f"{self.db_path}/config/genesis.json") as file:
+                        genesis = yaml.load(file, Loader=yaml.Loader)
+                    chain_id = genesis['chain_id']
+                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id=tx_json['header']['auth']['app_id'],
+                                                                                             source_app_info=tx_json['header']['auth']['app_info'],
+                                                                                             source_app_chain_id=chain_id,
+                                                                                             target_app_id=keeper['app_id'],
+                                                                                             target_app_info=keeper['app_info'],
+                                                                                             target_app_chain_id=keeper['chain_id'],
+                                                                                             weight=1))
+                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                        log.info('Call dock grpc: UpdateGraphDta')
+                        client = dci_pb2_grpc.DockStub(channel)
+                        response = client.UpdateGraphData(request_update_graph_data)
+                        log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseQuery(code=OkCode, value=value)
             elif message_type == 'graph':
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: UpdateGraphDta')
