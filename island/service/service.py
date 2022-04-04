@@ -216,7 +216,7 @@ class IslandService(BaseApplication):
                         client = dci_pb2_grpc.DockStub(channel)
                         response = client.UpdateGraphData(request_update_graph_data)
                         log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseQuery(code=OkCode, value=value)
+                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json).encode('utf-8'))
             elif message_type == 'graph':
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: UpdateGraphDta')
