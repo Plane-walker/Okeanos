@@ -30,7 +30,7 @@ class NetworkOptimizer:
         def join():
             try:
                 self.graph_data.update_neighbors_data()
-                new_chain_id = self.model.predict(self.graph_data) if request_chain_id == '' else request_chain_id
+                new_chain_id = self.model.predict(self.graph_data)[0] if request_chain_id == '' else request_chain_id
                 log.info(f'New chain id is {new_chain_id}')
                 if new_chain_id == self.chain_manager.get_island()[0].chain_id:
                     return

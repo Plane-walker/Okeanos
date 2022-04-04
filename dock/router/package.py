@@ -26,6 +26,7 @@ class RouteMessage:
                   source,
                   target,
                   app_id,
+                  app_info,
                   typ=None,
                   ttl=None,
                   paths=None):
@@ -36,7 +37,8 @@ class RouteMessage:
             'source_chain_id': source,
             'target_chain_id': target,
             'auth': {
-                'app_id': app_id
+                'app_id': app_id,
+                'app_info': app_info
             },
             'timestamp': str(time.time()),
         }
