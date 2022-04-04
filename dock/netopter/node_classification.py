@@ -118,7 +118,6 @@ class GraphSAGEModel(NodeClassificationModel):
         self_index = np.argwhere(id_map == config['app']['app_id'])[0][0]
         log.info(f'Node embedding is {node_embeddings[self_index]}')
         node_classes = np.argmax(node_embeddings, axis=1)
-        self_index = config['app']['app_id']
         node_class = node_classes[self_index]
         group = np.where(node_class == node_classes)
         for vertex_index in np.nditer(group):
