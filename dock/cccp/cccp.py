@@ -3,7 +3,6 @@ __all__ = [
 ]
 
 from enum import Enum, unique
-from concurrent import futures
 import json
 import yaml
 import requests
@@ -201,21 +200,7 @@ class CrossChainCommunicationProtocol:
                     log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
                     self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 else:
-                    lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
-                    if lane is not None and not isinstance(lane, list):
-                        if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
-                            log.info(f'Send to {lane.chain_name}({lane.chain_id})')
-                            tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
-                            params = (
-                                ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-                            )
-                            log.info(f'Send cross query message to {lane.chain_name}({lane.chain_id})')
-                            self.rpc_request_async(f'http://localhost:{lane.rpc_port}/broadcast_tx_commit', params)
-                        else:
-                            log.debug(f'Ignore the same message {tx_json}')
-                    else:
-                        log.warning(f'No chain to transfer tx')
-                        return dci_pb2.ResponseQuery(code=TxDeliverCode.FAIL.value)
+                    self.dispatch_async(request)
             return dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
         except Exception as exception:
             log.error(repr(exception))
