@@ -52,7 +52,7 @@ class Router:
         island = self.chain_manager.get_island()[0]
         message = {
             "header": {
-                "type": "read",
+                "type": "read_simple",
                 "ttl": -1,
                 "paths": [],
                 "source_chain_id": "",
@@ -75,13 +75,12 @@ class Router:
             return base64.b64decode(response.json()['result']['response']['value'].encode('utf-8')).decode('utf-8')[1:-1]
         return None
 
-
     def insert_island_router(self, key, value):
         island = self.chain_manager.get_island()[0]
         island_id = island.chain_id
         message = {
             "header": {
-                "type": "write",
+                "type": "write_simple",
                 "ttl": -1,
                 "paths": [],
                 "source_chain_id": "",

@@ -123,6 +123,10 @@ class IslandService(BaseApplication):
                 value = json.dumps(value_json)
                 self.db.Put(key, value.encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'write_simple':
+                key = tx_json['body']['key'].encode('utf-8')
+                self.db.Put(key, json.dumps(tx_json['body']['value']).encode('utf-8'))
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'delete':
                 self.db.Delete(tx_json['body']['key'].encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
@@ -195,6 +199,10 @@ class IslandService(BaseApplication):
                         response = client.UpdateGraphData(request_update_graph_data)
                         log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'))
+            elif message_type == 'read_simple':
+                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
+                data_json = json.loads(value.decode('utf-8'))
+                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json).encode('utf-8'))
             elif message_type == 'read_full':
                 value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
                 data_json = json.loads(value.decode('utf-8'))
