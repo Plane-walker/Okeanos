@@ -1,5 +1,5 @@
 # Okeanos
-Multi-chain based IoT network
+ A Self-organizing Multi-blockchain Interconnection Architecture
 
 ## Dependencies
 * Python == 3.8
