@@ -1,5 +1,5 @@
 # Okeanos
- A Self-organizing Multi-blockchain Interconnection Architecture
+ A Self-regulating Multi-blockchain Interconnection Architecture
 
 ## Dependencies
 * Python == 3.8
