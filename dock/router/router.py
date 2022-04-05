@@ -38,8 +38,6 @@ class Router:
             config = yaml.load(file, Loader=yaml.Loader)
         self.config = config['router']
         self.config['app'] = config['app']
-        route_path = os.path.join(os.path.dirname(config_path),
-                                  self.config['route_path'])
         # Thread(target=self.periodical_gossip, daemon=True).start()
 
     def import_chain_id(self):

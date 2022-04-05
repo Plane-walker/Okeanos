@@ -11,6 +11,6 @@ if __name__ == '__main__':
     dock_config_path = os.path.join(config_path, 'dock.yaml')
     if not os.path.exists(dock_config_path):
         shutil.copy('dock/config/default_config.yaml', dock_config_path)
-    init_log()
+    init_log(dock_config_path)
     dock = Dock(dock_config_path)
     dock.run()
