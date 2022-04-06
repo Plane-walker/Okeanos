@@ -6,12 +6,13 @@ __all__ = [
 
 import os
 import sys
+import yaml
 import logging
 import logging.handlers
 import multiprocessing
 
 
-def listener_configurer():
+def listener_configurer(config_path):
     formatter = logging.Formatter(
         '%(asctime)s %(processName)-11s tid-%(thread)-16d %(levelname)8s: %(message)s (%(funcName)s)'
     )
@@ -20,8 +21,10 @@ def listener_configurer():
     stream_handler.setFormatter(formatter)
     stream_handler.setLevel(logging.DEBUG)
 
-    path = os.path.dirname(__file__)
-    path = os.path.join(path, 'logs')
+    with open(config_path) as file:
+        config = yaml.load(file, Loader=yaml.Loader)
+    path = config['log']['base_path']
+    path = os.path.join(path, 'island_logs')
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -48,8 +51,8 @@ def listener_configurer():
     log.addHandler(debug_file_handler)
 
 
-def listener_process(queue, configurer):
-    configurer()
+def listener_process(queue, configurer, config_path):
+    configurer(config_path)
     while True:
         try:
             record = queue.get()
@@ -63,17 +66,17 @@ def listener_process(queue, configurer):
             traceback.print_exc(file=sys.stderr)
 
 
-def run_log_lisener_process(queue):
+def run_log_lisener_process(queue, config_path):
     listener = multiprocessing.Process(
         target=listener_process,
-        args=(queue, listener_configurer)
+        args=(queue, listener_configurer, config_path)
     )
     listener.start()
 
 
-def init_log():
+def init_log(config_path):
     queue = multiprocessing.Queue(-1)
-    run_log_lisener_process(queue)
+    run_log_lisener_process(queue, config_path)
     h = logging.handlers.QueueHandler(queue)
     log = logging.getLogger()
     log.addHandler(h)

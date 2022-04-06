@@ -8,12 +8,14 @@ dock:
     host: 'localhost'
     port: '1453'
 
+log:
+   base_path: '/root/logs'
+
 router:
   min_router_chain: 3
   min_search: 3
   ttl: 10
   periodical_gossip_interval: 60
-  route_path: 'route.yaml'
   max_ttl: 40
 
 GNN:

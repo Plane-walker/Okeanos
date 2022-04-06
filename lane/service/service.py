@@ -163,7 +163,7 @@ class LaneService(BaseApplication):
 
 
 def main(args):
-    init_log()
+    init_log(args[5])
     app = ABCIServer(app=LaneService(args[2], args[3], args[4]), port=args[1])
     app.run()
 
