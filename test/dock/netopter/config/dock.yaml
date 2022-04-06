@@ -8,6 +8,9 @@ dock:
     host: 'localhost'
     port: '1453'
 
+log:
+   base_path: '/home/runner/logs'
+
 router:
   min_router_chain: 3
   min_search: 3
