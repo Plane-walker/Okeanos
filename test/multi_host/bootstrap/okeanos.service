@@ -1,0 +1,10 @@
+[Unit]
+Description=Okeanos
+[Service]
+Type=simple
+EnvironmentFile=/root/okeanos_env
+ExecStart=/root/anaconda3/bin/conda run -n okeanos python /root/bootstrap.py
+ExecStop=/usr/bin/python3 /root/clean_up.py
+[Install]
+WantedBy=multi-user.target
+

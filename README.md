@@ -14,6 +14,37 @@
 * pandas == 1.3.4
 * requests == 2.26.0
 
+## Start a single node
+Use Ubuntu == 20.04
+
+Copy the source code to /root
+
+```
+cd Okenaos
+python main.py
+```
+
+## Start multi-nodes with multi-blockchains
+Use Ubuntu == 20.04
+
+Copy the source code to /root
+
+Within every node, run: 
+```
+cd Okenaos
+mkdir config
+cp dock/config/default_config.yaml config/dock.yaml
+```
+
+Edit the dock.yaml for every node, then run the following command in every node:
+```
+python main.py
+```
+
+Refer to the test/ for more details.
+
+There are also some scripts in test/multi_host providing a faster way to create a 33 nodes network and test the RPS and response time on it.
+
 ## Build/Rebuild protobuf files
 ```
 cd protos
@@ -27,12 +58,12 @@ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. bci/*.proto
 {
   'header':
   {
-    'type': (string/'write', 'cross_write', 'read', 'cross_read', 'graph', 'cross_graph', 'route', 'validate', 'join', 'switch'),
-    'ttl': (int/-1),
-    'paths': (array(string)/),
-    'source_chain_id': (string),
-    'target_chain_id': (string),
-    'auth': {'app_id': (string)},
+    'type': enum{'write', 'cross_write', 'read', 'cross_read', 'graph', 'cross_graph', 'route', 'validate', 'join', 'switch'},
+    'ttl': int(default: -1),
+    'paths': array[string](default: []),
+    'source_chain_id': string(defalut: ''),
+    'target_chain_id': string(defalut: ''),
+    'auth': {'app_id': string(defalut: ''), 'app_info': string(defalut: '')},
     'timestamp': time.time(),
   }
   'body': {'key': (string), 'value': (string)/ 'public_key': (string), 'power': (int)/'app_id': (string)}
