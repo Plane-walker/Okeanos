@@ -1,6 +1,5 @@
 import base64
 from datetime import datetime
-import shutil
 import unittest
 from concurrent import futures
 import grpc
@@ -10,7 +9,6 @@ from dock import Dock
 import requests
 import json
 import yaml
-import subprocess
 import time
 import datetime
 
@@ -56,28 +54,53 @@ class TestRouter(unittest.TestCase):
         dock_island_genesis_path = os.path.join(dock_manager_path, 'island_0/config/genesis.json')
         with open(dock_island_genesis_path) as file:
             self.source = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(dock_manager_path, 'island_0/config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        source_node_id = priv_validator_key['address']
         dock_1_manager_path = config_1['chain_manager']['base_path']
         dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_1/config/genesis.json')
         with open(dock_1_island_genesis_path) as file:
             self.target = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(dock_manager_path, 'island_1/config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        target_node_id = priv_validator_key['address']
+
+        message = {
+            "header": {
+                "type": "write",
+                "timestamp": str(time.time())
+            },
+            "body": {
+                "key": "test_key_source",
+                "value": 10
+            }
+        }
+        params = (
+            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        requests.get(
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
 
         # deliver_tx
         message = {
             "header": {
-                "type": "cross_write",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": self.source['chain_id'],
-                "target_chain_id": self.target['chain_id'],
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
+                "type": "cross_move_source",
+                "cross": {
+                    "ttl": -1,
+                    "paths": [],
+                    "source_chain_id": self.source['chain_id'],
+                    "source_node_id": source_node_id,
+                    "source_info": source_node_id,
+                    "target_chain_id": self.target['chain_id'],
+                    "target_node_id": target_node_id,
+                    "target_info": target_node_id,
                 },
                 "timestamp": str(time.time())
             },
             "body": {
-                "key": "test_key",
-                "value": "test_value"
+                "source_key": "test_key_source",
+                "target_key": "test_key_target",
+                "amount": 3
             }
         }
 
@@ -91,18 +114,10 @@ class TestRouter(unittest.TestCase):
         message = {
             "header": {
                 "type": "read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
                 "timestamp": str(time.time())
             },
             "body": {
-                "key": "test_key"
+                "key": "test_key_target"
             }
         }
         params = (
@@ -119,62 +134,7 @@ class TestRouter(unittest.TestCase):
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
             time.sleep(1)
-
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
-        message = {
-            "header": {
-                "type": "cross_read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": self.source['chain_id'],
-                "target_chain_id": self.target['chain_id'],
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
-                "timestamp": str(time.time())
-            },
-            "body": {
-                "key": "test_key",
-            }
-        }
-        params = (
-            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-        )
-        requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
-
-        message = {
-            "header": {
-                "type": "read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
-                "timestamp": str(time.time())
-            },
-            "body": {
-                "key": "response_for_query_test_key",
-            }
-        }
-        params = (
-            ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
-        )
-
-        start_time = datetime.datetime.now()
-        while True:
-            response = requests.get(
-                f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-            if json.loads(response.text)['result']['response']['value'] == 'test_value':
-                break
-            if (datetime.datetime.now() - start_time).seconds > timeout:
-                break
-            time.sleep(1)
-
-        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode('"test_value"'.encode('utf-8')).decode('utf-8'))
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode(json.dumps(3).encode('utf-8')).decode('utf-8'))
 
         # delete chains
         for chain in dock.chain_manager.select_chain(lambda single: True):

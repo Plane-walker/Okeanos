@@ -41,9 +41,10 @@ class NodeClassificationModel(ABC):
 
 
 class GraphSAGEModel(NodeClassificationModel):
-    def __init__(self, config_path):
+    def __init__(self, config_path, chain_manager):
         super().__init__()
         self.config_path = config_path
+        self.chain_manager = chain_manager
         self.model = None
         self.x_input = None
         self.x_output = None
@@ -104,9 +105,40 @@ class GraphSAGEModel(NodeClassificationModel):
             train_seq, epochs=20, validation_data=test_seq, verbose=2, shuffle=False
         )
 
+    @staticmethod
+    def edge_cut(adjacency_matrix, labels):
+        edge_cuts = 0
+        edges = 0
+        for vertex_pair in np.where(adjacency_matrix > 0):
+            if labels[vertex_pair[0]] != labels[vertex_pair[1]]:
+                edge_cuts += 1
+            edges += 1
+        return edge_cuts / edges
+
+    @staticmethod
+    def balance(labels):
+        _, counts = np.unique(labels, return_counts=True)
+        return np.max(counts) * np.shape(np.unique(labels))[0] / np.shape(labels)[0]
+
+    @staticmethod
+    def modularity(status, resolution):
+        links = float(status.total_weight)
+        result = 0.
+        for community in set(status.communities.values()):
+            in_degree = community.internal_degrees
+            degree = community.total_degrees
+            if links > 0:
+                result += in_degree * resolution / links - ((degree / (2. * links)) ** 2)
+        return result
+
     def predict(self, data):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(config['chain_manager']['base_path'],
+                               self.chain_manager.get_island()[0].chain_name,
+                               'config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        self_node_id = priv_validator_key['address']
         id_map, features, adjacency_matrix, labels = data.get_all_data()
         node = NodeSequence(sample_features,
                             config['GNN']['graphSAGE']['batch_size'],
@@ -115,7 +147,7 @@ class GraphSAGEModel(NodeClassificationModel):
                             features,
                             config['GNN']['graphSAGE']['sample_size'])
         node_embeddings = self.model.predict(node, workers=4, verbose=1)
-        self_index = np.argwhere(id_map == config['app']['app_id'])[0][0]
+        self_index = np.argwhere(id_map == self_node_id)[0][0]
         log.info(f'Node embedding is {node_embeddings[self_index]}')
         node_classes = np.argmax(node_embeddings, axis=1)
         node_class = node_classes[self_index]
@@ -124,3 +156,9 @@ class GraphSAGEModel(NodeClassificationModel):
             if vertex_index != self_index:
                 return labels[vertex_index]
         return labels[self_index]
+
+
+if __name__ == '__main__':
+    inputs = tf.constant([[1, 2, 3], [2, 1, 1], [1, 1, 1]])
+    inputs = tf.expand_dims(tf.expand_dims(inputs, axis=0), axis=-1)
+    print(inputs)

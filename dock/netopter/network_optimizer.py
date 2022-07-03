@@ -16,21 +16,23 @@ from interface.dci import dci_pb2
 
 class NetworkOptimizer:
     def __init__(self, config_path, chain_manager, pool):
-        self.graph_data = GraphData(config_path)
         self.chain_manager = chain_manager
         self.config_path = config_path
         self.pool = pool
-        self.model = GraphSAGEModel(config_path=config_path)
+        self.model = GraphSAGEModel(config_path=config_path, chain_manager=chain_manager)
 
     def update_model(self):
-        self.model.train(self.graph_data)
+        graph_data = GraphData(self.config_path)
+        graph_data.import_data_from_file('cora')
+        self.model.train(graph_data)
         self.model.save_model()
 
-    def join_async(self, request_chain_id):
-        def join():
+    def optimize_async(self, request):
+        def optimize():
             try:
-                self.graph_data.update_neighbors_data()
-                new_chain_id = self.model.predict(self.graph_data)[0] if request_chain_id == '' else request_chain_id
+                graph_data = GraphData(self.config_path)
+                graph_data.import_data_from_str(request.graph_state)
+                new_chain_id = self.model.predict(graph_data)[0]
                 log.info(f'New chain id is {new_chain_id}')
                 if new_chain_id == self.chain_manager.get_island()[0].chain_id:
                     return
@@ -39,13 +41,11 @@ class NetworkOptimizer:
                 message = {
                     "header": {
                         "type": "join",
-                        "ttl": -1,
-                        "paths": [],
-                        "source_chain_id": self.chain_manager.get_island()[0].chain_id,
-                        "target_chain_id": new_chain_id,
-                        "auth": {
-                            "app_id": config['app']['app_id'],
-                            "app_info": ""
+                        "cross": {
+                            "ttl": -1,
+                            "paths": [],
+                            "source_chain_id": self.chain_manager.get_island()[0].chain_id,
+                            "target_chain_id": new_chain_id
                         },
                         "timestamp": str(time.time())
                     },
@@ -58,14 +58,6 @@ class NetworkOptimizer:
                 message = {
                     "header": {
                         "type": "read",
-                        "ttl": -1,
-                        "paths": [],
-                        "source_chain_id": "",
-                        "target_chain_id": "",
-                        "auth": {
-                            "app_id": config['app']['app_id'],
-                            "app_info": ""
-                        },
                         "timestamp": str(time.time())
                     },
                     "body": {
@@ -87,14 +79,6 @@ class NetworkOptimizer:
                     message = {
                         "header": {
                             "type": "delete",
-                            "ttl": -1,
-                            "paths": [],
-                            "source_chain_id": "",
-                            "target_chain_id": "",
-                            "auth": {
-                                "app_id": config['app']['app_id'],
-                                "app_info": ""
-                            },
                             "timestamp": str(time.time())
                         },
                         "body": {
@@ -124,8 +108,8 @@ class NetworkOptimizer:
                         self.chain_manager.join_chain(chain_name)
             except Exception as exception:
                 log.error(repr(exception))
-        self.pool.submit(join)
+        self.pool.submit(optimize)
 
-    def switch_island(self, request):
-        self.join_async(request.chain_id)
-        return dci_pb2.ResponseSwitchIsland(code=200, info='ok')
+    def shard(self, request):
+        self.optimize_async(request)
+        return dci_pb2.ResponseShard(code=200, info='ok')

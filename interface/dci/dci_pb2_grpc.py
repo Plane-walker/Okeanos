@@ -39,20 +39,10 @@ class DockStub(object):
                 request_serializer=dci_dot_dci__pb2.RequestRouterPathCallback.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseRouterPathCallback.FromString,
                 )
-        self.SwitchIsland = channel.unary_unary(
-                '/dci.Dock/SwitchIsland',
-                request_serializer=dci_dot_dci__pb2.RequestSwitchIsland.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseSwitchIsland.FromString,
-                )
-        self.UpdateGraphData = channel.unary_unary(
-                '/dci.Dock/UpdateGraphData',
-                request_serializer=dci_dot_dci__pb2.RequestUpdateGraphData.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseUpdateGraphData.FromString,
-                )
-        self.GetGraphData = channel.unary_unary(
-                '/dci.Dock/GetGraphData',
-                request_serializer=dci_dot_dci__pb2.RequestGetGraphData.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseGetGraphData.FromString,
+        self.Shard = channel.unary_unary(
+                '/dci.Dock/Shard',
+                request_serializer=dci_dot_dci__pb2.RequestShard.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseShard.FromString,
                 )
 
 
@@ -89,19 +79,7 @@ class DockServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SwitchIsland(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def UpdateGraphData(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetGraphData(self, request, context):
+    def Shard(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -135,20 +113,10 @@ def add_DockServicer_to_server(servicer, server):
                     request_deserializer=dci_dot_dci__pb2.RequestRouterPathCallback.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseRouterPathCallback.SerializeToString,
             ),
-            'SwitchIsland': grpc.unary_unary_rpc_method_handler(
-                    servicer.SwitchIsland,
-                    request_deserializer=dci_dot_dci__pb2.RequestSwitchIsland.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseSwitchIsland.SerializeToString,
-            ),
-            'UpdateGraphData': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdateGraphData,
-                    request_deserializer=dci_dot_dci__pb2.RequestUpdateGraphData.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseUpdateGraphData.SerializeToString,
-            ),
-            'GetGraphData': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetGraphData,
-                    request_deserializer=dci_dot_dci__pb2.RequestGetGraphData.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseGetGraphData.SerializeToString,
+            'Shard': grpc.unary_unary_rpc_method_handler(
+                    servicer.Shard,
+                    request_deserializer=dci_dot_dci__pb2.RequestShard.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseShard.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -246,7 +214,7 @@ class Dock(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SwitchIsland(request,
+    def Shard(request,
             target,
             options=(),
             channel_credentials=None,
@@ -256,42 +224,8 @@ class Dock(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/SwitchIsland',
-            dci_dot_dci__pb2.RequestSwitchIsland.SerializeToString,
-            dci_dot_dci__pb2.ResponseSwitchIsland.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def UpdateGraphData(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/UpdateGraphData',
-            dci_dot_dci__pb2.RequestUpdateGraphData.SerializeToString,
-            dci_dot_dci__pb2.ResponseUpdateGraphData.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetGraphData(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/GetGraphData',
-            dci_dot_dci__pb2.RequestGetGraphData.SerializeToString,
-            dci_dot_dci__pb2.ResponseGetGraphData.FromString,
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/Shard',
+            dci_dot_dci__pb2.RequestShard.SerializeToString,
+            dci_dot_dci__pb2.ResponseShard.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

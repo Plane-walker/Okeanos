@@ -33,14 +33,6 @@ class TestCCCP(unittest.TestCase):
         message = {
             "header": {
                 "type": "write",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
                 "timestamp": str(time.time())
             },
             "body": {
@@ -55,14 +47,6 @@ class TestCCCP(unittest.TestCase):
         message = {
             "header": {
                 "type": "read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
                 "timestamp": str(time.time())
             },
             "body": {

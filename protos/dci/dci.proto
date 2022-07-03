@@ -40,26 +40,8 @@ message RequestRouterPathCallback {
     repeated common.Chain paths = 3;
 }
 
-message RequestSwitchIsland {
-    string chain_id = 1;
-}
-
-message NodeConnection {
-    string source_app_id = 1;
-    string source_app_info = 2;
-    string source_app_chain_id = 3;
-    string target_app_id = 4;
-    string target_app_info = 5;
-    string target_app_chain_id = 6;
-    uint32 weight = 7;
-}
-
-message RequestUpdateGraphData {
-    repeated NodeConnection node_connections = 1;
-}
-
-message RequestGetGraphData {
-    repeated string app_id = 1;
+message RequestShard {
+    string graph_state = 1;
 }
 
 message ResponseDeliverTx {
@@ -86,19 +68,11 @@ message ResponseRouterPathCallback {
     string info = 2;
 }
 
-message ResponseSwitchIsland {
+message ResponseShard{
     uint32 code = 1;
     string info = 2;
 }
 
-message ResponseUpdateGraphData {
-    uint32 code = 1;
-    string info = 2;
-}
-
-message ResponseGetGraphData {
-    repeated NodeConnection node_connections = 1;
-}
 
 
 service Dock {
@@ -109,7 +83,5 @@ service Dock {
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
     rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
-    rpc SwitchIsland(RequestSwitchIsland) returns (ResponseSwitchIsland);
-    rpc UpdateGraphData(RequestUpdateGraphData) returns (ResponseUpdateGraphData);
-    rpc GetGraphData(RequestGetGraphData) returns (ResponseGetGraphData);
+    rpc Shard(RequestShard) returns (ResponseShard);
 }

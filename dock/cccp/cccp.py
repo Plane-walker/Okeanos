@@ -40,8 +40,8 @@ class CrossChainCommunicationProtocol:
             tx_json = json.loads(request.tx.decode('utf-8'))
             lane = self.chain_manager.get_lane(self.router.next_jump(request.tx))
             if lane is not None and not isinstance(lane, list):
-                if len(tx_json['header']['paths']) == 0 or self.router.island_id != tx_json['header']['paths'][0][1]:
-                    tx_json['header']['paths'] = [(lane.chain_id, self.router.island_id)]
+                if len(tx_json['header']['cross']['paths']) == 0 or self.router.island_id != tx_json['header']['cross']['paths'][0][1]:
+                    tx_json['header']['cross']['paths'] = [(lane.chain_id, self.router.island_id)]
                     params = (
                         ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                     )
@@ -59,12 +59,11 @@ class CrossChainCommunicationProtocol:
             if tx_json['header']['type'] == 'route':
                 log.debug(f'Route tx: {tx_json}')
                 self.router.receiver(request.tx)
-            elif tx_json['header']['type'] == 'cross_write':
+            elif tx_json['header']['type'] == 'cross_move_source':
                 log.debug(f'Cross write tx: {tx_json}')
-                island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
+                island = self.chain_manager.get_island(tx_json['header']['cross']['target_chain_id'])
                 if island is not None:
-                    tx_json['header']['type'] = 'write'
-                    tx_json['header']['paths'] = []
+                    tx_json['header']['type'] = 'cross_move_target'
                     params = (
                         ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
                     )

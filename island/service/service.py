@@ -26,13 +26,12 @@ import os
 import sys
 import json
 import grpc
-import yaml
-import leveldb
+import plyvel
+import requests
 import base64
 import hashlib
 from log import init_log, log
 from interface.dci import dci_pb2_grpc, dci_pb2
-from interface.common import id_pb2
 
 from interface.sci.abci import types_pb2
 from interface.sci.crypto import keys_pb2
@@ -50,11 +49,13 @@ def decode_number(raw):
 
 
 class IslandService(BaseApplication):
-    def __init__(self, app_id, db_path, dock_port):
-        self.app_id = app_id
+    def __init__(self, db_path, dock_port, rpc_port):
         self.db_path = db_path
         self.dock_port = dock_port
-        self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
+        self.rpc_port = rpc_port
+        self.world_state = plyvel.DB(os.path.join(db_path, 'world_state'), create_if_missing=True)
+        self.graph_state = plyvel.DB(os.path.join(db_path, 'graph_state'), create_if_missing=True)
+        self.route_state = plyvel.DB(os.path.join(db_path, 'route_state'), create_if_missing=True)
         self.last_block_height = None
         self.validator_updates = []
         self.address_to_public_key = {}
@@ -88,7 +89,7 @@ class IslandService(BaseApplication):
     def check_tx(self, tx) -> types_pb2.ResponseCheckTx:
         try:
             tx_json = json.loads(tx.decode('utf-8'))
-            log.info(f'Check for tx {tx_json}({self.app_id})')
+            log.info(f'Check for tx {tx_json}')
         except Exception as exception:
             log.error(repr(exception))
             return types_pb2.ResponseCheckTx(code=ErrorCode)
@@ -97,59 +98,119 @@ class IslandService(BaseApplication):
     def deliver_tx(self, tx) -> types_pb2.ResponseDeliverTx:
         try:
             tx_json = json.loads(tx.decode('utf-8'))
-            log.info(f'Received tx {tx_json}({self.app_id})')
+            log.info(f'Received tx {tx_json}')
             message_type = tx_json['header']['type']
             if message_type == 'write':
-                key = tx_json['body']['key'].encode('utf-8')
-                try:
-                    value = self.db.Get(key)
-                except Exception as exception:
-                    log.info(repr(exception))
-                    with open(f"{self.db_path}/config/genesis.json") as file:
-                        genesis = yaml.load(file, Loader=yaml.Loader)
-                    chain_id = genesis['chain_id'] if tx_json['header']['source_chain_id'] == '' else tx_json['header']['source_chain_id']
-                    value = json.dumps({
-                        'value': tx_json['body']['value'],
-                        'keeper': {
-                            'app_id': tx_json['header']['auth']['app_id'],
-                            'app_info': tx_json['header']['auth']['app_info'],
-                            'chain_id': chain_id
-                        }
-                    })
-                    self.db.Put(key, value.encode('utf-8'))
-                    return types_pb2.ResponseDeliverTx(code=OkCode)
-                value_json = json.loads(value.decode('utf-8'))
-                value_json['value'] = tx_json['body']['value']
-                value = json.dumps(value_json)
-                self.db.Put(key, value.encode('utf-8'))
+                key = tx_json['body']['key']
+                self.world_state.put(key.encode('utf-8'), json.dumps(tx_json['body']['value']).encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'write_simple':
-                key = tx_json['body']['key'].encode('utf-8')
-                self.db.Put(key, json.dumps(tx_json['body']['value']).encode('utf-8'))
+            elif message_type == 'route':
+                key = tx_json['body']['key']
+                self.route_state.put(key.encode('utf-8'), json.dumps(tx_json['body']['value']).encode('utf-8'))
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'move':
+                source_key = tx_json['body']['source_key']
+                target_key = tx_json['body']['target_key']
+                amount = tx_json['body']['amount']
+                if amount != -1:
+                    source_value = json.loads(self.world_state.get(source_key.encode('utf-8')).decode('utf-8'))
+                    target_value = json.loads(self.world_state.get(source_key.encode('utf-8'),
+                                                                   json.dumps(0).encode('utf-8')).decode('utf-8'))
+                    if source_value - amount == 0:
+                        self.world_state.delete(source_key.encode('utf-8'))
+                    else:
+                        self.world_state.put(source_key.encode('utf-8'), json.dumps(source_value - amount).encode('utf-8'))
+                    self.world_state.put(target_key.encode('utf-8'), json.dumps(target_value + amount).encode('utf-8'))
+                else:
+                    value = self.world_state.get(source_key.encode('utf-8'))
+                    self.world_state.delete(source_key.encode('utf-8'))
+                    self.world_state.put(target_key.encode('utf-8'), value)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'delete':
-                self.db.Delete(tx_json['body']['key'].encode('utf-8'))
+                key = tx_json['body']['key']
+                self.world_state.delete(key.encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'switch':
-                if tx_json['header']['auth']['app_id'] == self.app_id:
-                    request_switch_island = dci_pb2.RequestSwitchIsland(chain_id=tx_json['body']['chain_id'])
-                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                        log.info('Call dock grpc: SwitchIsland')
-                        client = dci_pb2_grpc.DockStub(channel)
-                        response = client.SwitchIsland(request_switch_island)
-                        log.info(f'Dock return with status code: {response.code}')
+            elif message_type == 'shard':
+                request_shard = dci_pb2.RequestShard(graph_state=json.dumps(tx_json['body']['graph_state']))
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: Shard')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.Shard(request_shard)
+                    log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
-                request_tx_package = dci_pb2.RequestDeliverTx(
-                    tx=tx,
-                    target=id_pb2.Chain(identifier=tx_json['header']['target_chain_id']),
-                    source=id_pb2.Chain(identifier=tx_json['header']['source_chain_id']),
-                )
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code}')
+                self._add_edge(tx_json['header'])
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'cross_move_source':
+                source_key = tx_json['body']['source_key']
+                amount = tx_json['body']['amount']
+                if amount != -1:
+                    source_value = json.loads(self.world_state.get(source_key.encode('utf-8')).decode('utf-8'))
+                    lock_value = {
+                        '_old_value': source_value,
+                        '_new_value': source_value - amount
+                    }
+                    self.world_state.put(f'_{source_key}'.encode('utf-8'), json.dumps(lock_value).encode('utf-8'))
+                    self.world_state.delete(source_key.encode('utf-8'))
+                else:
+                    value = json.loads(self.world_state.get(source_key.encode('utf-8')).decode('utf-8'))
+                    lock_value = {
+                        '_old_value': value
+                    }
+                    self.world_state.delete(source_key.encode('utf-8'))
+                    self.world_state.put(f'_{source_key}'.encode('utf-8'), json.dumps(lock_value).encode('utf-8'))
+                    tx_json['body']['value'] = value
+                self._add_edge(tx_json['header'])
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: DeliverTx')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.DeliverTx(request_tx_package)
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'cross_move_target':
+                target_key = tx_json['body']['target_key']
+                amount = tx_json['body']['amount']
+                if amount != -1:
+                    target_value = json.loads(self.world_state.get(target_key.encode('utf-8'), default=json.dumps(0).encode('utf-8')).decode('utf-8'))
+                    self.world_state.put(target_key.encode('utf-8'), json.dumps(target_value + amount).encode('utf-8'))
+                else:
+                    value = tx_json['body']['value']
+                    self.world_state.put(target_key.encode('utf-8'), json.dumps(value).encode('utf-8'))
+                unlock_json = {
+                    'header': tx_json['header'],
+                    'body': {
+                        'key': tx_json['body']['source_key'],
+                        'status': 0
+                    }
+                }
+                source_chain_id = unlock_json['header']['cross']['source_chain_id']
+                unlock_json['header']['cross']['source_chain_id'] = unlock_json['header']['cross']['target_chain_id']
+                unlock_json['header']['cross']['target_chain_id'] = source_chain_id
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(unlock_json).encode('utf-8'))
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: DeliverTx')
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.DeliverTx(request_tx_package)
+                    log.info(f'Dock return with status code: {response.code}')
+                self._add_edge(tx_json['header'])
+                return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'unlock':
+                status = tx_json['body']['status']
+                key = tx_json['body']['key']
+                value = json.loads(self.world_state.get(key.encode('utf-8')).decode('utf-8'))
+                self.world_state.delete(key.encode('utf-8'))
+                if status == 0:
+                    if value.get('_new_value') is not None:
+                        self.world_state.put(key[1:].encode('utf-8'), json.dumps(value['_new_value']).encode('utf-8'))
+                else:
+                    self.world_state.put(key[1:].encode('utf-8'), json.dumps(value['_old_value']).encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(
@@ -157,7 +218,7 @@ class IslandService(BaseApplication):
                     power=tx_json['body']['power'])
                 self.update_validator(validator_update)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
-            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
+            elif message_type == 'join':
                 request_query = dci_pb2.RequestQuery(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: Query')
@@ -173,73 +234,46 @@ class IslandService(BaseApplication):
             log.error(repr(exception))
             return types_pb2.ResponseDeliverTx(code=ErrorCode, data=repr(exception).encode('utf-8'))
 
+    def _add_edge(self, header):
+        node_pair = {
+            'source_node_id': header['cross']['source_node_id'],
+            'target_node_id': header['cross']['target_node_id'],
+        }
+        default_value = {
+            'source_chain_id': header['cross']['source_chain_id'],
+            'source_info': header['cross']['source_info'],
+            'target_chain_id': header['cross']['source_chain_id'],
+            'target_info': header['cross']['target_info'],
+            'weight': [],
+        }
+        value = self.graph_state.get(json.dumps(node_pair).encode('utf-8'), default=json.dumps(default_value).encode('utf-8'))
+        edge = json.loads(value.decode('utf-8'))
+        if len(edge['weight']) > 100:
+            edge['weight'].pop(0)
+        edge['weight'].append(header['timestamp'])
+        self.graph_state.put(json.dumps(node_pair).encode('utf-8'), json.dumps(edge).encode('utf-8'))
+
     def query(self, req) -> types_pb2.ResponseQuery:
         try:
             tx_json = json.loads(req.data.decode('utf-8'))
             message_type = tx_json['header']['type']
             if message_type == 'read':
-                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
-                data_json = json.loads(value.decode('utf-8'))
-                keeper = data_json['keeper']
-                if tx_json['header']['auth']['app_id'] == self.app_id and tx_json['header']['auth']['app_id'] != keeper['app_id']:
-                    request_update_graph_data = dci_pb2.RequestUpdateGraphData()
-                    with open(f"{self.db_path}/config/genesis.json") as file:
-                        genesis = yaml.load(file, Loader=yaml.Loader)
-                    chain_id = genesis['chain_id']
-                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id=tx_json['header']['auth']['app_id'],
-                                                                                             source_app_info=tx_json['header']['auth']['app_info'],
-                                                                                             source_app_chain_id=chain_id,
-                                                                                             target_app_id=keeper['app_id'],
-                                                                                             target_app_info=keeper['app_info'],
-                                                                                             target_app_chain_id=keeper['chain_id'],
-                                                                                             weight=1))
-                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                        log.info('Call dock grpc: UpdateGraphDta')
-                        client = dci_pb2_grpc.DockStub(channel)
-                        response = client.UpdateGraphData(request_update_graph_data)
-                        log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json['value']).encode('utf-8'))
-            elif message_type == 'read_simple':
-                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
-                data_json = json.loads(value.decode('utf-8'))
-                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json).encode('utf-8'))
-            elif message_type == 'read_full':
-                value = self.db.Get(tx_json['body']['key'].encode('utf-8'))
-                data_json = json.loads(value.decode('utf-8'))
-                keeper = data_json['keeper']
-                if tx_json['header']['auth']['app_id'] == self.app_id and tx_json['header']['auth']['app_id'] != keeper['app_id']:
-                    request_update_graph_data = dci_pb2.RequestUpdateGraphData()
-                    with open(f"{self.db_path}/config/genesis.json") as file:
-                        genesis = yaml.load(file, Loader=yaml.Loader)
-                    chain_id = genesis['chain_id']
-                    request_update_graph_data.node_connections.append(dci_pb2.NodeConnection(source_app_id=tx_json['header']['auth']['app_id'],
-                                                                                             source_app_info=tx_json['header']['auth']['app_info'],
-                                                                                             source_app_chain_id=chain_id,
-                                                                                             target_app_id=keeper['app_id'],
-                                                                                             target_app_info=keeper['app_info'],
-                                                                                             target_app_chain_id=keeper['chain_id'],
-                                                                                             weight=1))
-                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                        log.info('Call dock grpc: UpdateGraphDta')
-                        client = dci_pb2_grpc.DockStub(channel)
-                        response = client.UpdateGraphData(request_update_graph_data)
-                        log.info(f'Dock return with status code: {response.code}')
-                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(data_json).encode('utf-8'))
+                key = tx_json['body']['key']
+                value = self.world_state.get(key.encode('utf-8'))
+                return types_pb2.ResponseQuery(code=OkCode, value=value)
             elif message_type == 'graph':
-                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info('Call dock grpc: UpdateGraphDta')
-                    client = dci_pb2_grpc.DockStub(channel)
-                    request = dci_pb2.RequestGetGraphData()
-                    request.app_id.append(tx_json['body']['key'])
-                    response = client.GetGraphData(request)
-                    graph_data = [{'source_app_id': response.node_connections[index].source_app_id,
-                                   'source_app_info': response.node_connections[index].source_app_info,
-                                   'source_app_chain_id': response.node_connections[index].source_app_chain_id,
-                                   'target_app_id': response.node_connections[index].target_app_id,
-                                   'target_app_info': response.node_connections[index].target_app_info,
-                                   'target_app_chain_id': response.node_connections[index].target_app_chain_id,
-                                   'weight': response.node_connections[index].weight} for index in range(len(response.node_connections))]
-                    return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
+                graph_data = [{'source_node_id': json.loads(key.decode('utf-8'))['source_node_id'],
+                               'source_info': json.loads(value.decode('utf-8'))['source_info'],
+                               'source_chain_id': json.loads(value.decode('utf-8'))['source_chain_id'],
+                               'target_node_id': json.loads(key.decode('utf-8'))['target_node_id'],
+                               'target_info': json.loads(value.decode('utf-8'))['target_info'],
+                               'target_chain_id': json.loads(value.decode('utf-8'))['target_chain_id'],
+                               'weight': json.loads(value.decode('utf-8'))['weight']} for key, value in self.graph_state.iterator()]
+                return types_pb2.ResponseQuery(code=OkCode, value=json.dumps(graph_data).encode('utf-8'))
+            elif message_type == 'route':
+                key = tx_json['body']['key']
+                value = self.route_state.get(key.encode('utf-8'), default=json.dumps(0).encode('utf-8'))
+                return types_pb2.ResponseQuery(code=OkCode, value=value)
             else:
                 raise Exception('Type error')
         except Exception as exception:
@@ -256,6 +290,27 @@ class IslandService(BaseApplication):
         return types_pb2.ResponseBeginBlock()
 
     def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
+        self.last_block_height += 1
+        if self.last_block_height % 100 == 0:
+            message = {
+                "header": {
+                    "type": "shard",
+                    "nonce": self.last_block_height,
+                },
+                "body": {
+                    'graph_state': [{'source_node_id': json.loads(key.decode('utf-8'))['source_node_id'],
+                                     'source_info': json.loads(value.decode('utf-8'))['source_info'],
+                                     'source_chain_id': json.loads(value.decode('utf-8'))['source_chain_id'],
+                                     'target_node_id': json.loads(key.decode('utf-8'))['target_node_id'],
+                                     'target_info': json.loads(value.decode('utf-8'))['target_info'],
+                                     'target_chain_id': json.loads(value.decode('utf-8'))['target_chain_id'],
+                                     'weight': json.loads(value.decode('utf-8'))['weight']} for key, value in self.graph_state.iterator()]
+                }
+            }
+            params = (
+                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+            )
+            requests.get(f"http://localhost:{self.rpc_port}/broadcast_tx_async", params=params)
         return types_pb2.ResponseEndBlock(validator_updates=self.validator_updates)
 
 
