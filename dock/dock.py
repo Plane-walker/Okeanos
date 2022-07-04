@@ -28,17 +28,9 @@ class DockServer(dci_pb2_grpc.DockServicer):
         log.info('Received request for Query')
         return self.cross_chain_community_protocol.query(request)
 
-    def GetGraphData(self, request, context):
-        log.info('Received request for GetGraphDate')
-        return self.network_optimizer.graph_data.get_graph_data(request)
-
-    def UpdateGraphData(self, request, context):
-        log.info('Received request for UpdateGraphDate')
-        return self.network_optimizer.graph_data.update_graph_data(request)
-
-    def SwitchIsland(self, request, context):
+    def Shard(self, request, context):
         log.info('Received request for SwitchIsland')
-        return self.network_optimizer.switch_island(request)
+        return self.network_optimizer.shard(request)
 
 
 class Dock:

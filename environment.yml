@@ -13,4 +13,4 @@ dependencies:
   - networkx==2.6.3
   - scikit-learn==1.0.1
   - pip:
-    - leveldb
+    - plyvel

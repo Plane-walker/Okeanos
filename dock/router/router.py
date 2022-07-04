@@ -6,7 +6,6 @@ import random
 import requests
 import yaml
 import json
-import os
 import uuid
 import time
 import sys
@@ -50,15 +49,8 @@ class Router:
         island = self.chain_manager.get_island()[0]
         message = {
             "header": {
-                "type": "read_simple",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": self.config['app']['app_id'],
-                    "app_info": ""
-                }
+                "type": "route",
+                "timestamp": str(time.time())
             },
             "body": {
                 "key": key
@@ -69,8 +61,9 @@ class Router:
         url = f'http://localhost:{island.rpc_port}/abci_query'
         response = requests.get(url, params=params)
         log.debug(f'Get router response {response.json()}')
-        if 'code' in response.json()['result']['response'] and response.json()['result']['response']['code'] == 0:
-            return base64.b64decode(response.json()['result']['response']['value'].encode('utf-8')).decode('utf-8')[1:-1]
+        value = json.loads(base64.b64decode(response.json()['result']['response']['value'].encode('utf-8')).decode('utf-8'))
+        if value != 0:
+            return value
         return None
 
     def insert_island_router(self, key, value):
@@ -78,15 +71,8 @@ class Router:
         island_id = island.chain_id
         message = {
             "header": {
-                "type": "write_simple",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": self.config['app']['app_id'],
-                    "app_info": ""
-                }
+                "type": "route",
+                "timestamp": "",
             },
             "body": {
                 "key": key,

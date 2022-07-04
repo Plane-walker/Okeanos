@@ -22,7 +22,7 @@ The way the app state is structured, you can also see the current state value
 in the tendermint console output (see app_hash).
 """
 import os
-import leveldb
+import plyvel
 import json
 import struct
 import sys
@@ -52,10 +52,10 @@ def decode_number(raw):
 
 
 class LaneService(BaseApplication):
-    def __init__(self, node_id, db_path, dock_port):
-        self.node_id = node_id
+    def __init__(self, db_path, dock_port, rpc_port):
+        self.db_path = db_path
         self.dock_port = dock_port
-        self.db = leveldb.LevelDB(os.path.join(db_path, 'db'))
+        self.rpc_port = rpc_port
         self.last_block_height = None
         self.validator_updates = []
         self.address_to_public_key = {}
@@ -111,16 +111,15 @@ class LaneService(BaseApplication):
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
-            elif message_type == 'cross_write':
+            elif message_type == 'cross_write' or message_type == 'cross_move_source' or message_type == 'unlock':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info(
-                        f'Call dock DeliverTx with {message_type} type with {tx_json}.')
+                    log.info(f'Call dock DeliverTx with {message_type} type with {tx_json}.')
                     client = dci_pb2_grpc.DockStub(channel)
                     log.warning(f'client {repr(client)}')
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
-            elif message_type == 'cross_read' or message_type == 'cross_graph' or message_type == 'join':
+            elif message_type == 'join':
                 request_query = dci_pb2.RequestQuery(tx=tx)
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
@@ -138,12 +137,6 @@ class LaneService(BaseApplication):
 
     def query(self, req) -> types_pb2.ResponseQuery:
         try:
-            request_query = dci_pb2.RequestQuery(tx=req.data)
-            with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                log.info('Call dock grpc: DeliverTx')
-                client = dci_pb2_grpc.DockStub(channel)
-                response = client.Query(request_query)
-                log.info(f'Dock return with status code: {response.code}')
             return types_pb2.ResponseQuery(code=OkCode)
         except Exception as exception:
             log.error(repr(exception))
@@ -159,6 +152,7 @@ class LaneService(BaseApplication):
         return types_pb2.ResponseBeginBlock()
 
     def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
+        self.last_block_height += 1
         return types_pb2.ResponseEndBlock(validator_updates=self.validator_updates)
 
 

@@ -105,10 +105,10 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         start_service = f"python {config['chain_manager']['chain'][chain_name]['type']}/service/service.py " \
                         f"{config['chain_manager']['chain'][chain_name]['abci_port']} " \
-                        f"{config['app']['app_id']} " \
                         f"{config['chain_manager']['base_path']}/{chain_name} " \
                         f"{config['dock']['address']['port']} " \
-                        f"{self._config_path}" \
+                        f"{config['chain_manager']['chain'][chain_name]['rpc_port']} " \
+                        f"{self._config_path} " \
                         f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,

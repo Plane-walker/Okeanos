@@ -54,26 +54,52 @@ class TestGraphData(unittest.TestCase):
         dock_island_genesis_path = os.path.join(dock_manager_path, 'island_0/config/genesis.json')
         with open(dock_island_genesis_path) as file:
             self.source = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(dock_manager_path, 'island_0/config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        source_node_id = priv_validator_key['address']
         dock_1_manager_path = config_1['chain_manager']['base_path']
         dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_1/config/genesis.json')
         with open(dock_1_island_genesis_path) as file:
             self.target = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(dock_manager_path, 'island_1/config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        target_node_id = priv_validator_key['address']
         message = {
             "header": {
                 "type": "write",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": self.source['chain_id'],
-                "target_chain_id": self.target['chain_id'],
-                "auth": {
-                    "app_id": "1",
-                    "app_info": ""
-                },
                 "timestamp": str(time.time())
             },
             "body": {
-                "key": "test_key",
-                "value": "test_value"
+                "key": "test_key_source",
+                "value": 10
+            }
+        }
+        params = (
+            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        requests.get(
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
+
+        cross_timestamp = str(time.time())
+        message = {
+            "header": {
+                "type": "cross_move_source",
+                "cross": {
+                    "ttl": -1,
+                    "paths": [],
+                    "source_chain_id": self.source['chain_id'],
+                    "source_node_id": source_node_id,
+                    "source_info": source_node_id,
+                    "target_chain_id": self.target['chain_id'],
+                    "target_node_id": target_node_id,
+                    "target_info": target_node_id,
+                },
+                "timestamp": cross_timestamp
+            },
+            "body": {
+                "source_key": "test_key_source",
+                "target_key": "test_key_target",
+                "amount": 3
             }
         }
 
@@ -81,83 +107,24 @@ class TestGraphData(unittest.TestCase):
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
         requests.get(
-            f"http://localhost:{config_1['chain_manager']['chain']['island_1']['rpc_port']}/broadcast_tx_commit", params=params)
-        message = {
-            "header": {
-                "type": "read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": self.source['chain_id'],
-                "target_chain_id": self.target['chain_id'],
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
-                "timestamp": str(time.time())
-            },
-            "body": {
-                "key": "test_key",
-            }
-        }
-        params = (
-            ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
-        )
-        requests.get(f"http://localhost:{config_1['chain_manager']['chain']['island_1']['rpc_port']}/abci_query", params=params)
-        message = {
-            "header": {
-                "type": "cross_graph",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": self.source['chain_id'],
-                "target_chain_id": self.target['chain_id'],
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
-                "timestamp": str(time.time())
-            },
-            "body": {
-                "key": "1",
-            }
-        }
-        params = (
-            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-        )
+            f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
+
         requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/broadcast_tx_commit", params=params)
         message = {
             "header": {
-                "type": "read",
-                "ttl": -1,
-                "paths": [],
-                "source_chain_id": "",
-                "target_chain_id": "",
-                "auth": {
-                    "app_id": "0",
-                    "app_info": ""
-                },
+                "type": "graph",
                 "timestamp": str(time.time())
             },
-            "body": {
-                "key": "response_for_query_1",
-            }
+            "body": {}
         }
         params = (
             ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        timeout = 30
-        start_time = datetime.datetime.now()
-        while True:
-            response = requests.get(
-                f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-            if json.loads(response.text)['result']['response']['code'] == 0:
-                break
-            if (datetime.datetime.now() - start_time).seconds > timeout:
-                break
-            time.sleep(1)
+        response = requests.get(f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
         result = json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
-        self.assertEqual(result[0]['source_app_id'], "1")
-        self.assertEqual(result[0]['target_app_id'], "0")
-        self.assertEqual(result[0]['weight'], 1)
+        self.assertEqual(result[0]['source_node_id'], source_node_id)
+        self.assertEqual(result[0]['target_node_id'], target_node_id)
+        self.assertEqual(result[0]['weight'][0], cross_timestamp)
         for chain in dock.chain_manager.select_chain(lambda single: True):
             dock.chain_manager.delete_chain(chain.chain_id)
         for chain in dock_1.chain_manager.select_chain(lambda single: True):
