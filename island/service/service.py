@@ -184,15 +184,25 @@ class IslandService(BaseApplication):
                     value = tx_json['body']['value']
                     self.world_state.put(target_key.encode('utf-8'), json.dumps(value).encode('utf-8'))
                 unlock_json = {
-                    'header': tx_json['header'],
+                    "header": {
+                        "type": "unlock",
+                        "cross": {
+                            "ttl": -1,
+                            "paths": [],
+                            "source_chain_id": tx_json['header']['cross']['target_chain_id'],
+                            "source_node_id": tx_json['header']['cross']['target_node_id'],
+                            "source_info": tx_json['header']['cross']['target_info'],
+                            "target_chain_id": tx_json['header']['cross']['source_chain_id'],
+                            "target_node_id": tx_json['header']['cross']['source_node_id'],
+                            "target_info": tx_json['header']['cross']['source_info'],
+                        },
+                        "timestamp": tx_json['header']['timestamp']
+                    },
                     'body': {
                         'key': tx_json['body']['source_key'],
                         'status': 0
                     }
                 }
-                source_chain_id = unlock_json['header']['cross']['source_chain_id']
-                unlock_json['header']['cross']['source_chain_id'] = unlock_json['header']['cross']['target_chain_id']
-                unlock_json['header']['cross']['target_chain_id'] = source_chain_id
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(unlock_json).encode('utf-8'))
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
@@ -204,13 +214,13 @@ class IslandService(BaseApplication):
             elif message_type == 'unlock':
                 status = tx_json['body']['status']
                 key = tx_json['body']['key']
-                value = json.loads(self.world_state.get(key.encode('utf-8')).decode('utf-8'))
-                self.world_state.delete(key.encode('utf-8'))
+                value = json.loads(self.world_state.get(f'_{key}'.encode('utf-8')).decode('utf-8'))
+                self.world_state.delete(f'_{key}'.encode('utf-8'))
                 if status == 0:
                     if value.get('_new_value') is not None:
-                        self.world_state.put(key[1:].encode('utf-8'), json.dumps(value['_new_value']).encode('utf-8'))
+                        self.world_state.put(key.encode('utf-8'), json.dumps(value['_new_value']).encode('utf-8'))
                 else:
-                    self.world_state.put(key[1:].encode('utf-8'), json.dumps(value['_old_value']).encode('utf-8'))
+                    self.world_state.put(key.encode('utf-8'), json.dumps(value['_old_value']).encode('utf-8'))
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'validate':
                 validator_update = types_pb2.ValidatorUpdate(

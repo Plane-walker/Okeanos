@@ -129,13 +129,36 @@ class TestRouter(unittest.TestCase):
         while True:
             response = requests.get(
                 f"http://localhost:{config_1['chain_manager']['chain']['island_1']['rpc_port']}/abci_query", params=params)
-            if json.loads(response.text)['result']['response']['value'] == 'test_value':
+            if json.loads(response.text)['result']['response']['value'] == base64.b64encode(json.dumps(3).encode('utf-8')).decode('utf-8'):
                 break
             if (datetime.datetime.now() - start_time).seconds > timeout:
                 break
             time.sleep(1)
         self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode(json.dumps(3).encode('utf-8')).decode('utf-8'))
 
+        message = {
+            "header": {
+                "type": "read",
+                "timestamp": str(time.time())
+            },
+            "body": {
+                "key": "test_key_source"
+            }
+        }
+        params = (
+            ('data', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        start_time = datetime.datetime.now()
+        timeout = 30
+        while True:
+            response = requests.get(
+                f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
+            if json.loads(response.text)['result']['response']['value'] == base64.b64encode(json.dumps(7).encode('utf-8')).decode('utf-8'):
+                break
+            if (datetime.datetime.now() - start_time).seconds > timeout:
+                break
+            time.sleep(1)
+        self.assertEqual(json.loads(response.text)['result']['response']['value'], base64.b64encode(json.dumps(7).encode('utf-8')).decode('utf-8'))
         # delete chains
         for chain in dock.chain_manager.select_chain(lambda single: True):
             dock.chain_manager.delete_chain(chain.chain_id)

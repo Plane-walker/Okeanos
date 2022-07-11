@@ -71,6 +71,17 @@ class CrossChainCommunicationProtocol:
                     self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 else:
                     self.dispatch_async(request)
+            elif tx_json['header']['type'] == 'unlock':
+                log.debug(f'Cross write tx: {tx_json}')
+                island = self.chain_manager.get_island(tx_json['header']['cross']['target_chain_id'])
+                if island is not None:
+                    params = (
+                        ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                    )
+                    log.info(f'Send to {island.chain_name}: {island.chain_id}')
+                    self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
+                else:
+                    self.dispatch_async(request)
             return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
         except Exception as exception:
             log.error(repr(exception))
