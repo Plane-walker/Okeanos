@@ -156,9 +156,3 @@ class GraphSAGEModel(NodeClassificationModel):
             if vertex_index != self_index:
                 return labels[vertex_index]
         return labels[self_index]
-
-
-if __name__ == '__main__':
-    inputs = tf.constant([[1, 2, 3], [2, 1, 1], [1, 1, 1]])
-    inputs = tf.expand_dims(tf.expand_dims(inputs, axis=0), axis=-1)
-    print(inputs)
