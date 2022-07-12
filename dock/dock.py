@@ -24,13 +24,13 @@ class DockServer(dci_pb2_grpc.DockServicer):
         log.info('Received request for DeliverTx')
         return self.cross_chain_community_protocol.deliver_tx(request)
 
-    def Query(self, request, context):
-        log.info('Received request for Query')
-        return self.cross_chain_community_protocol.query(request)
-
     def Shard(self, request, context):
-        log.info('Received request for SwitchIsland')
+        log.info('Received request for Shard')
         return self.network_optimizer.shard(request)
+
+    def Switch(self, request, context):
+        log.info('Received request for SwitchIsland')
+        return self.network_optimizer.switch(request)
 
 
 class Dock:

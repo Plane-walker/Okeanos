@@ -120,11 +120,11 @@ class LaneService(BaseApplication):
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code} for {tx_json}')
             elif message_type == 'join':
-                request_query = dci_pb2.RequestQuery(tx=tx)
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
                     log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
-                    response = client.Query(request_query)
+                    response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code}')
             elif message_type == 'empty':
                 return types_pb2.ResponseDeliverTx(code=OkCode)

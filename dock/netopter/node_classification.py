@@ -85,7 +85,7 @@ class GraphSAGEModel(NodeClassificationModel):
     def train(self, data):
         with open(self.config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        id_map, features, adjacency_matrix, labels = data.get_all_data()
+        id_map, features, adjacency_matrix, labels = data.import_data()
         train_cut = features.shape[0] // 10 * 8
         train_seq = NodeSequence(sample_features,
                                  config['GNN']['graphSAGE']['batch_size'],
@@ -139,7 +139,7 @@ class GraphSAGEModel(NodeClassificationModel):
                                'config/priv_validator_key.json')) as file:
             priv_validator_key = yaml.load(file, Loader=yaml.Loader)
         self_node_id = priv_validator_key['address']
-        id_map, features, adjacency_matrix, labels = data.get_all_data()
+        id_map, features, adjacency_matrix, labels = data.import_data()
         node = NodeSequence(sample_features,
                             config['GNN']['graphSAGE']['batch_size'],
                             list(range(len(features))),

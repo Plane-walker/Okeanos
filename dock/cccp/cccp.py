@@ -8,7 +8,6 @@ import yaml
 import requests
 import hashlib
 from interface.dci import dci_pb2
-import base64
 from log import log
 import sys
 from dock.router import Router
@@ -71,6 +70,18 @@ class CrossChainCommunicationProtocol:
                     self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 else:
                     self.dispatch_async(request)
+            elif tx_json['header']['type'] == 'cross_write':
+                log.debug(f'Cross write tx: {tx_json}')
+                island = self.chain_manager.get_island(tx_json['header']['cross']['target_chain_id'])
+                if island is not None:
+                    tx_json['header']['type'] = 'write'
+                    params = (
+                        ('tx', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
+                    )
+                    log.info(f'Send to {island.chain_name}: {island.chain_id}')
+                    self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
+                else:
+                    self.dispatch_async(request)
             elif tx_json['header']['type'] == 'unlock':
                 log.debug(f'Cross write tx: {tx_json}')
                 island = self.chain_manager.get_island(tx_json['header']['cross']['target_chain_id'])
@@ -82,6 +93,43 @@ class CrossChainCommunicationProtocol:
                     self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
                 else:
                     self.dispatch_async(request)
+            elif tx_json['header']['type'] == 'join':
+                log.debug(f'Cross write tx: {tx_json}')
+                island = self.chain_manager.get_island(tx_json['header']['cross']['target_chain_id'])
+                if island is not None:
+                    with open(self._config_path) as file:
+                        config = yaml.load(file, Loader=yaml.Loader)
+                    if config['app']['fixed_server_ip']:
+                        ip = config['app']['server_ip']
+                    else:
+                        hostname = socket.gethostname()
+                        ip = socket.gethostbyname(hostname)
+                    join_info = {
+                        "island": [f'{ip}:{island.rpc_port}' for island in self.chain_manager.get_island()],
+                        "lane": [f'{ip}:{lane.rpc_port}' for lane in self.chain_manager.get_lane()]
+                    }
+                    message = {
+                        "header": {
+                            "type": "cross_write",
+                            "cross": {
+                                "ttl": tx_json['header']['cross']['ttl'],
+                                "paths": [],
+                                "source_chain_id": tx_json['header']['cross']['target_chain_id'],
+                                "source_node_id": tx_json['header']['cross']['target_node_id'],
+                                "source_info": tx_json['header']['cross']['target_info'],
+                                "target_chain_id": tx_json['header']['cross']['source_chain_id'],
+                                "target_node_id": tx_json['header']['cross']['source_node_id'],
+                                "target_info": tx_json['header']['cross']['source_info'],
+                            },
+                            "timestamp": tx_json['header']['timestamp']
+                        },
+                        "body": {
+                            "key": f"_join_info_{tx_json['header']['cross']['target_chain_id']}",
+                            "value": join_info
+                        }
+                    }
+                    request.tx = json.dumps(message).encode('utf-8')
+                self.dispatch_async(request)
             return dci_pb2.ResponseDeliverTx(code=TxDeliverCode.Success.value)
         except Exception as exception:
             log.error(repr(exception))
@@ -132,114 +180,3 @@ class CrossChainCommunicationProtocol:
                     left_down += 1
                 D[i][j] = min(left, down, left_down)
         return D[n][m]
-
-    def query(self, request):
-        try:
-            tx_json = json.loads(request.tx.decode('utf-8'))
-            if self.judge_validator(tx_json):
-                island = self.chain_manager.get_island(tx_json['header']['target_chain_id'])
-                if island is not None:
-                    if tx_json['header']['type'] == 'cross_read':
-                        tx_json['header']['type'] = 'read_full'
-                        params = (
-                            ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-                        )
-                        log.info(f'Send query message to {island.chain_name}({island.chain_id})')
-                        response = requests.get(f'http://localhost:{island.rpc_port}/abci_query', params=params)
-                        value = json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
-                        log.info(f'{island.chain_name} return: {response}')
-                        message = {
-                            "header": {
-                                "type": "cross_write",
-                                "ttl": tx_json['header']['ttl'],
-                                "paths": [],
-                                "source_chain_id": tx_json['header']['target_chain_id'],
-                                "target_chain_id": tx_json['header']['source_chain_id'],
-                                "auth": {
-                                    "app_id": value['keeper']['app_id'],
-                                    "app_info": value['keeper']['app_info']
-                                }
-                            },
-                            "body": {
-                                "key": f"response_for_query_{tx_json['body']['key']}",
-                                "value": value['value']
-                            }
-                        }
-                        params = (
-                            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-                        )
-                        log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
-                        self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
-                    elif tx_json['header']['type'] == 'cross_graph':
-                        tx_json['header']['type'] = 'graph'
-                        params = (
-                            ('data', '0x' + json.dumps(tx_json).encode('utf-8').hex()),
-                        )
-                        log.info(f'Send query message to {island.chain_name}({island.chain_id})')
-                        response = requests.get(f'http://localhost:{island.rpc_port}/abci_query', params=params)
-                        log.info(f'{island.chain_name} return: {response}')
-                        with open(self._config_path) as file:
-                            config = yaml.load(file, Loader=yaml.Loader)
-                        message = {
-                            "header": {
-                                "type": "cross_write",
-                                "ttl": tx_json['header']['ttl'],
-                                "paths": [],
-                                "source_chain_id": tx_json['header']['target_chain_id'],
-                                "target_chain_id": tx_json['header']['source_chain_id'],
-                                "auth": {
-                                    "app_id": config['app']['app_id'],
-                                    "app_info": ""
-                                }
-                            },
-                            "body": {
-                                "key": f"response_for_query_{tx_json['body']['key']}",
-                                "value": json.loads(base64.b64decode(json.loads(response.text)['result']['response']['value'].encode('utf-8')).decode('utf-8'))
-                            }
-                        }
-                        params = (
-                            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-                        )
-                        log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
-                        self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
-                    elif tx_json['header']['type'] == 'join':
-                        with open(self._config_path) as file:
-                            config = yaml.load(file, Loader=yaml.Loader)
-                        if config['app']['fixed_server_ip']:
-                            ip = config['app']['server_ip']
-                        else:
-                            hostname = socket.gethostname()
-                            ip = socket.gethostbyname(hostname)
-                        join_info = {
-                            "island": [f'{ip}:{island.rpc_port}' for island in self.chain_manager.get_island()],
-                            "lane": [f'{ip}:{lane.rpc_port}' for lane in self.chain_manager.get_lane()]
-                        }
-                        message = {
-                            "header": {
-                                "type": "cross_write",
-                                "ttl": tx_json['header']['ttl'],
-                                "paths": [],
-                                "source_chain_id": tx_json['header']['target_chain_id'],
-                                "target_chain_id": tx_json['header']['source_chain_id'],
-                                "auth": {
-                                    "app_id": config['app']['app_id'],
-                                    "app_info": ""
-                                }
-                            },
-                            "body": {
-                                "key": f"response_for_query_join_{tx_json['header']['target_chain_id']}",
-                                "value": join_info
-
-                            }
-                        }
-                        params = (
-                            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-                        )
-                        log.info(f'Send cross query response to {island.chain_name}({island.chain_id})')
-                        self.rpc_request_async(f'http://localhost:{island.rpc_port}/broadcast_tx_commit', params)
-                else:
-                    self.dispatch_async(request)
-            return dci_pb2.ResponseQuery(code=TxDeliverCode.Success.value)
-        except Exception as exception:
-            log.error(repr(exception))
-            return dci_pb2.ResponseQuery(code=TxDeliverCode.FAIL.value)

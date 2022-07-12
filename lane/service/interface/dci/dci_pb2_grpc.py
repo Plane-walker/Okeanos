@@ -19,11 +19,6 @@ class DockStub(object):
                 request_serializer=dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseDeliverTx.FromString,
                 )
-        self.Query = channel.unary_unary(
-                '/dci.Dock/Query',
-                request_serializer=dci_dot_dci__pb2.RequestQuery.SerializeToString,
-                response_deserializer=dci_dot_dci__pb2.ResponseQuery.FromString,
-                )
         self.RouterInfo = channel.unary_unary(
                 '/dci.Dock/RouterInfo',
                 request_serializer=dci_dot_dci__pb2.RequestRouterInfo.SerializeToString,
@@ -44,18 +39,17 @@ class DockStub(object):
                 request_serializer=dci_dot_dci__pb2.RequestShard.SerializeToString,
                 response_deserializer=dci_dot_dci__pb2.ResponseShard.FromString,
                 )
+        self.Switch = channel.unary_unary(
+                '/dci.Dock/Switch',
+                request_serializer=dci_dot_dci__pb2.RequestSwitch.SerializeToString,
+                response_deserializer=dci_dot_dci__pb2.ResponseSwitch.FromString,
+                )
 
 
 class DockServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def DeliverTx(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def Query(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -85,6 +79,12 @@ class DockServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Switch(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DockServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -92,11 +92,6 @@ def add_DockServicer_to_server(servicer, server):
                     servicer.DeliverTx,
                     request_deserializer=dci_dot_dci__pb2.RequestDeliverTx.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseDeliverTx.SerializeToString,
-            ),
-            'Query': grpc.unary_unary_rpc_method_handler(
-                    servicer.Query,
-                    request_deserializer=dci_dot_dci__pb2.RequestQuery.FromString,
-                    response_serializer=dci_dot_dci__pb2.ResponseQuery.SerializeToString,
             ),
             'RouterInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.RouterInfo,
@@ -117,6 +112,11 @@ def add_DockServicer_to_server(servicer, server):
                     servicer.Shard,
                     request_deserializer=dci_dot_dci__pb2.RequestShard.FromString,
                     response_serializer=dci_dot_dci__pb2.ResponseShard.SerializeToString,
+            ),
+            'Switch': grpc.unary_unary_rpc_method_handler(
+                    servicer.Switch,
+                    request_deserializer=dci_dot_dci__pb2.RequestSwitch.FromString,
+                    response_serializer=dci_dot_dci__pb2.ResponseSwitch.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -142,23 +142,6 @@ class Dock(object):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/DeliverTx',
             dci_dot_dci__pb2.RequestDeliverTx.SerializeToString,
             dci_dot_dci__pb2.ResponseDeliverTx.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def Query(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/dci.Dock/Query',
-            dci_dot_dci__pb2.RequestQuery.SerializeToString,
-            dci_dot_dci__pb2.ResponseQuery.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -227,5 +210,22 @@ class Dock(object):
         return grpc.experimental.unary_unary(request, target, '/dci.Dock/Shard',
             dci_dot_dci__pb2.RequestShard.SerializeToString,
             dci_dot_dci__pb2.ResponseShard.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Switch(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/dci.Dock/Switch',
+            dci_dot_dci__pb2.RequestSwitch.SerializeToString,
+            dci_dot_dci__pb2.ResponseSwitch.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
