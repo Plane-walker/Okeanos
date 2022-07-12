@@ -114,7 +114,7 @@ class IslandService(BaseApplication):
                 amount = tx_json['body']['amount']
                 if amount != -1:
                     source_value = json.loads(self.world_state.get(source_key.encode('utf-8')).decode('utf-8'))
-                    target_value = json.loads(self.world_state.get(source_key.encode('utf-8'),
+                    target_value = json.loads(self.world_state.get(target_key.encode('utf-8'),
                                                                    json.dumps(0).encode('utf-8')).decode('utf-8'))
                     if source_value - amount == 0:
                         self.world_state.delete(source_key.encode('utf-8'))
@@ -138,6 +138,14 @@ class IslandService(BaseApplication):
                     response = client.Shard(request_shard)
                     log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
+            elif message_type == 'switch':
+                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                    log.info('Call dock grpc: Switch')
+                    request_switch_package = dci_pb2.RequestSwitch(chain_id=tx_json['body']['chain_id'])
+                    client = dci_pb2_grpc.DockStub(channel)
+                    response = client.Switch(request_switch_package)
+                    log.info(f'Dock return with status code: {response.code}')
+                return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
@@ -145,7 +153,6 @@ class IslandService(BaseApplication):
                     client = dci_pb2_grpc.DockStub(channel)
                     response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code}')
-                self._add_edge(tx_json['header'])
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_move_source':
                 source_key = tx_json['body']['source_key']
@@ -229,11 +236,11 @@ class IslandService(BaseApplication):
                 self.update_validator(validator_update)
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'join':
-                request_query = dci_pb2.RequestQuery(tx=tx)
+                request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
                 with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info('Call dock grpc: Query')
+                    log.info('Call dock grpc: DeliverTx')
                     client = dci_pb2_grpc.DockStub(channel)
-                    response = client.Query(request_query)
+                    response = client.DeliverTx(request_tx_package)
                     log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'empty':
@@ -300,8 +307,7 @@ class IslandService(BaseApplication):
         return types_pb2.ResponseBeginBlock()
 
     def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
-        self.last_block_height += 1
-        if self.last_block_height % 100 == 0:
+        if req.height % 100 == 0:
             message = {
                 "header": {
                     "type": "shard",
@@ -317,6 +323,8 @@ class IslandService(BaseApplication):
                                      'weight': json.loads(value.decode('utf-8'))['weight']} for key, value in self.graph_state.iterator()]
                 }
             }
+            for key, value in self.graph_state.iterator():
+                self.graph_state.delete(key)
             params = (
                 ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
             )

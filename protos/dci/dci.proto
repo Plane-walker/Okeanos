@@ -14,15 +14,6 @@ message RequestDeliverTx {
     repeated common.Chain paths = 6;
 }
 
-message RequestQuery {
-    bytes tx = 1;
-    common.Chain source = 2;
-    common.Chain target = 3;
-    string type = 4;
-    int32 ttl = 5;
-    repeated common.Chain paths = 6;
-}
-
 message RequestRouterInfo {
     uint32 tx = 1;
 }
@@ -44,11 +35,11 @@ message RequestShard {
     string graph_state = 1;
 }
 
-message ResponseDeliverTx {
-    uint32 code = 1;
+message RequestSwitch {
+    string chain_id = 1;
 }
 
-message ResponseQuery {
+message ResponseDeliverTx {
     uint32 code = 1;
 }
 
@@ -73,15 +64,20 @@ message ResponseShard{
     string info = 2;
 }
 
+message ResponseSwitch{
+    uint32 code = 1;
+    string info = 2;
+}
+
 
 
 service Dock {
     rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
-    rpc Query(RequestQuery) returns (ResponseQuery);
 
     rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
     rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
     rpc Shard(RequestShard) returns (ResponseShard);
+    rpc Switch(RequestSwitch) returns (ResponseSwitch);
 }

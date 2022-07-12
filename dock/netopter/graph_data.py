@@ -30,7 +30,7 @@ class GraphData:
             self._vertices[node_connection['source_node_id']] = node_connection['source_info']
             self._vertices[node_connection['target_node_id']] = node_connection['target_info']
             edge = (node_connection['source_node_id'], node_connection['target_node_id'])
-            self._edges[edge] = self._edges.get(edge, 0) + node_connection['weight']
+            self._edges[edge] = self._edges.get(edge, 0) + len(node_connection['weight'])
             self._edges[(node_connection['target_node_id'], node_connection['source_node_id'])] = self._edges[edge]
             self._labels[node_connection['source_node_id']] = node_connection['source_chain_id']
             self._labels[node_connection['target_node_id']] = node_connection['target_chain_id']

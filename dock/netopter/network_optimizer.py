@@ -30,9 +30,12 @@ class NetworkOptimizer:
     def optimize_async(self, request):
         def optimize():
             try:
-                graph_data = GraphData(self.config_path)
-                graph_data.import_data_from_str(request.graph_state)
-                new_chain_id = self.model.predict(graph_data)[0]
+                if request.chain_id is not None:
+                    new_chain_id = request.chain_id
+                else:
+                    graph_data = GraphData(self.config_path)
+                    graph_data.import_data_from_str(request.graph_state)
+                    new_chain_id = self.model.predict(graph_data)[0]
                 log.info(f'New chain id is {new_chain_id}')
                 if new_chain_id == self.chain_manager.get_island()[0].chain_id:
                     return
@@ -45,7 +48,11 @@ class NetworkOptimizer:
                             "ttl": -1,
                             "paths": [],
                             "source_chain_id": self.chain_manager.get_island()[0].chain_id,
-                            "target_chain_id": new_chain_id
+                            "source_node_id": '',
+                            "source_info": '',
+                            "target_chain_id": new_chain_id,
+                            "target_node_id": '',
+                            "target_info": '',
                         },
                         "timestamp": str(time.time())
                     },
@@ -61,7 +68,7 @@ class NetworkOptimizer:
                         "timestamp": str(time.time())
                     },
                     "body": {
-                        "key": f"response_for_query_join_{new_chain_id}"
+                        "key": f"_join_info_{new_chain_id}"
                     }
                 }
                 params = (
@@ -72,7 +79,7 @@ class NetworkOptimizer:
                 while True:
                     response = requests.get(
                         f"http://localhost:{config['chain_manager']['chain']['island_0']['rpc_port']}/abci_query", params=params)
-                    if json.loads(response.text)['result']['response']['code'] == 0 or (datetime.datetime.now() - start_time).seconds > timeout:
+                    if json.loads(response.text)['result']['response']['value'] is not None or (datetime.datetime.now() - start_time).seconds > timeout:
                         break
                     time.sleep(1)
                 if json.loads(response.text)['result']['response']['code'] == 0:
@@ -82,7 +89,7 @@ class NetworkOptimizer:
                             "timestamp": str(time.time())
                         },
                         "body": {
-                            "key": f"response_for_query_join_{new_chain_id}"
+                            "key": f"_join_info_{new_chain_id}"
                         }
                     }
                     params = (
@@ -113,3 +120,7 @@ class NetworkOptimizer:
     def shard(self, request):
         self.optimize_async(request)
         return dci_pb2.ResponseShard(code=200, info='ok')
+
+    def switch(self, request):
+        self.optimize_async(request)
+        return dci_pb2.ResponseSwitch(code=200, info='ok')
