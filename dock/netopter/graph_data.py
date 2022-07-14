@@ -19,7 +19,7 @@ class GraphData:
 
     def import_data(self):
         id_map = np.array(list(self._vertices.keys()))
-        features = np.array([list(map(int, list(self._vertices[vertex_id]))) for vertex_id in id_map])
+        features = np.array([list(map(int, list(''.join([bin(ord(c)).replace('0b', '') for c in self._vertices[vertex_id]]) + '0' * 100)[0: 100])) for vertex_id in id_map])
         adjacency_matrix = np.array([[self._edges.get((source_id, target_id), 0) for target_id in id_map] for source_id in id_map])
         labels = np.array([self._labels[vertex_id] for vertex_id in id_map])
         return id_map.reshape([id_map.shape[0], -1]), features.reshape([features.shape[0], -1]), adjacency_matrix, labels.reshape([labels.shape[0], -1])

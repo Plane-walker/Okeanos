@@ -49,9 +49,9 @@ class ChainManager:
     def init_chain(self, chain_name):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name};" \
+        init_chain = f"tendermint init validator --home {config['chain_manager']['base_path']}/{chain_name};" \
                      f"sed -i " \
-                     f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
+                     f"'s#proxy-app = \"tcp://127.0.0.1:26658\"#proxy-app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['rpc_port']}\"#g' " \
@@ -60,16 +60,16 @@ class ChainManager:
                      f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['p2p_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#create_empty_blocks = true#create_empty_blocks = false#g' " \
+                     f"'s#create-empty-blocks = true#create-empty-blocks = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#addr_book_strict = true#addr_book_strict = false#g' " \
+                     f"'s#addr-book-strict = true#addr-book-strict = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#max_subscription_clients = 100#max_subscription_clients = 8000#g' " \
+                     f"'s#max-subscription-clients = 100#max-subscription-clients = 8000#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#max_subscriptions_per_client = 5#max_subscriptions_per_client = 400#g' " \
+                     f"'s#max-subscriptions-per-client = 5#max-subscriptions-per-client = 400#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;"
         subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
 

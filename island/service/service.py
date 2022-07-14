@@ -25,6 +25,7 @@ import struct
 import os
 import sys
 import json
+import yaml
 import grpc
 import plyvel
 import requests
@@ -139,12 +140,16 @@ class IslandService(BaseApplication):
                     log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'switch':
-                with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
-                    log.info('Call dock grpc: Switch')
-                    request_switch_package = dci_pb2.RequestSwitch(chain_id=tx_json['body']['chain_id'])
-                    client = dci_pb2_grpc.DockStub(channel)
-                    response = client.Switch(request_switch_package)
-                    log.info(f'Dock return with status code: {response.code}')
+                with open(os.path.join(self.db_path, 'config/priv_validator_key.json')) as file:
+                    priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+                node_id = priv_validator_key['address']
+                if node_id == tx_json['body']['node_id']:
+                    with grpc.insecure_channel(f'localhost:{self.dock_port}') as channel:
+                        log.info('Call dock grpc: Switch')
+                        request_switch_package = dci_pb2.RequestSwitch(chain_id=tx_json['body']['chain_id'])
+                        client = dci_pb2_grpc.DockStub(channel)
+                        response = client.Switch(request_switch_package)
+                        log.info(f'Dock return with status code: {response.code}')
                 return types_pb2.ResponseDeliverTx(code=OkCode)
             elif message_type == 'cross_write':
                 request_tx_package = dci_pb2.RequestDeliverTx(tx=json.dumps(tx_json).encode('utf-8'))
@@ -307,28 +312,28 @@ class IslandService(BaseApplication):
         return types_pb2.ResponseBeginBlock()
 
     def end_block(self, req: types_pb2.RequestEndBlock) -> types_pb2.ResponseEndBlock:
-        if req.height % 100 == 0:
-            message = {
-                "header": {
-                    "type": "shard",
-                    "nonce": self.last_block_height,
-                },
-                "body": {
-                    'graph_state': [{'source_node_id': json.loads(key.decode('utf-8'))['source_node_id'],
-                                     'source_info': json.loads(value.decode('utf-8'))['source_info'],
-                                     'source_chain_id': json.loads(value.decode('utf-8'))['source_chain_id'],
-                                     'target_node_id': json.loads(key.decode('utf-8'))['target_node_id'],
-                                     'target_info': json.loads(value.decode('utf-8'))['target_info'],
-                                     'target_chain_id': json.loads(value.decode('utf-8'))['target_chain_id'],
-                                     'weight': json.loads(value.decode('utf-8'))['weight']} for key, value in self.graph_state.iterator()]
-                }
-            }
-            for key, value in self.graph_state.iterator():
-                self.graph_state.delete(key)
-            params = (
-                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-            )
-            requests.get(f"http://localhost:{self.rpc_port}/broadcast_tx_async", params=params)
+        # if req.height % 100 == 0:
+        #     message = {
+        #         "header": {
+        #             "type": "shard",
+        #             "nonce": self.last_block_height,
+        #         },
+        #         "body": {
+        #             'graph_state': [{'source_node_id': json.loads(key.decode('utf-8'))['source_node_id'],
+        #                              'source_info': json.loads(value.decode('utf-8'))['source_info'],
+        #                              'source_chain_id': json.loads(value.decode('utf-8'))['source_chain_id'],
+        #                              'target_node_id': json.loads(key.decode('utf-8'))['target_node_id'],
+        #                              'target_info': json.loads(value.decode('utf-8'))['target_info'],
+        #                              'target_chain_id': json.loads(value.decode('utf-8'))['target_chain_id'],
+        #                              'weight': json.loads(value.decode('utf-8'))['weight']} for key, value in self.graph_state.iterator()]
+        #         }
+        #     }
+        #     for key, value in self.graph_state.iterator():
+        #         self.graph_state.delete(key)
+        #     params = (
+        #         ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        #     )
+        #     requests.get(f"http://localhost:{self.rpc_port}/broadcast_tx_async", params=params)
         return types_pb2.ResponseEndBlock(validator_updates=self.validator_updates)
 
 

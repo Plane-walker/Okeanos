@@ -139,3 +139,7 @@ models/
 .DS_Store
 
 /config
+
+*.pem
+
+*.csv

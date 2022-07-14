@@ -1,6 +1,7 @@
 import paramiko
 import pandas as pd
 import io
+import time
 from concurrent import futures
 
 
@@ -18,6 +19,7 @@ def bootstrap_nodes(node_ips, private_key, node_list):
                 stdin, stdout, stderr = ssh.exec_command(f'while [ ! -d /root/lane_2 ]; do continue; done')
                 stdout.channel.recv_exit_status()
                 ssh.close()
+                time.sleep(12)
             pool.submit(bootstrap)
     print(f'{node_list} started')
 

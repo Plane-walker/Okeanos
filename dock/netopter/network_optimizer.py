@@ -30,7 +30,7 @@ class NetworkOptimizer:
     def optimize_async(self, request):
         def optimize():
             try:
-                if request.chain_id is not None:
+                if hasattr(request, 'chain_id'):
                     new_chain_id = request.chain_id
                 else:
                     graph_data = GraphData(self.config_path)
