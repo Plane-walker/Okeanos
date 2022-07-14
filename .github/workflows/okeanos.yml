@@ -33,10 +33,10 @@ jobs:
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz
-        mkdir -p $(pwd)/tendermint_0.34.15_linux_amd64
-        tar -zvxf tendermint_0.34.15_linux_amd64.tar.gz -C $(pwd)/tendermint_0.34.15_linux_amd64
-        echo "export PATH=$PATH:$(pwd)/tendermint_0.34.15_linux_amd64" >> ~/.profile
+        wget https://github.com/tendermint/tendermint/releases/download/v0.35.1/tendermint_0.35.1_linux_amd64.tar.gz
+        mkdir -p $(pwd)/tendermint_0.35.1_linux_amd64
+        tar -zvxf tendermint_0.35.1_linux_amd64.tar.gz -C $(pwd)/tendermint_0.35.1_linux_amd64
+        echo "export PATH=$PATH:$(pwd)/tendermint_0.35.1_linux_amd64" >> ~/.profile
         source ~/.profile
         conda install pytest
         pytest

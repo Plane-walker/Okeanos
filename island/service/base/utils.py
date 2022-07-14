@@ -5,12 +5,11 @@ from io import BytesIO
 from google.protobuf.message import Message
 
 
-def encode_varint(number: int) -> bytes:
+def encode_uvarint(number: int) -> bytes:
     """
     Encode varint into bytes
     """
     # Shift to int64
-    number = number << 1
     buf = b""
     while True:
         towrite = number & 0x7F
@@ -23,7 +22,7 @@ def encode_varint(number: int) -> bytes:
     return buf
 
 
-def decode_varint(stream: BytesIO) -> int:
+def decode_uvarint(stream: BytesIO) -> int:
     """
     Decode bytes into int
     """
@@ -54,7 +53,7 @@ def write_message(message: Message) -> bytes:
     """
     buffer = BytesIO(b"")
     bz = message.SerializeToString()
-    buffer.write(encode_varint(len(bz)))
+    buffer.write(encode_uvarint(len(bz)))
     buffer.write(bz)
     return buffer.getvalue()
 
@@ -65,7 +64,7 @@ def read_messages(reader: BytesIO, message: Message) -> Message:
     """
     while True:
         try:
-            length = decode_varint(reader) >> 1
+            length = decode_uvarint(reader)
         except EOFError:
             return
         data = reader.read(length)

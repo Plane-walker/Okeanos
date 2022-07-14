@@ -53,6 +53,9 @@ class TestNodeClassification(unittest.TestCase):
         dock_island_genesis_path = os.path.join(dock_manager_path, 'island_0/config/genesis.json')
         with open(dock_island_genesis_path) as file:
             self.source = yaml.load(file, Loader=yaml.Loader)
+        with open(os.path.join(dock_manager_path, 'island_0/config/priv_validator_key.json')) as file:
+            priv_validator_key = yaml.load(file, Loader=yaml.Loader)
+        source_node_id = priv_validator_key['address']
         dock_1_manager_path = config_1['chain_manager']['base_path']
         dock_1_island_genesis_path = os.path.join(dock_1_manager_path, 'island_1/config/genesis.json')
         with open(dock_1_island_genesis_path) as file:
@@ -63,7 +66,8 @@ class TestNodeClassification(unittest.TestCase):
                 "timestamp": str(time.time())
             },
             "body": {
-                "chain_id": self.target['chain_id']
+                "chain_id": self.target['chain_id'],
+                "node_id": source_node_id
             }
         }
 

@@ -1,18 +1,17 @@
-from importlib.abc import Loader
 import pandas as pd
 import socket
 import sys
 import yaml
 import subprocess
 import os
-import csv
 import shutil
 
+
 def write_dock_yaml(islands0, lanes0, lanes1, lanes2, node_id):
-    dock_yaml_path = '/root/Okeanos/config/dock.yaml'
+    dock_yaml_path = '/root/config/dock.yaml'
     default_yaml_path = '/root/Okeanos/dock/config/default_config.yaml'
-    if not os.path.exists('/root/Okeanos/config'):
-        os.makedirs('/root/Okeanos/config')
+    if not os.path.exists('/root/config'):
+        os.makedirs('/root/config')
     if not os.path.exists(dock_yaml_path):
         shutil.copy(default_yaml_path, dock_yaml_path)
     with open(dock_yaml_path) as file:
@@ -106,6 +105,7 @@ def write_dock_yaml(islands0, lanes0, lanes1, lanes2, node_id):
     with open(dock_yaml_path, 'w') as file:
             yaml.dump(dock_yaml, file, default_flow_style=False, sort_keys=False)    
 
+
 def get_bootstrap_ip(node_id):
     node_data = pd.read_csv('/root/node_ips.csv', header=None).values
     node_ips = {node_data[index, 0]: node_data[index, 1] for index in range(node_data.shape[0])}
@@ -133,6 +133,7 @@ def get_bootstrap_ip(node_id):
         return [f"0.0.0.0:0"], [f"{node_ips['okeanos011']}:2672"], [f"{node_ips['okeanos011']}:2669"], [f"{node_ips['okeanos020']}:2666"]
     elif node_id in ['okeanos025']:
         return [f"0.0.0.0:0"], [f"{node_ips['okeanos020']}:2672"], [f"{node_ips['okeanos000']}:2669"], [f"{node_ips['okeanos000']}:2666"]
+
 
 if __name__ == '__main__':
     no_capture_output = '0'
