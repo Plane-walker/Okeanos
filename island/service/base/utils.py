@@ -27,16 +27,13 @@ def decode_uvarint(stream: BytesIO) -> int:
     Decode bytes into int
     """
     shift = 0
-    uresult = 0
+    result = 0
     while True:
         i = _read_one(stream)
-        uresult |= (i & 0x7F) << shift
+        result |= (i & 0x7F) << shift
         shift += 7
         if not (i & 0x80):
             break
-    result = uresult >> 1
-    if uresult & 1 != 0:
-        result = ~result
     return result
 
 

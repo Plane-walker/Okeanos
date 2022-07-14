@@ -78,6 +78,7 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         if not join:
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
+                          f"2 > {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
                           f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         else:
             genesis_address = f"http://{config['chain_manager']['chain'][chain_name]['persistent_peers'][0]['host']}:" \
@@ -92,8 +93,9 @@ class ChainManager:
                 persistent_peers_p2p_port = response['result']['node_info']['listen_addr'].split(':')[-1]
                 persistent_peers.append(f"{persistent_peers_id}@{persistent_peer['host']}:{persistent_peers_p2p_port}")
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                          f"--p2p.persistent_peers=\"{', '.join(persistent_peers)}\" " \
-                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
+                          f"--p2p.persistent-peers=\"{', '.join(persistent_peers)}\" " \
+                          f"2 > {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
+                          f"1 > {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
@@ -109,7 +111,8 @@ class ChainManager:
                         f"{config['dock']['address']['port']} " \
                         f"{config['chain_manager']['chain'][chain_name]['rpc_port']} " \
                         f"{self._config_path} " \
-                        f"> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
+                        f"2 > {config['chain_manager']['base_path']}/{chain_name}/service_err.log " \
+                        f"1 > {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -185,15 +188,7 @@ class ChainManager:
             message = {
                 "header": {
                     "type": "validate",
-                    "ttl": -1,
-                    "index": -1,
-                    "paths": [],
-                    "source_chain_id": '',
-                    "target_chain_id": '',
-                    "auth": {
-                        "app_id": config['app']['app_id'],
-                        "app_info": ""
-                    }
+                    "timestamp": str(time.time())
                 },
                 "body": {
                     "public_key": validator['pub_key']['value'],
@@ -213,10 +208,16 @@ class ChainManager:
         log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def stop_chain(self, chain_id):
-        chain_pid = self._chains[chain_id].chain_pid
-        os.killpg(os.getpgid(chain_pid), signal.SIGTERM)
-        service_pid = self._chains[chain_id].service_pid
-        os.killpg(os.getpgid(service_pid), signal.SIGTERM)
+        try:
+            chain_pid = self._chains[chain_id].chain_pid
+            os.killpg(os.getpgid(chain_pid), signal.SIGTERM)
+        except Exception as exception:
+            log.info(repr(exception))
+        try:
+            service_pid = self._chains[chain_id].service_pid
+            os.killpg(os.getpgid(service_pid), signal.SIGTERM)
+        except Exception as exception:
+            log.info(repr(exception))
         log.info(f'{self._chains[chain_id].chain_name.capitalize()} stopped')
 
     def delete_chain(self, chain_id):
@@ -228,14 +229,6 @@ class ChainManager:
             message = {
                 "header": {
                     "type": "validate",
-                    "ttl": -1,
-                    "paths": [],
-                    "source_chain_id": '',
-                    "target_chain_id": '',
-                    "auth": {
-                        "app_id": config['app']['app_id'],
-                        "app_info": ""
-                    },
                     "timestamp": str(time.time())
                 },
                 "body": {
@@ -246,19 +239,11 @@ class ChainManager:
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_async", params=params)
         try:
             message = {
                 "header": {
                     "type": "empty",
-                    "ttl": -1,
-                    "paths": [],
-                    "source_chain_id": '',
-                    "target_chain_id": '',
-                    "auth": {
-                        "app_id": config['app']['app_id'],
-                        "app_info": ""
-                    },
                     "timestamp": str(time.time())
                 },
                 "body": {}
@@ -266,7 +251,7 @@ class ChainManager:
             params = (
                 ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
             )
-            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
+            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_async", params=params)
         except Exception as exception:
             log.info(repr(exception))
         self.stop_chain(chain_id)
