@@ -93,7 +93,7 @@ class ChainManager:
                 persistent_peers_p2p_port = response['result']['node_info']['listen_addr'].split(':')[-1]
                 persistent_peers.append(f"{persistent_peers_id}@{persistent_peer['host']}:{persistent_peers_p2p_port}")
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                          f"--p2p.persistent-peers=\"{', '.join(persistent_peers)}\" " \
+                          f"--p2p.persistent_peers=\"{', '.join(persistent_peers)}\" " \
                           f"2> {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
                           f"1> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
@@ -220,34 +220,31 @@ class ChainManager:
         chain_name = self._chains[chain_id].chain_name
         with open(f"{config['chain_manager']['base_path']}/{chain_name}/config/priv_validator_key.json") as file:
             validator = yaml.load(file, Loader=yaml.Loader)
-            message = {
-                "header": {
-                    "type": "validate",
-                    "timestamp": str(time.time())
-                },
-                "body": {
-                    "public_key": validator['pub_key']['value'],
-                    "power": 0
-                }
+        message = {
+            "header": {
+                "type": "validate",
+                "timestamp": str(time.time())
+            },
+            "body": {
+                "public_key": validator['pub_key']['value'],
+                "power": 0
             }
+        }
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
         requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
-        try:
-            message = {
-                "header": {
-                    "type": "empty",
-                    "timestamp": str(time.time())
-                },
-                "body": {}
-            }
-            params = (
-                ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
-            )
-            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
-        except Exception as exception:
-            log.info(repr(exception))
+        message = {
+            "header": {
+                "type": "empty",
+                "timestamp": str(time.time())
+            },
+            "body": {}
+        }
+        params = (
+            ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
+        )
+        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
         self.stop_chain(chain_id)
         del self._chains[chain_id]
         remove_path = f"rm -rf {config['chain_manager']['base_path']}/{chain_name}"
