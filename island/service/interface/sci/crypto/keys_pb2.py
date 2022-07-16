@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z8github.com/tendermint/tendermint/proto/tendermint/crypto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1ctendermint/crypto/keys.proto\x12\x11tendermint.crypto\x1a\x14gogoproto/gogo.proto\"W\n\tPublicKey\x12\x11\n\x07\x65\x64\x32\x35\x35\x31\x39\x18\x01 \x01(\x0cH\x00\x12\x13\n\tsecp256k1\x18\x02 \x01(\x0cH\x00\x12\x11\n\x07sr25519\x18\x03 \x01(\x0cH\x00:\x08\xe8\xa1\x1f\x01\xe8\xa0\x1f\x01\x42\x05\n\x03sumB:Z8github.com/tendermint/tendermint/proto/tendermint/cryptob\x06proto3'
+  serialized_pb=b'\n\x1ctendermint/crypto/keys.proto\x12\x11tendermint.crypto\x1a\x14gogoproto/gogo.proto\"D\n\tPublicKey\x12\x11\n\x07\x65\x64\x32\x35\x35\x31\x39\x18\x01 \x01(\x0cH\x00\x12\x13\n\tsecp256k1\x18\x02 \x01(\x0cH\x00:\x08\xe8\xa1\x1f\x01\xe8\xa0\x1f\x01\x42\x05\n\x03sumB:Z8github.com/tendermint/tendermint/proto/tendermint/cryptob\x06proto3'
   ,
   dependencies=[gogoproto_dot_gogo__pb2.DESCRIPTOR,])
 
@@ -49,13 +49,6 @@ _PUBLICKEY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sr25519', full_name='tendermint.crypto.PublicKey.sr25519', index=2,
-      number=3, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -74,7 +67,7 @@ _PUBLICKEY = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=73,
-  serialized_end=160,
+  serialized_end=141,
 )
 
 _PUBLICKEY.oneofs_by_name['sum'].fields.append(
@@ -83,9 +76,6 @@ _PUBLICKEY.fields_by_name['ed25519'].containing_oneof = _PUBLICKEY.oneofs_by_nam
 _PUBLICKEY.oneofs_by_name['sum'].fields.append(
   _PUBLICKEY.fields_by_name['secp256k1'])
 _PUBLICKEY.fields_by_name['secp256k1'].containing_oneof = _PUBLICKEY.oneofs_by_name['sum']
-_PUBLICKEY.oneofs_by_name['sum'].fields.append(
-  _PUBLICKEY.fields_by_name['sr25519'])
-_PUBLICKEY.fields_by_name['sr25519'].containing_oneof = _PUBLICKEY.oneofs_by_name['sum']
 DESCRIPTOR.message_types_by_name['PublicKey'] = _PUBLICKEY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 

@@ -53,7 +53,7 @@ def write_message(message: Message) -> bytes:
     """
     buffer = BytesIO(b"")
     bz = message.SerializeToString()
-    buffer.write(encode_uvarint(len(bz)))
+    buffer.write(encode_uvarint(len(bz) << 1))
     buffer.write(bz)
     return buffer.getvalue()
 
@@ -64,7 +64,7 @@ def read_messages(reader: BytesIO, message: Message) -> Message:
     """
     while True:
         try:
-            length = decode_uvarint(reader)
+            length = decode_uvarint(reader) >> 1
         except EOFError:
             return
         data = reader.read(length)

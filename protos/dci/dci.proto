@@ -3,15 +3,17 @@ package dci;
 
 option go_package = "github.com/tendermint/tendermint/abci/types";
 
+import "gogoproto/gogo.proto";
 import "common/id.proto";
 
-message RequestDeliverTx {
+enum CheckTxType {
+    NEW = 0 [(gogoproto.enumvalue_customname) = "New"];
+    RECHECK = 1 [(gogoproto.enumvalue_customname) = "Recheck"];
+}
+message RequestTxPackage {
     bytes tx = 1;
-    common.Chain source = 2;
-    common.Chain target = 3;
-    string type = 4;
-    int32 ttl = 5;
-    repeated common.Chain paths = 6;
+    common.Chain target_id = 2;
+    common.Node node_id = 3;
 }
 
 message RequestRouterInfo {
@@ -26,58 +28,83 @@ message RequestRouterTransmit {
 }
 
 message RequestRouterPathCallback {
-    common.Chain source = 1;
-    common.Chain target = 2;
-    repeated common.Chain paths = 3;
+    common.Chain           source      = 1;
+    common.Chain           target      = 2;
+    repeated common.Chain  paths       = 3;
 }
 
-message RequestShard {
-    string graph_state = 1;
+message RequestSwitchCommunity {
+    string target_community = 1;
 }
 
-message RequestSwitch {
-    string chain_id = 1;
+message RequestCommunityInfo {
+    int32 info_level = 1;
 }
 
-message ResponseDeliverTx {
+message RequestCommunityConfig {
+    bool auto_switch = 1;
+    int32 max_peer_number = 2;
+    string algorithm = 3;
+}
+
+message Event {
+    string                  type       = 1;
+    repeated EventAttribute attributes = 2 [
+        (gogoproto.nullable) = false,
+        (gogoproto.jsontag)  = "attributes,omitempty"
+    ];
+}
+
+// EventAttribute is a single key-value pair, associated with an event.
+message EventAttribute {
+    bytes key   = 1;
+    bytes value = 2;
+    bool  index = 3;  // nondeterministic
+}
+
+message ResponseTxPackage {
     uint32 code = 1;
 }
 
 message ResponseRouterInfo {
-    uint32 code = 1;
-    bytes data = 2;
-    string info = 3;
+    uint32         code       = 1;
+    bytes          data       = 2;
+    string         info       = 3;  // nondeterministic
 }
 
 message ResponseRouterTransmit {
-	uint32 code = 1;
-	string info = 2;
+	uint32 			code 		= 1;
+	string 			info 		= 2;
 }
 
 message ResponseRouterPathCallback {
+    uint32          code        = 1;
+    string          info        = 2;
+}
+
+message ResponseSwitchCommunity {
+    uint32         code       = 1;
+    bytes          info       = 2;
+}
+
+message ResponseCommunityInfo {
+    string community_id = 1;
+    string node_id = 2;
+}
+
+message ResponseCommunityConfig {
     uint32 code = 1;
     string info = 2;
 }
-
-message ResponseShard{
-    uint32 code = 1;
-    string info = 2;
-}
-
-message ResponseSwitch{
-    uint32 code = 1;
-    string info = 2;
-}
-
-
 
 service Dock {
-    rpc DeliverTx(RequestDeliverTx) returns (ResponseDeliverTx);
+    rpc PackageTx(RequestTxPackage) returns (ResponseTxPackage);
 
     rpc RouterInfo(RequestRouterInfo) returns (ResponseRouterInfo);
     rpc RouterTransmit(RequestRouterTransmit) returns (ResponseRouterTransmit);
     rpc RouterPathCallback(RequestRouterPathCallback) returns (ResponseRouterPathCallback);
 
-    rpc Shard(RequestShard) returns (ResponseShard);
-    rpc Switch(RequestSwitch) returns (ResponseSwitch);
+    rpc SwitchCommunity(RequestSwitchCommunity) returns (ResponseSwitchCommunity);
+    rpc CommunityInfo(RequestCommunityInfo) returns (ResponseCommunityInfo);
+    rpc CommunityConfig(RequestCommunityConfig) returns (ResponseCommunityConfig);
 }

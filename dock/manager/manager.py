@@ -49,9 +49,9 @@ class ChainManager:
     def init_chain(self, chain_name):
         with open(self._config_path) as file:
             config = yaml.load(file, Loader=yaml.Loader)
-        init_chain = f"tendermint init validator --home {config['chain_manager']['base_path']}/{chain_name};" \
+        init_chain = f"tendermint init --home {config['chain_manager']['base_path']}/{chain_name};" \
                      f"sed -i " \
-                     f"'s#proxy-app = \"tcp://127.0.0.1:26658\"#proxy-app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
+                     f"'s#proxy_app = \"tcp://127.0.0.1:26658\"#proxy_app = \"tcp://127.0.0.1:{config['chain_manager']['chain'][chain_name]['abci_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
                      f"'s#laddr = \"tcp://127.0.0.1:26657\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['rpc_port']}\"#g' " \
@@ -60,16 +60,16 @@ class ChainManager:
                      f"'s#laddr = \"tcp://0.0.0.0:26656\"#laddr = \"tcp://0.0.0.0:{config['chain_manager']['chain'][chain_name]['p2p_port']}\"#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#create-empty-blocks = true#create-empty-blocks = false#g' " \
+                     f"'s#create_empty_blocks = true#create_empty_blocks = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#addr-book-strict = true#addr-book-strict = false#g' " \
+                     f"'s#addr-_book_strict = true#addr_book_strict = false#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#max-subscription-clients = 100#max-subscription-clients = 8000#g' " \
+                     f"'s#max_subscription_clients = 100#max_subscription_clients = 8000#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;" \
                      f"sed -i " \
-                     f"'s#max-subscriptions-per-client = 5#max-subscriptions-per-client = 400#g' " \
+                     f"'s#max_subscriptions_per_client = 5#max_subscriptions_per_client = 400#g' " \
                      f"{config['chain_manager']['base_path']}/{chain_name}/config/config.toml;"
         subprocess.run(init_chain, shell=True, stdout=subprocess.PIPE)
 
@@ -78,8 +78,8 @@ class ChainManager:
             config = yaml.load(file, Loader=yaml.Loader)
         if not join:
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
-                          f"2 > {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
-                          f"> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
+                          f"2> {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
+                          f"1> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         else:
             genesis_address = f"http://{config['chain_manager']['chain'][chain_name]['persistent_peers'][0]['host']}:" \
                                      f"{config['chain_manager']['chain'][chain_name]['persistent_peers'][0]['port']}"
@@ -94,8 +94,8 @@ class ChainManager:
                 persistent_peers.append(f"{persistent_peers_id}@{persistent_peer['host']}:{persistent_peers_p2p_port}")
             start_chain = f"tendermint start --home {config['chain_manager']['base_path']}/{chain_name} " \
                           f"--p2p.persistent-peers=\"{', '.join(persistent_peers)}\" " \
-                          f"2 > {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
-                          f"1 > {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
+                          f"2> {config['chain_manager']['base_path']}/{chain_name}/chain_err.log " \
+                          f"1> {config['chain_manager']['base_path']}/{chain_name}/chain.log;"
         chain_pid = subprocess.Popen(start_chain,
                                      shell=True,
                                      stdout=subprocess.PIPE,
@@ -111,8 +111,8 @@ class ChainManager:
                         f"{config['dock']['address']['port']} " \
                         f"{config['chain_manager']['chain'][chain_name]['rpc_port']} " \
                         f"{self._config_path} " \
-                        f"2 > {config['chain_manager']['base_path']}/{chain_name}/service_err.log " \
-                        f"1 > {config['chain_manager']['base_path']}/{chain_name}/service.log;"
+                        f"2> {config['chain_manager']['base_path']}/{chain_name}/service_err.log " \
+                        f"1> {config['chain_manager']['base_path']}/{chain_name}/service.log;"
         service_pid = subprocess.Popen(start_service,
                                        shell=True,
                                        stdout=subprocess.PIPE,
@@ -199,12 +199,6 @@ class ChainManager:
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
         requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
-        self._chains[chain_id] = BaseChain(config['chain_manager']['chain'][chain_name]['type'],
-                                           chain_id,
-                                           chain_pid,
-                                           service_pid,
-                                           chain_name,
-                                           config['chain_manager']['chain'][chain_name]['rpc_port'])
         log.info(f'{chain_name.capitalize()}({chain_id}) started')
 
     def stop_chain(self, chain_id):
@@ -239,7 +233,7 @@ class ChainManager:
         params = (
             ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
         )
-        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_async", params=params)
+        requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
         try:
             message = {
                 "header": {
@@ -251,7 +245,7 @@ class ChainManager:
             params = (
                 ('tx', '0x' + json.dumps(message).encode('utf-8').hex()),
             )
-            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_async", params=params)
+            requests.get(f"http://localhost:{self._chains[chain_id].rpc_port}/broadcast_tx_commit", params=params)
         except Exception as exception:
             log.info(repr(exception))
         self.stop_chain(chain_id)
