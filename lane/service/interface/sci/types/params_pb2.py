@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z7github.com/tendermint/tendermint/proto/tendermint/types\250\342\036\001',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1dtendermint/types/params.proto\x12\x10tendermint.types\x1a\x14gogoproto/gogo.proto\x1a\x1egoogle/protobuf/duration.proto\"\xdb\x01\n\x0f\x43onsensusParams\x12,\n\x05\x62lock\x18\x01 \x01(\x0b\x32\x1d.tendermint.types.BlockParams\x12\x32\n\x08\x65vidence\x18\x02 \x01(\x0b\x32 .tendermint.types.EvidenceParams\x12\x34\n\tvalidator\x18\x03 \x01(\x0b\x32!.tendermint.types.ValidatorParams\x12\x30\n\x07version\x18\x04 \x01(\x0b\x32\x1f.tendermint.types.VersionParams\"1\n\x0b\x42lockParams\x12\x11\n\tmax_bytes\x18\x01 \x01(\x03\x12\x0f\n\x07max_gas\x18\x02 \x01(\x03\"~\n\x0e\x45videnceParams\x12\x1a\n\x12max_age_num_blocks\x18\x01 \x01(\x03\x12=\n\x10max_age_duration\x18\x02 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xc8\xde\x1f\x00\x98\xdf\x1f\x01\x12\x11\n\tmax_bytes\x18\x03 \x01(\x03\"(\n\x0fValidatorParams\x12\x15\n\rpub_key_types\x18\x01 \x03(\t\"$\n\rVersionParams\x12\x13\n\x0b\x61pp_version\x18\x01 \x01(\x04\">\n\x0cHashedParams\x12\x17\n\x0f\x62lock_max_bytes\x18\x01 \x01(\x03\x12\x15\n\rblock_max_gas\x18\x02 \x01(\x03\x42=Z7github.com/tendermint/tendermint/proto/tendermint/types\xa8\xe2\x1e\x01\x62\x06proto3'
+  serialized_pb=b'\n\x1dtendermint/types/params.proto\x12\x10tendermint.types\x1a\x14gogoproto/gogo.proto\x1a\x1egoogle/protobuf/duration.proto\"\xf3\x01\n\x0f\x43onsensusParams\x12\x32\n\x05\x62lock\x18\x01 \x01(\x0b\x32\x1d.tendermint.types.BlockParamsB\x04\xc8\xde\x1f\x00\x12\x38\n\x08\x65vidence\x18\x02 \x01(\x0b\x32 .tendermint.types.EvidenceParamsB\x04\xc8\xde\x1f\x00\x12:\n\tvalidator\x18\x03 \x01(\x0b\x32!.tendermint.types.ValidatorParamsB\x04\xc8\xde\x1f\x00\x12\x36\n\x07version\x18\x04 \x01(\x0b\x32\x1f.tendermint.types.VersionParamsB\x04\xc8\xde\x1f\x00\"G\n\x0b\x42lockParams\x12\x11\n\tmax_bytes\x18\x01 \x01(\x03\x12\x0f\n\x07max_gas\x18\x02 \x01(\x03\x12\x14\n\x0ctime_iota_ms\x18\x03 \x01(\x03\"~\n\x0e\x45videnceParams\x12\x1a\n\x12max_age_num_blocks\x18\x01 \x01(\x03\x12=\n\x10max_age_duration\x18\x02 \x01(\x0b\x32\x19.google.protobuf.DurationB\x08\xc8\xde\x1f\x00\x98\xdf\x1f\x01\x12\x11\n\tmax_bytes\x18\x03 \x01(\x03\"2\n\x0fValidatorParams\x12\x15\n\rpub_key_types\x18\x01 \x03(\t:\x08\xb8\xa0\x1f\x01\xe8\xa0\x1f\x01\".\n\rVersionParams\x12\x13\n\x0b\x61pp_version\x18\x01 \x01(\x04:\x08\xb8\xa0\x1f\x01\xe8\xa0\x1f\x01\">\n\x0cHashedParams\x12\x17\n\x0f\x62lock_max_bytes\x18\x01 \x01(\x03\x12\x15\n\rblock_max_gas\x18\x02 \x01(\x03\x42=Z7github.com/tendermint/tendermint/proto/tendermint/types\xa8\xe2\x1e\x01\x62\x06proto3'
   ,
   dependencies=[gogoproto_dot_gogo__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,])
 
@@ -42,28 +42,28 @@ _CONSENSUSPARAMS = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\310\336\037\000', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='evidence', full_name='tendermint.types.ConsensusParams.evidence', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\310\336\037\000', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='validator', full_name='tendermint.types.ConsensusParams.validator', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\310\336\037\000', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='version', full_name='tendermint.types.ConsensusParams.version', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\310\336\037\000', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -77,7 +77,7 @@ _CONSENSUSPARAMS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=106,
-  serialized_end=325,
+  serialized_end=349,
 )
 
 
@@ -103,6 +103,13 @@ _BLOCKPARAMS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='time_iota_ms', full_name='tendermint.types.BlockParams.time_iota_ms', index=2,
+      number=3, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -115,8 +122,8 @@ _BLOCKPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=327,
-  serialized_end=376,
+  serialized_start=351,
+  serialized_end=422,
 )
 
 
@@ -161,8 +168,8 @@ _EVIDENCEPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=378,
-  serialized_end=504,
+  serialized_start=424,
+  serialized_end=550,
 )
 
 
@@ -187,14 +194,14 @@ _VALIDATORPARAMS = _descriptor.Descriptor(
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  serialized_options=b'\270\240\037\001\350\240\037\001',
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=506,
-  serialized_end=546,
+  serialized_start=552,
+  serialized_end=602,
 )
 
 
@@ -219,14 +226,14 @@ _VERSIONPARAMS = _descriptor.Descriptor(
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=None,
+  serialized_options=b'\270\240\037\001\350\240\037\001',
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=548,
-  serialized_end=584,
+  serialized_start=604,
+  serialized_end=650,
 )
 
 
@@ -264,8 +271,8 @@ _HASHEDPARAMS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=586,
-  serialized_end=648,
+  serialized_start=652,
+  serialized_end=714,
 )
 
 _CONSENSUSPARAMS.fields_by_name['block'].message_type = _BLOCKPARAMS
@@ -325,5 +332,11 @@ _sym_db.RegisterMessage(HashedParams)
 
 
 DESCRIPTOR._options = None
+_CONSENSUSPARAMS.fields_by_name['block']._options = None
+_CONSENSUSPARAMS.fields_by_name['evidence']._options = None
+_CONSENSUSPARAMS.fields_by_name['validator']._options = None
+_CONSENSUSPARAMS.fields_by_name['version']._options = None
 _EVIDENCEPARAMS.fields_by_name['max_age_duration']._options = None
+_VALIDATORPARAMS._options = None
+_VERSIONPARAMS._options = None
 # @@protoc_insertion_point(module_scope)
